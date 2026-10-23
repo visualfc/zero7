@@ -538,7 +538,7 @@ function BattlePage({ onBack }: { onBack: () => void }) {
   const selectedPiece = selected ? pieces.find((item) => sameSquare(item, selected)) : undefined
   return (
     <div className="battle-page page-wrap">
-      <div className="lesson-topline"><button className="back-button" onClick={onBack}><ArrowLeft /> 返回首页</button><div className="battle-heading"><Swords /> 人机对战</div><button className="icon-button" onClick={restart} aria-label="重新开局"><RotateCcw /></button></div>
+      <div className="lesson-topline"><button className="back-button" onClick={onBack}><ArrowLeft /> 返回首页</button><div className="battle-heading"><Swords /> 人机对战</div><button className="secondary-button battle-restart-button" onClick={restart}><RotateCcw /> 重开一局</button></div>
       <section className="battle-layout">
         <div className="board-panel battle-board-panel">
           <div className="battle-status"><span className={thinking ? 'thinking-dot active' : 'thinking-dot'} />{status}</div>
@@ -552,7 +552,7 @@ function BattlePage({ onBack }: { onBack: () => void }) {
             <button className={voiceState === 'listening' ? 'voice-button listening' : 'voice-button'} onClick={() => void startBattleVoice()} disabled={thinking || voiceState === 'connecting' || voiceState === 'thinking' || game.current.turn() !== 'w'}><span><Mic /></span><strong>{voiceButtonLabel(voiceState)}</strong><small>{voiceState === 'listening' ? '说完后再按一次' : '例如：“炮二平五”'}</small></button>
           </div>
           <div className="battle-card move-list"><span className="section-kicker">MOVES</span><h2>对局棋谱</h2>{history.length === 0 ? <p>走出第一步后，棋谱会显示在这里。</p> : <ol>{Array.from({ length: Math.ceil(history.length / 2) }, (_, index) => <li key={index}><span>{history[index * 2]}</span><span>{history[index * 2 + 1] ?? '…'}</span></li>)}</ol>}</div>
-          <div className="battle-actions"><button className="secondary-button" onClick={undo} disabled={thinking || history.length === 0}><RotateCcw /> 悔棋</button><button className="danger-button" onClick={() => setStatus('你已认输，本局由 ZERO7 获胜。')}>认输</button></div>
+          <div className="battle-actions"><button className="secondary-button" onClick={undo} disabled={thinking || history.length === 0}><RotateCcw /> 悔棋</button><button className="secondary-button" onClick={() => setStatus('你已认输，本局由 ZERO7 获胜。')}>认输</button></div>
         </aside>
       </section>
     </div>

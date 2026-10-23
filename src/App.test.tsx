@@ -64,6 +64,19 @@ describe('ZERO7', () => {
     expect(screen.getByText(/车一平五/)).toBeInTheDocument()
   })
 
+  it('进入人机对战后直接开局并提供重开一局按钮', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ available: false }), { status: 200 })))
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: /开始人机对战/ }))
+    expect(await screen.findByText('基础 AI（Pikafish 未安装）')).toBeInTheDocument()
+    expect(screen.getByText('轮到红方走棋')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /按下说走法/ })).toBeEnabled()
+    expect(screen.getByRole('button', { name: '重开一局' })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '中级' }))
+    fireEvent.click(screen.getByRole('button', { name: '重开一局' }))
+    expect(screen.getByText('走出第一步后，棋谱会显示在这里。')).toBeInTheDocument()
+  })
+
   it('进入人机对战并完成红方走棋和 Pikafish 应手', async () => {
     vi.stubGlobal('fetch', vi.fn(async (input: string | URL | Request) => {
       const url = String(input)
@@ -91,7 +104,7 @@ describe('ZERO7', () => {
     expect(await screen.findByText('Pikafish Test')).toBeInTheDocument()
     fireEvent.click(screen.getAllByRole('button', { name: '红马' }).at(-1)!)
     fireEvent.click(screen.getByRole('button', { name: '7-6' }))
-    fireEvent.click(screen.getByRole('button', { name: '重新开局' }))
+    fireEvent.click(screen.getByRole('button', { name: '重开一局' }))
     await act(async () => resolveMove(new Response(JSON.stringify({ move: 'h9g7', engine: 'Pikafish Test', level: '初级' }), { status: 200 })))
     expect(screen.getByText('走出第一步后，棋谱会显示在这里。')).toBeInTheDocument()
     expect(screen.getByText('轮到红方走棋')).toBeInTheDocument()
@@ -186,7 +199,7 @@ describe('ZERO7', () => {
     await act(async () => { await new Promise((resolve) => setTimeout(resolve, 560)) })
     fireEvent.click(screen.getByRole('button', { name: '悔棋' }))
     expect(screen.getByText('走出第一步后，棋谱会显示在这里。')).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: '重新开局' }))
+    fireEvent.click(screen.getByRole('button', { name: '重开一局' }))
     expect(screen.getByText('轮到红方走棋')).toBeInTheDocument()
   })
 })
