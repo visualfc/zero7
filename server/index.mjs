@@ -10,6 +10,14 @@ const server = app.listen(port, '127.0.0.1', () => {
 })
 const browserServer = new WebSocketServer({ server, path: '/linxi' })
 
+app.get('/', (_request, response) => {
+  response.type('html').send(`<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<title>小象棋伴｜灵矽桥接服务</title>
+<style>body{font:16px system-ui;color:#26324a;background:#f7f3ea;display:grid;place-items:center;min-height:100vh;margin:0}.card{background:#fffdf8;border:1px solid #e6dfd2;border-radius:20px;padding:32px;max-width:560px;box-shadow:0 12px 30px #0000000d}h1{margin-top:0;color:#d95642}code{background:#f0ebe2;padding:3px 7px;border-radius:6px}a{color:#548aa8}</style>
+<div class="card"><h1>灵矽桥接服务运行正常</h1><p>这里是语音桥接端口，不是小象棋伴网页。</p><p>请启动完整开发服务后，打开终端中标记为“网页”的地址，通常是：</p><p><a href="http://localhost:5173/"><code>http://localhost:5173/</code></a></p><p>如果 5173 被占用，请以终端实际显示的地址为准。</p></div></html>`)
+})
+
 app.get('/api/linxi/status', (_request, response) => {
   response.json({
     configured: Boolean(process.env.LINXI_DEVICE_ID && (process.env.LINXI_TOKEN || process.env.LINXI_USE_OTA === 'true')),
