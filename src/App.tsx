@@ -558,6 +558,7 @@ function ChessBoard({ pieces, selectedId, legalTargets, instruction, onSquare }:
   return (
     <div className="board-wrap">
       <div className="chess-board" aria-label="中国象棋棋盘">
+        <div className="board-coordinates black-files" aria-label="黑方纵线编号">{['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((file) => <span key={file}>{file}</span>)}</div>
         <svg className="board-grid" viewBox="0 0 8 9" preserveAspectRatio="none" aria-hidden="true">
           {Array.from({ length: 10 }, (_, row) => <line key={`row-${row}`} x1="0" y1={row} x2="8" y2={row} />)}
           <line x1="0" y1="0" x2="0" y2="9" /><line x1="8" y1="0" x2="8" y2="9" />
@@ -584,6 +585,7 @@ function ChessBoard({ pieces, selectedId, legalTargets, instruction, onSquare }:
             </button>
           )
         })}
+        <div className="board-coordinates red-files" aria-label="红方纵线编号">{['九', '八', '七', '六', '五', '四', '三', '二', '一'].map((file) => <span key={file}>{file}</span>)}</div>
       </div>
       <div className="board-tip"><span className="red-dot" /> {instruction}</div>
     </div>

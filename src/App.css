@@ -91,16 +91,21 @@
 .challenge-title h1 { font: 31px/1.35 'Ma Shan Zheng'; color: var(--ink); margin: 12px 0 8px; }
 .challenge-title p { color: var(--muted); font-size: 13px; margin: 0 0 24px; }
 .board-wrap { width: min(520px,100%); margin: 0 auto; }
-.chess-board { --board-pad: 5.5%; position: relative; aspect-ratio: 9/10; display: block; background: #e7b96c radial-gradient(circle at 30% 15%, rgba(255,235,174,.34), transparent 35%); border: 9px solid #89502c; box-shadow: inset 0 0 0 3px #d28d45, inset 0 0 24px rgba(113,65,28,.18), 0 8px 16px rgba(95,55,26,.15); }
+.chess-board { --board-pad: 5.5%; position: relative; aspect-ratio: 9/10; display: block; background-color: #eed4ad; background-image: linear-gradient(105deg, rgba(255,255,255,.16), transparent 38%, rgba(141,105,69,.04) 70%, transparent), repeating-linear-gradient(2deg, rgba(141,105,69,.025) 0, rgba(141,105,69,.025) 1px, transparent 1px, transparent 8px); border: 9px solid #d09866; box-shadow: inset 0 0 0 3px #e6be8e, 0 8px 16px rgba(95,55,26,.11); }
 .board-grid { position: absolute; z-index: 1; inset: var(--board-pad); width: calc(100% - 2 * var(--board-pad)); height: calc(100% - 2 * var(--board-pad)); overflow: visible; }
-.board-grid line { stroke: #70401f; stroke-width: .035; vector-effect: non-scaling-stroke; }
-.river { position: absolute; top: calc(var(--board-pad) + 4 * ((100% - 2 * var(--board-pad))/9)); left: var(--board-pad); right: var(--board-pad); height: calc((100% - 2 * var(--board-pad))/9); z-index: 2; display: flex; align-items: center; justify-content: space-around; color: #75401f; font: 23px 'Ma Shan Zheng'; pointer-events: none; }
+.board-grid line { stroke: #6f472b; stroke-width: 1.2px; vector-effect: non-scaling-stroke; shape-rendering: crispEdges; }
+.river { position: absolute; top: calc(var(--board-pad) + 4 * ((100% - 2 * var(--board-pad))/9)); left: var(--board-pad); right: var(--board-pad); height: calc((100% - 2 * var(--board-pad))/9); z-index: 2; display: flex; align-items: center; justify-content: space-around; color: #8d6945; font: 23px 'Ma Shan Zheng'; text-shadow: 0 1px rgba(255,255,255,.45); pointer-events: none; }
 .board-square { --board-col: 0; --board-row: 0; position: absolute; z-index: 3; left: calc(var(--board-pad) + var(--board-col) * ((100% - 2 * var(--board-pad))/8)); top: calc(var(--board-pad) + var(--board-row) * ((100% - 2 * var(--board-pad))/9)); width: 10.5%; aspect-ratio: 1; transform: translate(-50%,-50%); border: 0; background: none; padding: 0; display: grid; place-items: center; cursor: pointer; }
 .board-square.target::after { content: ''; width: 17px; height: 17px; background: rgba(238,116,92,.7); border-radius: 50%; box-shadow: 0 0 0 5px rgba(255,255,255,.38); }
-.chess-piece { width: 75%; aspect-ratio: 1; max-width: 48px; border-radius: 50%; display: grid; place-items: center; background: #f6dfaa; font: clamp(18px,3.2vw,29px) 'Ma Shan Zheng'; border: 3px double currentColor; box-shadow: 0 3px 4px rgba(75,40,16,.28); transition: transform .2s, box-shadow .2s; }
-.chess-piece.red { color: #bd3f32; } .chess-piece.black { color: #283640; }
+.chess-piece { width: 86%; aspect-ratio: 1; max-width: 54px; border-radius: 50%; display: grid; place-items: center; position: relative; color: #fffaf0; font: clamp(18px,3.2vw,29px) 'Ma Shan Zheng'; border: 1px solid rgba(78,30,23,.45); box-shadow: 0 4px 3px rgba(73,38,21,.38), 0 7px 10px rgba(73,38,21,.2); text-shadow: 0 1px 1px rgba(55,20,14,.5); transition: transform .2s, box-shadow .2s; }
+.chess-piece::after { content: ''; position: absolute; inset: 3px; border-radius: 50%; box-shadow: inset 0 0 0 .1px rgba(255,239,198,.55); pointer-events: none; }
+.chess-piece.red { background: radial-gradient(circle at 38% 30%, #dc6653 0, #b63d31 58%, #8d2722 100%); } .chess-piece.black { background: radial-gradient(circle at 38% 30%, #59636a 0, #303a40 58%, #1c252a 100%); }
 .chess-piece.selected { transform: translateY(-4px) scale(1.08); box-shadow: 0 8px 12px rgba(75,40,16,.32), 0 0 0 4px rgba(255,255,255,.65); }
-.board-tip { text-align: center; color: var(--muted); font-size: 12px; margin-top: 15px; display: flex; justify-content: center; gap: 8px; align-items: center; }
+.board-coordinates { position: absolute; z-index: 4; left: var(--board-pad); right: var(--board-pad); display: flex; justify-content: space-between; align-items: center; color: #70472b; font-size: 13px; line-height: 1; user-select: none; pointer-events: none; }
+.board-coordinates span { width: 1px; margin-inline: -.5px; display: flex; justify-content: center; }
+.black-files { top: -25px; font-family: 'Ma Shan Zheng'; font-size: 15px; font-weight: 600; }
+.red-files { bottom: -27px; font-family: 'Ma Shan Zheng'; font-size: 15px; font-weight: 600; }
+.board-tip { text-align: center; color: var(--muted); font-size: 12px; margin-top: 32px; display: flex; justify-content: center; gap: 8px; align-items: center; }
 .red-dot { width: 7px; height: 7px; background: var(--coral); border-radius: 50%; }
 .coach-panel { padding: 24px; position: sticky; top: 100px; }
 .coach-head { display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--line); padding-bottom: 18px; }
@@ -171,7 +176,7 @@
   .lesson-page { padding-top: 18px; } .lesson-topline { grid-template-columns: 80px 1fr 46px; } .back-button { font-size: 12px; } .step-progress small { display: none; }
   .board-panel { padding: 22px 12px 18px; } .challenge-title h1 { font-size: 26px; } .challenge-title p { padding: 0 10px; }
   .chess-board { border-width: 6px; }
-  .chess-piece { width: 83%; border-width: 2px; }
+  .chess-piece { width: 83%; }
   .coach-panel { padding: 20px; }
   .simple-page { padding-top: 45px; } .simple-page > h1 { font-size: 43px; } .stats-grid { grid-template-columns: 1fr; gap: 12px; } .stat-card { padding: 20px; display: flex; justify-content: space-between; align-items: center; } .stat-card strong { font-size: 38px; }
   .journey-card { padding: 24px; } .badge-art { display: none; }
