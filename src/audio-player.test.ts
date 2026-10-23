@@ -68,6 +68,33 @@ describe('灵矽 TTS 播放器', () => {
     expect(ended).toHaveBeenCalledOnce()
   })
 
+  it('恢复挂起上下文、忽略空包并释放播放器', async () => {
+    context.state = 'suspended'
+    const player = new LingxiAudioPlayer()
+    await player.prepare()
+    expect(context.resume).toHaveBeenCalled()
+    await player.enqueue(new ArrayBuffer(0))
+    expect(context.sources).toHaveLength(0)
+    await player.dispose()
+    expect(context.close).toHaveBeenCalled()
+  })
+
+  it('没有音频上下文时立即通知播放结束', () => {
+    const player = new LingxiAudioPlayer()
+    const ended = vi.fn()
+    player.setPlaybackEndHandler(ended)
+    player.finishStream()
+    expect(ended).toHaveBeenCalledOnce()
+  })
+
+  it('已结束的音源从队列移除，重复停止保持安全', async () => {
+    const player = new LingxiAudioPlayer()
+    await player.enqueue(pcmPacket(320))
+    context.sources[0].onended?.()
+    await player.stop()
+    expect(context.sources[0].stop).not.toHaveBeenCalled()
+  })
+
   it('将小端 PCM16 转换为浮点音频', () => {
     const result = pcm16LittleEndianToFloat(new Int16Array([-32768, 0, 32767]).buffer)
     expect(Array.from(result)).toEqual([-1, 0, 1])
