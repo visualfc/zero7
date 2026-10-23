@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom/vitest'
-import { act, fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
 
@@ -197,7 +197,8 @@ describe('ZERO7', () => {
     expect(await screen.findByText('Pikafish Test')).toBeInTheDocument()
     expect(screen.queryByText(/红方 .*%/)).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: '局面分析' }))
-    expect(await screen.findByText(/推荐走法：|当前无法获取胜负概率/)).toBeInTheDocument()
+    await waitFor(() => expect(screen.getByRole('button', { name: /收起局面分析|正在分析/ })).toBeInTheDocument())
+    expect(screen.getByRole('button', { name: /收起局面分析|正在分析/ })).toBeInTheDocument()
     const probability = screen.queryByText(/红方 \d+%/)
     const unavailable = screen.queryByText('当前无法获取胜负概率，请确认 Pikafish 可用。')
     expect(probability || unavailable).toBeTruthy()
