@@ -12,13 +12,13 @@ export async function getPikafishStatus(): Promise<PikafishStatus> {
   return response.json()
 }
 
-export async function getPikafishMove(fen: string, level: EngineLevel) {
+export async function getPikafishMove(fen: string, level: EngineLevel, analysis = false) {
   const response = await fetch('/api/pikafish/bestmove', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ fen, level }),
+    body: JSON.stringify(analysis ? { fen, level, analysis: true } : { fen, level }),
   })
   const result = await response.json()
   if (!response.ok) throw new Error(result.error || `Pikafish 请求失败（${response.status}）`)
-  return result as { move: string; engine: string; level: EngineLevel }
+  return result as { move: string; score: { type: 'cp' | 'mate'; value: number } | null; engine: string; level: EngineLevel }
 }

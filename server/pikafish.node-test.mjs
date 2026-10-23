@@ -34,5 +34,21 @@ test('Pikafish UCI 输出解析 bestmove', async () => {
   engine.name = 'Pikafish Test'
   const result = await engine.bestMove({ fen: 'test-fen', level: '初级' })
   assert.equal(result.move, 'h9g7')
+  const analysisEngine = new PikafishEngine({ binary: process.execPath, model: process.execPath })
+  analysisEngine.process = new FakeProcess({
+    'setoption name Skill Level value 5': [],
+    'setoption name UCI_LimitStrength value true': [],
+    'setoption name UCI_Elo value 1500': [],
+    isready: ['readyok'],
+    'position fen test-fen': [],
+    'go movetime 450': ['info depth 10 score cp 180', 'bestmove h9g7'],
+  })
+  analysisEngine.process.stdout.setEncoding('utf8')
+  analysisEngine.process.stdout.on('data', (chunk) => analysisEngine.consume(chunk))
+  analysisEngine.ready = true
+  analysisEngine.name = 'Pikafish Test'
+  const analysis = await analysisEngine.bestMove({ fen: 'test-fen', level: '初级', analysis: true })
+  assert.deepEqual(analysis.score, { type: 'cp', value: 180 })
+  analysisEngine.close()
   engine.close()
 })

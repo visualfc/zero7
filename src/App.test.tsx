@@ -186,6 +186,23 @@ describe('ZERO7', () => {
     expect(screen.getByText('走出第一步后，棋谱会显示在这里。')).toBeInTheDocument()
   })
 
+  it('默认隐藏局面分析，点击后显示概率和推荐语音', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (input: string | URL | Request, options?: RequestInit) => {
+      if (String(input).includes('/status')) return new Response(JSON.stringify({ available: true, name: 'Pikafish Test' }), { status: 200 })
+      expect(options?.body).toContain('"analysis":true')
+      return new Response(JSON.stringify({ move: 'h9g7', score: { type: 'cp', value: 180 }, engine: 'Pikafish Test', level: '初级' }), { status: 200 })
+    }))
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: /开始人机对战/ }))
+    expect(await screen.findByText('Pikafish Test')).toBeInTheDocument()
+    expect(screen.queryByText(/红方 .*%/)).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '局面分析' }))
+    expect(await screen.findByText('推荐走法：h9g7')).toBeInTheDocument()
+    expect(screen.getByText('红方 73%')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /语音讲解推荐/ }))
+    expect(voiceMock.instances.at(-1)!.speakText).toHaveBeenCalled()
+  })
+
   it('点击棋谱可以跳转并返回当前局面', async () => {
     vi.stubGlobal('fetch', vi.fn(async (input: string | URL | Request) => {
       if (String(input).includes('/status')) return new Response(JSON.stringify({ available: false }), { status: 200 })
