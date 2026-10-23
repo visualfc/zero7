@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { battlePieces, chooseAiMove, createBattle, legalTargets, makeBattleMove, pointToSquare, squareToPoint } from './battle'
+import { battlePieces, chooseAiMove, createBattle, describeBattleTurn, findVoiceMove, legalTargets, makeBattleMove, pointToSquare, squareToPoint } from './battle'
 
 describe('完整人机对战规则', () => {
   it('正确转换棋盘坐标', () => {
@@ -22,6 +22,19 @@ describe('完整人机对战规则', () => {
     const game = createBattle()
     expect(makeBattleMove(game, { row: 9, col: 7 }, { row: 7, col: 6 })?.zh).toBe('马二进三')
     expect(makeBattleMove(game, { row: 0, col: 1 }, { row: 1, col: 1 })).toBeNull()
+  })
+
+  it('从语音识别结果匹配当前合法中文棋谱', () => {
+    const game = createBattle()
+    expect(findVoiceMove(game, '我走马二进三。')?.lan).toBe('h0g2')
+    expect(findVoiceMove(game, '马二进五')).toBeNull()
+  })
+
+  it('生成一回合主动语音讲解', () => {
+    const game = createBattle()
+    const playerMove = game.move('h0g2')
+    const aiMove = game.move('h9g7')
+    expect(describeBattleTurn(playerMove, aiMove)).toBe('你走马二进三，零七应对马８进７。轮到你继续走棋。')
   })
 
   it('AI 能从当前局面的合法着中选择一步', () => {
