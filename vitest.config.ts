@@ -6,5 +6,18 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json-summary', 'html', 'lcov'],
+      reportsDirectory: './coverage',
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: ['src/main.tsx', 'src/**/*.test.{ts,tsx}'],
+      thresholds: {
+        statements: 65,
+        branches: 58,
+        functions: 68,
+        lines: 68,
+      },
+    },
   },
 })

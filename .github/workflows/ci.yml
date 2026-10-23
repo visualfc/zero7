@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: 测试与覆盖率
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 配置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 静态检查
+        run: npm run lint
+
+      - name: 测试与覆盖率
+        run: npm run test:coverage
+
+      - name: 生成覆盖率摘要
+        if: always()
+        run: |
+          node <<'NODE' >> "$GITHUB_STEP_SUMMARY"
+          const fs = require('node:fs')
+          const path = 'coverage/coverage-summary.json'
+          console.log('## 测试覆盖率')
+          if (!fs.existsSync(path)) {
+            console.log('\n覆盖率报告未生成。')
+            process.exit(0)
+          }
+          const total = JSON.parse(fs.readFileSync(path, 'utf8')).total
+          console.log('\n| 指标 | 覆盖率 | 已覆盖 / 总数 |')
+          console.log('| --- | ---: | ---: |')
+          for (const [name, value] of Object.entries(total)) {
+            console.log(`| ${name} | ${value.pct}% | ${value.covered} / ${value.total} |`)
+          }
+          NODE
+
+      - name: 上传覆盖率 HTML 报告
+        if: always() && hashFiles('coverage/**') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 14
+
+      - name: 生产构建
+        run: npm run build

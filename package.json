@@ -11,7 +11,8 @@
     "test": "vitest run && node --test server/pikafish.node-test.mjs",
     "dev:web": "vite",
     "dev:bridge": "node server/index.mjs",
-    "start": "node server/index.mjs"
+    "start": "node server/index.mjs",
+    "test:coverage": "vitest run --coverage && node --test server/pikafish.node-test.mjs"
   },
   "dependencies": {
     "@weshell/xiangqi.js": "^1.0.3",
@@ -31,6 +32,7 @@
     "@types/react-dom": "^19.3.0",
     "@types/ws": "^8.18.2",
     "@vitejs/plugin-react": "^6.1.2",
+    "@vitest/coverage-v8": "^5.0.5",
     "concurrently": "^10.0.6",
     "jsdom": "^29.1.1",
     "oxlint": "^1.88.0",

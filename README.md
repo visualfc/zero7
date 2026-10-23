@@ -1,5 +1,8 @@
 # ZERO7
 
+[![CI](https://github.com/visualfc/zero7/actions/workflows/ci.yml/badge.svg)](https://github.com/visualfc/zero7/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)
+
 ZERO7 是面向象棋初学者与普通爱好者的开源 AI 语音象棋伙伴。它将自然语音、确定性的象棋规则和 AI 棋力结合在一起，让用户可以直接说出走法、获得分级提示、完成专项训练，并与 AI 进行完整对局。
 
 > 当前版本已支持语音训练和基础人机对战；语音对战控制与更高棋力正在开发。
@@ -172,6 +175,7 @@ npm run dev:bridge   # 只启动灵矽桥接服务
 npm run build        # 类型检查并构建生产版本
 npm run lint         # 运行静态检查
 npm test             # 运行自动化测试
+npm run test:coverage # 运行测试并生成覆盖率报告
 npm run preview      # 预览生产构建
 ```
 
@@ -191,6 +195,35 @@ npm run preview      # 预览生产构建
 ```
 
 系统能够纠正常见同音识别结果，例如“跑五进五”“车衣平五”和“马山进四”。
+
+## 测试与覆盖率
+
+每次推送到 `main` 或创建 Pull Request 时，GitHub Actions 会自动执行：
+
+- 依赖安装；
+- 静态检查；
+- 前端测试；
+- Pikafish UCI 协议测试；
+- V8 代码覆盖率；
+- 生产构建。
+
+当前最低覆盖率门槛：
+
+| 指标 | 最低要求 |
+| --- | ---: |
+| Statements | 65% |
+| Branches | 58% |
+| Functions | 68% |
+| Lines | 68% |
+
+本地生成报告：
+
+```bash
+npm run test:coverage
+open coverage/index.html
+```
+
+GitHub Actions 的任务摘要会显示覆盖率表格，并保留 14 天的 `coverage-report` HTML 报告 Artifact。
 
 ## 路线图
 
