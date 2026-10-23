@@ -339,14 +339,13 @@ function BattlePage({ onBack }: { onBack: () => void }) {
   const [selected, setSelected] = useState<Square | null>(null)
   const [targets, setTargets] = useState<Square[]>([])
   const [history, setHistory] = useState<string[]>([])
-  const [status, setStatus] = useState('选择棋力后，点击“开始对局”')
+  const [status, setStatus] = useState('轮到红方走棋')
   const [difficulty, setDifficulty] = useState<EngineLevel>('初级')
   const [thinking, setThinking] = useState(false)
-  const [started, setStarted] = useState(false)
   const [engineStatus, setEngineStatus] = useState<'checking' | 'pikafish' | 'fallback'>('checking')
   const [engineName, setEngineName] = useState('正在检查 Pikafish…')
   const [voiceState, setVoiceState] = useState<LinxiState>('idle')
-  const [voiceText, setVoiceText] = useState('开始对局后，可以使用语音走棋。')
+  const [voiceText, setVoiceText] = useState('按下麦克风，说出“炮二平五”这样的中文棋谱。')
   const battleVoiceClient = useRef<LinxiVoiceClient | null>(null)
   const battleVoiceState = useRef<LinxiState>('idle')
   const voiceMoveAuthorization = useRef(new VoiceMoveAuthorization())
@@ -438,7 +437,7 @@ function BattlePage({ onBack }: { onBack: () => void }) {
   }
 
   const handleBattleTranscript = (text: string) => {
-    if (!started || !voiceMoveAuthorization.current.consume()) return
+    if (!voiceMoveAuthorization.current.consume()) return
     if (thinking || game.current.isGameOver() || game.current.turn() !== 'w') return
     const move = findVoiceMove(game.current, text)
     if (!move) {
@@ -464,7 +463,7 @@ function BattlePage({ onBack }: { onBack: () => void }) {
   }
 
   const startBattleVoice = async () => {
-    if (!started || thinking || game.current.isGameOver() || game.current.turn() !== 'w') return
+    if (thinking || game.current.isGameOver() || game.current.turn() !== 'w') return
     if (battleVoiceState.current === 'listening') {
       await battleVoiceClient.current?.stop()
       return
@@ -486,7 +485,7 @@ function BattlePage({ onBack }: { onBack: () => void }) {
   }
 
   const handleSquare = (square: Square) => {
-    if (!started || thinking || game.current.isGameOver() || game.current.turn() !== 'w') return
+    if (thinking || game.current.isGameOver() || game.current.turn() !== 'w') return
     voiceMoveAuthorization.current.cancel()
     if (battleVoiceState.current === 'listening' || battleVoiceState.current === 'thinking') battleVoiceClient.current?.disconnect()
     const piece = pieces.find((item) => sameSquare(item, square))
@@ -512,24 +511,20 @@ function BattlePage({ onBack }: { onBack: () => void }) {
     playBattleMove(move)
   }
 
-  const resetBattle = (nextStarted: boolean) => {
+  const restart = () => {
     aiRequestId.current += 1
     game.current = createBattle()
     setPieces(battlePieces(game.current))
     setHistory([])
     setSelected(null)
     setTargets([])
-    setStarted(nextStarted)
-    setStatus(nextStarted ? '轮到红方走棋' : '选择棋力后，点击“开始对局”')
+    setStatus('轮到红方走棋')
     setThinking(false)
     voiceMoveAuthorization.current.cancel()
     battleVoiceClient.current?.disconnect()
     updateBattleVoiceState('idle')
-    setVoiceText(nextStarted ? '按下麦克风，说出“炮二平五”这样的中文棋谱。' : '开始对局后，可以使用语音走棋。')
+    setVoiceText('按下麦克风，说出“炮二平五”这样的中文棋谱。')
   }
-
-  const startBattle = () => resetBattle(true)
-  const restart = () => resetBattle(true)
 
   const undo = () => {
     if (thinking || history.length === 0) return
@@ -543,7 +538,7 @@ function BattlePage({ onBack }: { onBack: () => void }) {
   const selectedPiece = selected ? pieces.find((item) => sameSquare(item, selected)) : undefined
   return (
     <div className="battle-page page-wrap">
-      <div className="lesson-topline"><button className="back-button" onClick={onBack}><ArrowLeft /> 返回首页</button><div className="battle-heading"><Swords /> 人机对战</div><button className="icon-button" onClick={restart} aria-label="重新开局"><RotateCcw /></button></div>
+      <div className="lesson-topline"><button className="back-button" onClick={onBack}><ArrowLeft /> 返回首页</button><div className="battle-heading"><Swords /> 人机对战</div><button className="secondary-button battle-restart-button" onClick={restart}><RotateCcw /> 重开一局</button></div>
       <section className="battle-layout">
         <div className="board-panel battle-board-panel">
           <div className="battle-status"><span className={thinking ? 'thinking-dot active' : 'thinking-dot'} />{status}</div>
@@ -554,10 +549,10 @@ function BattlePage({ onBack }: { onBack: () => void }) {
           <div className="battle-card battle-voice-card">
             <div className="coach-head compact"><div className="coach-avatar small">象</div><div><strong>语音走棋与讲解</strong><span>{voiceStateLabel(voiceState)}</span></div><span className={`connection-dot ${voiceState}`} /></div>
             <p>{voiceText}</p>
-            <button className={voiceState === 'listening' ? 'voice-button listening' : 'voice-button'} onClick={() => void startBattleVoice()} disabled={!started || thinking || voiceState === 'connecting' || voiceState === 'thinking' || game.current.turn() !== 'w'}><span><Mic /></span><strong>{voiceButtonLabel(voiceState)}</strong><small>{voiceState === 'listening' ? '说完后再按一次' : '例如：“炮二平五”'}</small></button>
+            <button className={voiceState === 'listening' ? 'voice-button listening' : 'voice-button'} onClick={() => void startBattleVoice()} disabled={thinking || voiceState === 'connecting' || voiceState === 'thinking' || game.current.turn() !== 'w'}><span><Mic /></span><strong>{voiceButtonLabel(voiceState)}</strong><small>{voiceState === 'listening' ? '说完后再按一次' : '例如：“炮二平五”'}</small></button>
           </div>
-          <div className="battle-card move-list"><span className="section-kicker">MOVES</span><h2>对局棋谱</h2>{history.length === 0 ? <p>{started ? '走出第一步后，棋谱会显示在这里。' : '点击“开始对局”后执红先行。'}</p> : <ol>{Array.from({ length: Math.ceil(history.length / 2) }, (_, index) => <li key={index}><span>{history[index * 2]}</span><span>{history[index * 2 + 1] ?? '…'}</span></li>)}</ol>}</div>
-          {!started ? <button className="primary-button full battle-start-button" onClick={startBattle}><Swords /> 开始对局</button> : <div className="battle-actions"><button className="secondary-button" onClick={undo} disabled={thinking || history.length === 0}><RotateCcw /> 悔棋</button><button className="secondary-button" onClick={() => setStatus('你已认输，本局由 ZERO7 获胜。')}>认输</button></div>}
+          <div className="battle-card move-list"><span className="section-kicker">MOVES</span><h2>对局棋谱</h2>{history.length === 0 ? <p>走出第一步后，棋谱会显示在这里。</p> : <ol>{Array.from({ length: Math.ceil(history.length / 2) }, (_, index) => <li key={index}><span>{history[index * 2]}</span><span>{history[index * 2 + 1] ?? '…'}</span></li>)}</ol>}</div>
+          <div className="battle-actions"><button className="secondary-button" onClick={undo} disabled={thinking || history.length === 0}><RotateCcw /> 悔棋</button><button className="secondary-button" onClick={() => setStatus('你已认输，本局由 ZERO7 获胜。')}>认输</button></div>
         </aside>
       </section>
     </div>
