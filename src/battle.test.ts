@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { battlePieces, battleStatus, chooseAiMove, createBattle, describeBattleTurn, findVoiceMove, legalTargets, makeBattleMove, pointToSquare, squareToPoint, VoiceMoveAuthorization } from './battle'
+import { battlePieces, battleStatus, buildBattleReview, chooseAiMove, createBattle, describeBattleTurn, findVoiceMove, legalTargets, makeBattleMove, pointToSquare, squareToPoint, VoiceMoveAuthorization } from './battle'
 
 describe('完整人机对战规则', () => {
   it('正确转换棋盘坐标', () => {
@@ -50,6 +50,15 @@ describe('完整人机对战规则', () => {
     expect(describeBattleTurn(player as never, { ...normalAi, isCheck: true } as never)).toContain('红方正被将军')
     expect(describeBattleTurn(player as never, { ...normalAi, isCheckmate: true } as never)).toContain('形成将死')
     expect(describeBattleTurn({ ...player, isCheckmate: true } as never)).toContain('赢下这一局')
+  })
+
+  it('生成对局复盘摘要', () => {
+    const game = createBattle()
+    game.move('h0g2')
+    game.move('h9g7')
+    expect(buildBattleReview(game)).toContain('本局共进行1回合')
+    expect(buildBattleReview(game)).toContain('最后一步是马８进７')
+    expect(buildBattleReview(game, true)).toContain('你选择认输')
   })
 
   it('返回不同终局和回合状态', () => {

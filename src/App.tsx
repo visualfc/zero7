@@ -20,7 +20,7 @@ import {
 import './App.css'
 import { LinxiVoiceClient, type LinxiState } from './linxi'
 import { applyMove, isLevelMove, levels, parseVoiceMove, sameSquare, type Level, type Piece, type Square } from './chess'
-import { battlePieces, battleStatus, chooseAiMove, createBattle, describeBattleTurn, findVoiceMove, legalTargets as battleLegalTargets, makeBattleMove, VoiceMoveAuthorization } from './battle'
+import { battlePieces, battleStatus, buildBattleReview, chooseAiMove, createBattle, describeBattleTurn, findVoiceMove, legalTargets as battleLegalTargets, makeBattleMove, VoiceMoveAuthorization } from './battle'
 import type { Chess, Move } from '@weshell/xiangqi.js'
 import { getPikafishMove, getPikafishStatus, type EngineLevel } from './pikafish'
 
@@ -342,6 +342,7 @@ function BattlePage({ onBack }: { onBack: () => void }) {
   const [status, setStatus] = useState('轮到红方走棋')
   const [difficulty, setDifficulty] = useState<EngineLevel>('初级')
   const [thinking, setThinking] = useState(false)
+  const [resigned, setResigned] = useState(false)
   const [engineStatus, setEngineStatus] = useState<'checking' | 'pikafish' | 'fallback'>('checking')
   const [engineName, setEngineName] = useState('正在检查 Pikafish…')
   const [voiceState, setVoiceState] = useState<LinxiState>('idle')
@@ -511,6 +512,10 @@ function BattlePage({ onBack }: { onBack: () => void }) {
     playBattleMove(move)
   }
 
+  const reviewBattle = () => {
+    void speakBattleText(buildBattleReview(game.current, resigned))
+  }
+
   const restart = () => {
     aiRequestId.current += 1
     game.current = createBattle()
@@ -518,6 +523,7 @@ function BattlePage({ onBack }: { onBack: () => void }) {
     setHistory([])
     setSelected(null)
     setTargets([])
+    setResigned(false)
     setStatus('轮到红方走棋')
     setThinking(false)
     voiceMoveAuthorization.current.cancel()
@@ -552,7 +558,8 @@ function BattlePage({ onBack }: { onBack: () => void }) {
             <button className={voiceState === 'listening' ? 'voice-button listening' : 'voice-button'} onClick={() => void startBattleVoice()} disabled={thinking || voiceState === 'connecting' || voiceState === 'thinking' || game.current.turn() !== 'w'}><span><Mic /></span><strong>{voiceButtonLabel(voiceState)}</strong><small>{voiceState === 'listening' ? '说完后再按一次' : '例如：“炮二平五”'}</small></button>
           </div>
           <div className="battle-card move-list"><span className="section-kicker">MOVES</span><h2>对局棋谱</h2>{history.length === 0 ? <p>走出第一步后，棋谱会显示在这里。</p> : <ol>{Array.from({ length: Math.ceil(history.length / 2) }, (_, index) => <li key={index}><span>{history[index * 2]}</span><span>{history[index * 2 + 1] ?? '…'}</span></li>)}</ol>}</div>
-          <div className="battle-actions"><button className="secondary-button" onClick={undo} disabled={thinking || history.length === 0}><RotateCcw /> 悔棋</button><button className="secondary-button" onClick={() => setStatus('你已认输，本局由 ZERO7 获胜。')}>认输</button></div>
+          <div className="battle-actions"><button className="secondary-button" onClick={undo} disabled={thinking || history.length === 0}><RotateCcw /> 悔棋</button><button className="secondary-button" onClick={() => { setResigned(true); setStatus('你已认输，本局由 ZERO7 获胜。') }}>认输</button></div>
+          {(resigned || game.current.isGameOver()) && <button className="secondary-button full review-button" onClick={reviewBattle}><Volume2 /> 语音复盘</button>}
         </aside>
       </section>
     </div>
