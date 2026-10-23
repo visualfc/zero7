@@ -208,15 +208,6 @@ npm run preview      # 预览生产构建
 - V8 代码覆盖率；
 - 生产构建。
 
-当前最低覆盖率门槛：
-
-| 指标 | 最低要求 |
-| --- | ---: |
-| Statements | 65% |
-| Branches | 58% |
-| Functions | 68% |
-| Lines | 68% |
-
 本地生成报告：
 
 ```bash
