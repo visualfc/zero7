@@ -1,5 +1,5 @@
 import { Chess, type Move, type Square as EngineSquare } from '@weshell/xiangqi.js'
-import type { Piece, PieceKind, Square } from './chess'
+import { normalizeMoveText, type Piece, type PieceKind, type Square } from './chess'
 
 const pieceNames = {
   w: { k: '帅', a: '仕', b: '相', n: '马', r: '车', c: '炮', p: '兵' },
@@ -48,6 +48,24 @@ export function makeBattleMove(game: Chess, from: Square, to: Square) {
   } catch {
     return null
   }
+}
+
+export function findVoiceMove(game: Chess, transcript: string) {
+  const normalized = normalizeMoveText(transcript)
+  const moves = game.moves({ verbose: true }) as Move[]
+  return moves.find((move) => {
+    const notation = normalizeMoveText(move.zh)
+    return normalized === notation || normalized.includes(notation)
+  }) ?? null
+}
+
+export function describeBattleTurn(playerMove: Move, aiMove?: Move | null) {
+  if (playerMove.isCheckmate) return `你走${playerMove.zh}，完成将死，赢下这一局。`
+  if (!aiMove) return `你走${playerMove.zh}。`
+  if (aiMove.isCheckmate) return `你走${playerMove.zh}，零七应对${aiMove.zh}，形成将死。`
+  if (aiMove.isCheck) return `你走${playerMove.zh}，零七应对${aiMove.zh}，红方正被将军，请先应将。`
+  if (playerMove.captured) return `你走${playerMove.zh}，完成吃子；零七应对${aiMove.zh}。`
+  return `你走${playerMove.zh}，零七应对${aiMove.zh}。轮到你继续走棋。`
 }
 
 export function chooseAiMove(game: Chess, difficulty: '入门' | '初级' | '中级' = '初级') {
