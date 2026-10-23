@@ -73,7 +73,10 @@ async function resolveCredentials(clientId) {
 browserServer.on('connection', async (browser) => {
   let upstream
   let sessionId = ''
+  let audioFrames = 0
+  let audioBytes = 0
   const clientId = process.env.LINXI_CLIENT_ID || crypto.randomUUID()
+  console.log('[灵矽] 浏览器语音会话开始')
 
   const closeUpstream = () => {
     if (upstream?.readyState === WebSocket.OPEN) upstream.close(1000, '浏览器会话结束')
@@ -126,9 +129,12 @@ browserServer.on('connection', async (browser) => {
         const message = JSON.parse(data.toString())
         if (message.type === 'hello') {
           sessionId = message.session_id || ''
+          console.log(`[灵矽] 握手成功，会话：${sessionId || '未返回 ID'}`)
           send(browser, { type: 'ready', sessionId })
           return
         }
+        if (message.type === 'stt') console.log(`[灵矽] 识别结果：${message.text || '空文本'}`)
+        if (message.type === 'tts') console.log(`[灵矽] TTS 状态：${message.state || '未知'}`)
         send(browser, message)
       } catch {
         send(browser, { type: 'error', message: '收到无法解析的灵矽消息' })
@@ -147,12 +153,17 @@ browserServer.on('connection', async (browser) => {
   browser.on('message', (data, isBinary) => {
     if (!upstream || upstream.readyState !== WebSocket.OPEN) return
     if (isBinary) {
+      audioFrames += 1
+      audioBytes += data.byteLength
       upstream.send(data, { binary: true })
       return
     }
     try {
       const message = JSON.parse(data.toString())
       if (message.type === 'listen') {
+        console.log(message.state === 'start'
+          ? '[灵矽] 开始录音'
+          : `[灵矽] 停止录音，已发送 ${audioFrames} 帧 / ${audioBytes} 字节`)
         upstream.send(JSON.stringify({
           session_id: sessionId,
           type: 'listen',

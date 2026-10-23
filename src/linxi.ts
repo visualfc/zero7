@@ -20,6 +20,8 @@ export class LinxiVoiceClient {
   private source: MediaStreamAudioSourceNode | null = null
   private processor: ScriptProcessorNode | null = null
   private silentGain: GainNode | null = null
+  private frameBuffer = new PcmFrameBuffer(320)
+  private recognitionTimer: number | null = null
   private state: LinxiState = 'idle'
   private readonly emit: (event: LinxiEvent) => void
 
@@ -49,13 +51,16 @@ export class LinxiVoiceClient {
 
   async stop() {
     if (this.state === 'listening') {
+      this.frameBuffer.flush((frame) => this.sendFrame(frame))
       this.socket?.send(JSON.stringify({ type: 'listen', state: 'stop' }))
       this.setState('thinking')
+      this.startRecognitionTimeout()
     }
     this.stopCapture()
   }
 
   disconnect() {
+    this.clearRecognitionTimeout()
     this.stopCapture()
     this.socket?.close()
     this.socket = null
@@ -81,6 +86,7 @@ export class LinxiVoiceClient {
           this.setState('ready')
           resolve()
         } else if (message.type === 'stt' && message.text) {
+          this.clearRecognitionTimeout()
           this.emit({ type: 'transcript', text: message.text })
           this.setState('thinking')
         } else if (message.type === 'tts') {
@@ -89,8 +95,12 @@ export class LinxiVoiceClient {
             this.emit({ type: 'reply', text: message.text })
             this.speak(message.text)
           }
-          if (message.state === 'stop') this.setState('ready')
+          if (message.state === 'stop') {
+            this.clearRecognitionTimeout()
+            this.setState('ready')
+          }
         } else if (message.type === 'error') {
+          this.clearRecognitionTimeout()
           const error = new Error(message.message || '灵矽服务发生错误')
           this.emit({ type: 'error', text: error.message })
           reject(error)
@@ -119,11 +129,29 @@ export class LinxiVoiceClient {
     this.processor.onaudioprocess = (event) => {
       if (this.state !== 'listening' || this.socket?.readyState !== WebSocket.OPEN) return
       const pcm = resampleToPcm16(event.inputBuffer.getChannelData(0), inputRate, 16000)
-      this.socket.send(pcm.buffer)
+      this.frameBuffer.push(pcm, (frame) => this.sendFrame(frame))
     }
     this.source.connect(this.processor)
     this.processor.connect(this.silentGain)
     this.silentGain.connect(this.audioContext.destination)
+  }
+
+  private sendFrame(frame: Int16Array) {
+    if (this.socket?.readyState === WebSocket.OPEN) this.socket.send(frame.slice().buffer)
+  }
+
+  private startRecognitionTimeout() {
+    this.clearRecognitionTimeout()
+    this.recognitionTimer = window.setTimeout(() => {
+      this.setState('error')
+      this.emit({ type: 'error', text: '没有收到识别结果，请靠近麦克风后重试' })
+      this.socket?.close()
+    }, 12000)
+  }
+
+  private clearRecognitionTimeout() {
+    if (this.recognitionTimer !== null) window.clearTimeout(this.recognitionTimer)
+    this.recognitionTimer = null
   }
 
   private stopCapture() {
@@ -153,6 +181,37 @@ export class LinxiVoiceClient {
   private setState(state: LinxiState) {
     this.state = state
     this.emit({ type: 'state', state })
+  }
+}
+
+export class PcmFrameBuffer {
+  private pending = new Int16Array(0)
+  private readonly frameSamples: number
+
+  constructor(frameSamples: number) {
+    this.frameSamples = frameSamples
+  }
+
+  push(input: Int16Array, emit: (frame: Int16Array) => void) {
+    const combined = new Int16Array(this.pending.length + input.length)
+    combined.set(this.pending)
+    combined.set(input, this.pending.length)
+
+    let offset = 0
+    while (combined.length - offset >= this.frameSamples) {
+      emit(combined.slice(offset, offset + this.frameSamples))
+      offset += this.frameSamples
+    }
+    this.pending = combined.slice(offset)
+  }
+
+  flush(emit: (frame: Int16Array) => void) {
+    if (this.pending.length > 0) {
+      const padded = new Int16Array(this.frameSamples)
+      padded.set(this.pending)
+      emit(padded)
+    }
+    this.pending = new Int16Array(0)
   }
 }
 
