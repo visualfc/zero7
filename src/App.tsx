@@ -557,7 +557,7 @@ function BattlePage({ onBack }: { onBack: () => void }) {
             <button className={voiceState === 'listening' ? 'voice-button listening' : 'voice-button'} onClick={() => void startBattleVoice()} disabled={!started || thinking || voiceState === 'connecting' || voiceState === 'thinking' || game.current.turn() !== 'w'}><span><Mic /></span><strong>{voiceButtonLabel(voiceState)}</strong><small>{voiceState === 'listening' ? '说完后再按一次' : '例如：“炮二平五”'}</small></button>
           </div>
           <div className="battle-card move-list"><span className="section-kicker">MOVES</span><h2>对局棋谱</h2>{history.length === 0 ? <p>{started ? '走出第一步后，棋谱会显示在这里。' : '点击“开始对局”后执红先行。'}</p> : <ol>{Array.from({ length: Math.ceil(history.length / 2) }, (_, index) => <li key={index}><span>{history[index * 2]}</span><span>{history[index * 2 + 1] ?? '…'}</span></li>)}</ol>}</div>
-          {!started ? <button className="primary-button full battle-start-button" onClick={startBattle}><Swords /> 开始对局</button> : <div className="battle-actions"><button className="secondary-button" onClick={undo} disabled={thinking || history.length === 0}><RotateCcw /> 悔棋</button><button className="danger-button" onClick={() => setStatus('你已认输，本局由 ZERO7 获胜。')}>认输</button></div>}
+          {!started ? <button className="primary-button full battle-start-button" onClick={startBattle}><Swords /> 开始对局</button> : <div className="battle-actions"><button className="secondary-button" onClick={undo} disabled={thinking || history.length === 0}><RotateCcw /> 悔棋</button><button className="secondary-button" onClick={() => setStatus('你已认输，本局由 ZERO7 获胜。')}>认输</button></div>}
         </aside>
       </section>
     </div>
