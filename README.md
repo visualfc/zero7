@@ -1,7 +1,7 @@
 # ZERO7
 
 [![CI](https://github.com/visualfc/zero7/actions/workflows/ci.yml/badge.svg)](https://github.com/visualfc/zero7/actions/workflows/ci.yml)
-[![Coverage](https://codecov.io/gh/visualfc/zero7/branch/main/graph/badge.svg)](https://codecov.io/gh/visualfc/zero7)
+[![codecov](https://codecov.io/github/visualfc/zero7/graph/badge.svg?token=LMDDHGZNPV)](https://codecov.io/github/visualfc/zero7)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)
 
 ZERO7 是面向象棋初学者与普通爱好者的开源 AI 语音象棋伙伴。它将自然语音、确定性的象棋规则和 AI 棋力结合在一起，让用户可以直接说出走法、获得分级提示、完成专项训练，并与 AI 进行完整对局。
