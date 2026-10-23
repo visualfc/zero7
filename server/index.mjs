@@ -2,7 +2,9 @@ import 'dotenv/config'
 import crypto from 'node:crypto'
 import express from 'express'
 import { WebSocket, WebSocketServer } from 'ws'
+import { PikafishEngine } from './pikafish.mjs'
 
+const pikafish = new PikafishEngine()
 const port = Number(process.env.LINXI_BRIDGE_PORT || 8787)
 const app = express()
 const server = app.listen(port, '127.0.0.1', () => {
@@ -23,6 +25,24 @@ app.get('/api/linxi/status', (_request, response) => {
     configured: Boolean(process.env.LINXI_DEVICE_ID && (process.env.LINXI_TOKEN || process.env.LINXI_USE_OTA === 'true')),
     mode: process.env.LINXI_USE_OTA === 'true' ? 'ota' : 'token',
   })
+})
+
+app.get('/api/pikafish/status', async (_request, response) => {
+  response.json(await pikafish.status())
+})
+
+app.post('/api/pikafish/bestmove', express.json({ limit: '16kb' }), async (request, response) => {
+  const { fen, level, moveTime } = request.body || {}
+  if (typeof fen !== 'string' || fen.length > 200) {
+    response.status(400).json({ error: '缺少有效的 FEN 局面' })
+    return
+  }
+  try {
+    response.json(await pikafish.bestMove({ fen, level, moveTime }))
+  } catch (error) {
+    console.error(`[Pikafish] 计算失败：${error instanceof Error ? error.message : error}`)
+    response.status(503).json({ error: error instanceof Error ? error.message : 'Pikafish 计算失败' })
+  }
 })
 
 function send(socket, payload) {
@@ -191,6 +211,7 @@ browserServer.on('connection', async (browser) => {
 })
 
 function shutdown() {
+  pikafish.close()
   browserServer.close()
   server.close(() => process.exit(0))
 }

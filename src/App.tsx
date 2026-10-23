@@ -22,6 +22,7 @@ import { LinxiVoiceClient, type LinxiState } from './linxi'
 import { applyMove, isLevelMove, levels, parseVoiceMove, sameSquare, type Level, type Piece, type Square } from './chess'
 import { battlePieces, battleStatus, chooseAiMove, createBattle, legalTargets as battleLegalTargets, makeBattleMove } from './battle'
 import type { Chess, Move } from '@weshell/xiangqi.js'
+import { getPikafishMove, getPikafishStatus, type EngineLevel } from './pikafish'
 
 type Page = 'home' | 'lesson' | 'battle' | 'progress' | 'profile'
 
@@ -339,27 +340,49 @@ function BattlePage({ onBack }: { onBack: () => void }) {
   const [targets, setTargets] = useState<Square[]>([])
   const [history, setHistory] = useState<string[]>([])
   const [status, setStatus] = useState('轮到红方走棋')
-  const [difficulty, setDifficulty] = useState<'入门' | '初级' | '中级'>('初级')
+  const [difficulty, setDifficulty] = useState<EngineLevel>('初级')
   const [thinking, setThinking] = useState(false)
+  const [engineStatus, setEngineStatus] = useState<'checking' | 'pikafish' | 'fallback'>('checking')
+  const [engineName, setEngineName] = useState('正在检查 Pikafish…')
+
+  useEffect(() => {
+    void getPikafishStatus().then((result) => {
+      setEngineStatus(result.available ? 'pikafish' : 'fallback')
+      setEngineName(result.available ? (result.name || 'Pikafish') : '基础 AI（Pikafish 未安装）')
+    }).catch(() => {
+      setEngineStatus('fallback')
+      setEngineName('基础 AI（Pikafish 连接失败）')
+    })
+  }, [])
 
   const refresh = (lastMove?: Move) => {
     setPieces(battlePieces(game.current))
-    setHistory(game.current.history())
+    setHistory((game.current.history({ verbose: true }) as Move[]).map((move) => move.zh))
     setStatus(lastMove?.isCheckmate ? battleStatus(game.current) : battleStatus(game.current))
   }
 
-  const aiTurn = () => {
+  const aiTurn = async () => {
     if (game.current.isGameOver()) return
     setThinking(true)
-    setStatus('ZERO7 正在思考…')
-    window.setTimeout(() => {
-      const choice = chooseAiMove(game.current, difficulty)
-      if (choice) {
-        const move = game.current.move({ from: choice.from, to: choice.to })
+    setStatus(engineStatus === 'pikafish' ? 'Pikafish 正在思考…' : 'ZERO7 基础 AI 正在思考…')
+    try {
+      if (engineStatus === 'pikafish') {
+        const result = await getPikafishMove(game.current.fen(), difficulty)
+        const move = game.current.move(result.move)
         refresh(move)
+      } else {
+        await new Promise((resolve) => window.setTimeout(resolve, 520))
+        const choice = chooseAiMove(game.current, difficulty)
+        if (choice) refresh(game.current.move({ from: choice.from, to: choice.to }))
       }
+    } catch {
+      setEngineStatus('fallback')
+      setEngineName('基础 AI（Pikafish 暂不可用）')
+      const choice = chooseAiMove(game.current, difficulty)
+      if (choice) refresh(game.current.move({ from: choice.from, to: choice.to }))
+    } finally {
       setThinking(false)
-    }, 520)
+    }
   }
 
   const handleSquare = (square: Square) => {
@@ -385,7 +408,7 @@ function BattlePage({ onBack }: { onBack: () => void }) {
       return
     }
     refresh(move)
-    aiTurn()
+    void aiTurn()
   }
 
   const restart = () => {
@@ -417,7 +440,7 @@ function BattlePage({ onBack }: { onBack: () => void }) {
           <ChessBoard pieces={pieces} selectedId={selectedPiece?.id ?? null} legalTargets={targets} instruction="你执红方 · ZERO7 执黑方" onSquare={handleSquare} />
         </div>
         <aside className="battle-sidebar">
-          <div className="battle-card"><span className="section-kicker">DIFFICULTY</span><h2>选择棋力</h2><div className="difficulty-row">{(['入门', '初级', '中级'] as const).map((item) => <button key={item} className={difficulty === item ? 'active' : ''} onClick={() => setDifficulty(item)}>{item}</button>)}</div></div>
+          <div className="battle-card"><div className="engine-badge"><span className={`engine-light ${engineStatus}`} />{engineName}</div><span className="section-kicker">DIFFICULTY</span><h2>选择棋力</h2><div className="difficulty-row">{(['入门', '初级', '中级'] as const).map((item) => <button key={item} className={difficulty === item ? 'active' : ''} onClick={() => setDifficulty(item)}>{item}</button>)}</div><p className="engine-note">入门约 1280 Elo，初级约 1500 Elo，中级约 1900 Elo。</p></div>
           <div className="battle-card move-list"><span className="section-kicker">MOVES</span><h2>对局棋谱</h2>{history.length === 0 ? <p>走出第一步后，棋谱会显示在这里。</p> : <ol>{Array.from({ length: Math.ceil(history.length / 2) }, (_, index) => <li key={index}><span>{history[index * 2]}</span><span>{history[index * 2 + 1] ?? '…'}</span></li>)}</ol>}</div>
           <div className="battle-actions"><button className="secondary-button" onClick={undo} disabled={thinking || history.length === 0}><RotateCcw /> 悔棋</button><button className="danger-button" onClick={() => setStatus('你已认输，本局由 ZERO7 获胜。')}>认输</button></div>
         </aside>

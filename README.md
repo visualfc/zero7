@@ -23,7 +23,9 @@ ZERO7 包含两个核心模式：
 
 - 标准 32 子开局与完整象棋规则
 - 用户执红、ZERO7 执黑
-- 入门、初级和中级三档基础 AI
+- Pikafish 正式棋力引擎
+- 入门、初级和中级三档棋力
+- Pikafish 不可用时自动降级为基础 AI
 - 点击走棋
 - 将军、将死、困毙与和棋判断
 - 认输、悔棋和重新开局
@@ -101,6 +103,50 @@ LINXI_USE_OTA=true
 
 智能体只负责语言交互和棋理解释。棋盘事实与合法性由应用规则引擎提供；信息不足时不应猜测局面。
 
+## 安装 Pikafish
+
+ZERO7 通过本地独立进程调用 Pikafish，不在仓库中分发引擎二进制和 NNUE 权重。
+
+默认目录结构：
+
+```text
+.local/pikafish/
+├── pikafish
+├── pikafish.nnue
+└── WEIGHTS-LICENSE.txt
+```
+
+macOS Apple Silicon 用户应选择 ARM64 版本，并设置执行权限：
+
+```bash
+chmod +x .local/pikafish/pikafish
+```
+
+如果文件位于其他位置，可以在 `.env` 中设置：
+
+```dotenv
+PIKAFISH_PATH=/absolute/path/to/pikafish
+PIKAFISH_MODEL=/absolute/path/to/pikafish.nnue
+```
+
+运行后可以检查状态：
+
+```bash
+curl http://127.0.0.1:8787/api/pikafish/status
+```
+
+成功响应示例：
+
+```json
+{
+  "available": true,
+  "name": "Pikafish 2026-01-31",
+  "binary": "pikafish"
+}
+```
+
+Pikafish 源代码采用 GPL-3.0。NNUE 权重可能带有额外授权条件；当前导入权重明确限制未经许可的商业使用。请阅读下载包中的协议。ZERO7 不会将二进制、模型或本地协议文件提交到 Git。
+
 ## 本地运行
 
 要求安装 Node.js 22 或兼容版本。
@@ -157,9 +203,9 @@ npm run preview      # 预览生产构建
 - [x] 语音分级提示
 - [x] 完整中国象棋规则引擎
 - [x] 基础 AI 人机对战
-- [x] 三档基础棋力
+- [x] Pikafish 正式棋力引擎
+- [x] 三档棋力与基础 AI 降级
 - [ ] 对战语音走棋与主动讲解
-- [ ] 接入专业棋力引擎
 - [ ] 棋谱与局后复盘
 - [ ] 本地学习进度与错题记录
 - [ ] 可扩展训练题库

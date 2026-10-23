@@ -14,6 +14,8 @@ dist-ssr
 .env
 .env.*
 !.env.example
+.local/
+engine-import/
 
 # Editor directories and files
 .vscode/*

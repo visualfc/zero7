@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "test": "vitest run",
+    "test": "vitest run && node --test server/pikafish.node-test.mjs",
     "dev:web": "vite",
     "dev:bridge": "node server/index.mjs",
     "start": "node server/index.mjs"
