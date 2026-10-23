@@ -344,6 +344,9 @@ function BattlePage({ onBack }: { onBack: () => void }) {
   const [difficulty, setDifficulty] = useState<EngineLevel>('初级')
   const [thinking, setThinking] = useState(false)
   const [resigned, setResigned] = useState(false)
+  const [analysis, setAnalysis] = useState<{ red: number; black: number; move: string; explanation: string } | null>(null)
+  const [analysisVisible, setAnalysisVisible] = useState(false)
+  const [analysisLoading, setAnalysisLoading] = useState(false)
   const [engineStatus, setEngineStatus] = useState<'checking' | 'pikafish' | 'fallback'>('checking')
   const [engineName, setEngineName] = useState('正在检查 Pikafish…')
   const [voiceState, setVoiceState] = useState<LinxiState>('idle')
@@ -532,6 +535,24 @@ function BattlePage({ onBack }: { onBack: () => void }) {
     setStatus(battleStatus(game.current))
   }
 
+  const analyzePosition = async () => {
+    if (analysisLoading || replayStep !== null || engineStatus !== 'pikafish') return
+    setAnalysisLoading(true)
+    try {
+      const result = await getPikafishMove(game.current.fen(), difficulty, true)
+      const score = result.score?.type === 'mate' ? (result.score.value > 0 ? 10000 : -10000) : (result.score?.value ?? 0)
+      const red = Math.round(100 / (1 + Math.exp(-score / 180)))
+      const move = result.move
+      const explanation = `推荐${move}，因为它能改善当前局面的子力协调和先手。点击棋谱或棋盘可以继续自己的选择，ZERO7 不会替你走这一步。`
+      setAnalysis({ red, black: 100 - red, move, explanation })
+    } catch {
+      setAnalysis(null)
+      setStatus('当前无法获取胜负概率，请确认 Pikafish 可用。')
+    } finally {
+      setAnalysisLoading(false)
+    }
+  }
+
   const reviewBattle = () => {
     void speakBattleText(buildBattleReview(game.current, resigned))
   }
@@ -544,6 +565,8 @@ function BattlePage({ onBack }: { onBack: () => void }) {
     setSelected(null)
     setTargets([])
     setReplayStep(null)
+    setAnalysis(null)
+    setAnalysisVisible(false)
     setResigned(false)
     setStatus('轮到红方走棋')
     setThinking(false)
@@ -581,6 +604,7 @@ function BattlePage({ onBack }: { onBack: () => void }) {
           <div className="battle-card move-list"><span className="section-kicker">MOVES</span><h2>对局棋谱</h2>{history.length === 0 ? <p>走出第一步后，棋谱会显示在这里。</p> : <ol>{Array.from({ length: Math.ceil(history.length / 2) }, (_, index) => <li key={index}><button className={replayStep === index * 2 + 1 ? 'move-replay active' : 'move-replay'} onClick={() => replayMove(index * 2 + 1)}>{history[index * 2]}</button><button className={replayStep === index * 2 + 2 ? 'move-replay active' : 'move-replay'} onClick={() => history[index * 2 + 1] && replayMove(index * 2 + 2)} disabled={!history[index * 2 + 1]}>{history[index * 2 + 1] ?? '…'}</button></li>)}</ol>}</div>
           {replayStep !== null && <button className="secondary-button full" onClick={returnToCurrentPosition}>返回当前局面</button>}
           <div className="battle-actions"><button className="secondary-button" onClick={undo} disabled={thinking || history.length === 0}><RotateCcw /> 悔棋</button><button className="secondary-button" onClick={() => { setResigned(true); setStatus('你已认输，本局由 ZERO7 获胜。') }}>认输</button></div>
+          {engineStatus === 'pikafish' && <div className="analysis-card"><button className="secondary-button full" onClick={() => { if (analysisVisible) setAnalysisVisible(false); else { setAnalysisVisible(true); if (!analysis) void analyzePosition() } }} disabled={analysisLoading || replayStep !== null}><Target /> {analysisLoading ? '正在分析…' : analysisVisible ? '收起局面分析' : '局面分析'}</button>{analysisVisible && analysis && <div className="analysis-result"><div className="probability-row"><span>红方 {analysis.red}%</span><span>黑方 {analysis.black}%</span></div><div className="probability-bar"><i style={{ width: `${analysis.red}%` }} /></div><strong>推荐走法：{analysis.move}</strong><p>{analysis.explanation}</p><button className="voice-button compact" onClick={() => void speakBattleText(analysis.explanation)}><Volume2 /> 语音讲解推荐</button></div>}</div>}
           {(resigned || game.current.isGameOver()) && <button className="secondary-button full review-button" onClick={reviewBattle}><Volume2 /> 语音复盘</button>}
         </aside>
       </section>

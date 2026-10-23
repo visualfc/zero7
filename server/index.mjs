@@ -32,13 +32,13 @@ app.get('/api/pikafish/status', async (_request, response) => {
 })
 
 app.post('/api/pikafish/bestmove', express.json({ limit: '16kb' }), async (request, response) => {
-  const { fen, level, moveTime } = request.body || {}
+  const { fen, level, moveTime, analysis } = request.body || {}
   if (typeof fen !== 'string' || fen.length > 200) {
     response.status(400).json({ error: '缺少有效的 FEN 局面' })
     return
   }
   try {
-    response.json(await pikafish.bestMove({ fen, level, moveTime }))
+    response.json(await pikafish.bestMove({ fen, level, moveTime, analysis: analysis === true }))
   } catch (error) {
     console.error(`[Pikafish] 计算失败：${error instanceof Error ? error.message : error}`)
     response.status(503).json({ error: error instanceof Error ? error.message : 'Pikafish 计算失败' })

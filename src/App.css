@@ -90,7 +90,7 @@
 .mini-badge { display: inline-block; padding: 5px 10px; border-radius: 9px; color: var(--coral-dark); background: #ffe7dd; font-size: 11px; font-weight: 800; }
 .challenge-title h1 { font: 31px/1.35 'Ma Shan Zheng'; color: var(--ink); margin: 12px 0 8px; }
 .challenge-title p { color: var(--muted); font-size: 13px; margin: 0 0 24px; }
-.board-wrap { width: min(520px,100%); margin: 0 auto; }
+.board-wrap { width: min(500px,100%); margin: 0 auto; }
 .chess-board { --board-pad: 5.5%; position: relative; aspect-ratio: 9/10; display: block; background-color: #eed4ad; background-image: linear-gradient(105deg, rgba(255,255,255,.16), transparent 38%, rgba(141,105,69,.04) 70%, transparent), repeating-linear-gradient(2deg, rgba(141,105,69,.025) 0, rgba(141,105,69,.025) 1px, transparent 1px, transparent 8px); border: 9px solid #d09866; box-shadow: inset 0 0 0 3px #e6be8e, 0 8px 16px rgba(95,55,26,.11); }
 .board-grid { position: absolute; z-index: 1; inset: var(--board-pad); width: calc(100% - 2 * var(--board-pad)); height: calc(100% - 2 * var(--board-pad)); overflow: visible; }
 .board-grid line { stroke: #6f472b; stroke-width: 1.2px; vector-effect: non-scaling-stroke; shape-rendering: crispEdges; }
@@ -141,10 +141,10 @@
 .profile-card, .settings-card { max-width: 700px; margin: 24px auto; background: var(--paper); border: 1px solid var(--line); border-radius: 24px; padding: 30px; text-align: left; }
 .profile-card { display: flex; align-items: center; gap: 22px; } .profile-avatar { width: 85px; height: 85px; background: var(--blue); color: white; border-radius: 28px; display: grid; place-items: center; text-align: center; font: 24px/1 'Ma Shan Zheng'; transform: rotate(-3deg); } .profile-card h2 { margin: 0; color: var(--ink); } .profile-card p { color: var(--muted); } .profile-tag { display: inline-flex; gap: 5px; align-items: center; color: #9c702c; background: #fff4d9; padding: 6px 9px; border-radius: 8px; font-size: 11px; } .profile-tag svg { width: 13px; fill: var(--gold); color: var(--gold); }
 .settings-card h2 { color: var(--ink); } .settings-card > div { padding: 16px 0; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; } .settings-card span { display: flex; align-items: center; gap: 10px; color: var(--muted); } .settings-card svg { width: 18px; color: var(--blue); } .settings-card strong { color: var(--ink); font-size: 13px; }
-.battle-page { padding-top: 28px; }
-.battle-heading { justify-self: center; display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--ink); } .battle-heading svg { width: 18px; color: var(--coral); }
-.battle-layout { display: grid; grid-template-columns: minmax(520px, 1fr) 340px; gap: 26px; align-items: start; }
-.battle-board-panel { padding-top: 22px; }
+.battle-page { padding-top: 10px; }
+.battle-heading { justify-self: center; display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--ink); margin: 0; } .battle-heading svg { width: 18px; color: var(--coral); }
+.battle-layout { display: grid; grid-template-columns: minmax(520px, 1fr) 320px; gap: 18px; align-items: start; }
+.battle-board-panel { padding-top: 8px; }
 .battle-status { width: min(520px,100%); margin: 0 auto 16px; padding: 11px 16px; border-radius: 12px; background: #edf3f2; color: #52606c; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; }
 .thinking-dot { width: 8px; height: 8px; border-radius: 50%; background: #5aa987; } .thinking-dot.active { background: var(--gold); animation: dot-pulse 1s infinite; }
 .battle-sidebar { display: grid; gap: 18px; position: sticky; top: 100px; }
@@ -156,6 +156,7 @@
 .move-list { min-height: 280px; max-height: 430px; overflow: auto; } .move-list > p { color: var(--muted); font-size: 12px; line-height: 1.7; } .move-list ol { margin: 0; padding-left: 25px; } .move-list li { color: var(--muted); padding: 7px 0; border-bottom: 1px dashed var(--line); display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px; } .move-list li::marker { color: #aaa; }
 .move-replay { border: 0; background: transparent; color: var(--muted); text-align: left; padding: 4px 6px; border-radius: 6px; cursor: pointer; font: inherit; } .move-replay:hover, .move-replay.active { background: #f5e9d8; color: var(--coral-dark); } .move-replay:disabled { cursor: default; opacity: .55; }
 .battle-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.analysis-card { display: grid; gap: 8px; } .analysis-result { border: 1px solid var(--line); border-radius: 14px; padding: 10px; background: #fffaf2; } .probability-row { display: flex; justify-content: space-between; color: var(--muted); font-size: 11px; } .probability-bar { height: 6px; margin: 6px 0 8px; border-radius: 10px; overflow: hidden; background: #34404a; } .probability-bar i { display: block; height: 100%; background: var(--coral); } .analysis-result strong { color: var(--ink); font-size: 13px; } .analysis-result p { color: var(--muted); font-size: 12px; line-height: 1.65; margin: 8px 0 12px; } .voice-button.compact { min-height: 38px; padding: 8px 12px; font-size: 12px; }
 .toast { position: fixed; left: 50%; bottom: 30px; transform: translateX(-50%); border-radius: 13px; padding: 12px 18px; background: #26324a; color: white; z-index: 100; display: flex; gap: 8px; align-items: center; box-shadow: 0 10px 30px rgba(20,25,40,.25); font-size: 13px; } .toast svg { width: 17px; }
 
 @media (max-width: 900px) {

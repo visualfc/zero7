@@ -30,7 +30,7 @@ export class PikafishEngine {
     }
   }
 
-  async bestMove({ fen, level = '初级', moveTime }) {
+  async bestMove({ fen, level = '初级', moveTime, analysis = false }) {
     const task = this.queue.then(async () => {
       await this.start()
       const options = levelOptions(level)
@@ -39,10 +39,14 @@ export class PikafishEngine {
       if (options.elo) await this.command(`setoption name UCI_Elo value ${options.elo}`, null)
       await this.command('isready', /^readyok$/)
       await this.command(`position fen ${fen}`, null)
-      const line = await this.command(`go movetime ${Math.max(100, Math.min(Number(moveTime) || options.moveTime, 5000))}`, /^bestmove\s+/i, 10000)
+      const infoLines = []
+      const line = await this.command(`go movetime ${Math.max(100, Math.min(Number(moveTime) || options.moveTime, 5000))}`, /^bestmove\s+/i, 10000, (currentLine) => {
+        if (analysis && currentLine.startsWith('info ') && currentLine.includes(' score ')) infoLines.push(currentLine)
+      })
       const match = line.match(/^bestmove\s+([a-i][0-9][a-i][0-9])/i)
       if (!match) throw new Error(`Pikafish 没有返回有效走法：${line}`)
-      return { move: match[1].toLowerCase(), engine: this.name || 'Pikafish', level }
+      const score = parseAnalysisScore(infoLines.at(-1))
+      return { move: match[1].toLowerCase(), score, engine: this.name || 'Pikafish', level }
     })
     this.queue = task.catch(() => undefined)
     return task
@@ -126,6 +130,12 @@ export class PikafishEngine {
     this.process = null
     this.ready = false
   }
+}
+
+function parseAnalysisScore(lines) {
+  const match = lines?.match(/score\s+(cp|mate)\s+(-?\d+)/i)
+  if (!match) return null
+  return { type: match[1].toLowerCase(), value: Number(match[2]) }
 }
 
 function levelOptions(level) {

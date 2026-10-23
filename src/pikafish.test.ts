@@ -24,6 +24,12 @@ describe('Pikafish 浏览器客户端', () => {
     }))
   })
 
+  it('分析请求携带分析标记并返回评估分', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ move: 'h9g7', score: { type: 'cp', value: 35 }, engine: 'Pikafish Test', level: '初级' }), { status: 200 })))
+    await expect(getPikafishMove('test-fen', '初级', true)).resolves.toMatchObject({ score: { value: 35 } })
+    expect(fetch).toHaveBeenCalledWith('/api/pikafish/bestmove', expect.objectContaining({ body: JSON.stringify({ fen: 'test-fen', level: '初级', analysis: true }) }))
+  })
+
   it('最佳着接口错误时抛出服务端信息', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ error: '引擎超时' }), { status: 503 })))
     await expect(getPikafishMove('test-fen', '中级')).rejects.toThrow('引擎超时')
