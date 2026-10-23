@@ -11,6 +11,7 @@ import {
   RotateCcw,
   Sparkles,
   Star,
+  Swords,
   Target,
   Trophy,
   UserRound,
@@ -19,8 +20,10 @@ import {
 import './App.css'
 import { LinxiVoiceClient, type LinxiState } from './linxi'
 import { applyMove, isLevelMove, levels, parseVoiceMove, sameSquare, type Level, type Piece, type Square } from './chess'
+import { battlePieces, battleStatus, chooseAiMove, createBattle, legalTargets as battleLegalTargets, makeBattleMove } from './battle'
+import type { Chess, Move } from '@weshell/xiangqi.js'
 
-type Page = 'home' | 'lesson' | 'progress' | 'profile'
+type Page = 'home' | 'lesson' | 'battle' | 'progress' | 'profile'
 
 function App() {
   const [page, setPage] = useState<Page>('home')
@@ -185,7 +188,7 @@ function App() {
       </header>
 
       <main>
-        {page === 'home' && <HomePage onStart={openLesson} completedCount={levelIndex} />}
+        {page === 'home' && <HomePage onStart={openLesson} onBattle={() => setPage('battle')} completedCount={levelIndex} />}
         {page === 'lesson' && (
           <LessonPage
             pieces={pieces}
@@ -206,6 +209,7 @@ function App() {
             onContinue={() => levelIndex < levels.length - 1 ? loadLevel(levelIndex + 1) : setPage('progress')}
           />
         )}
+        {page === 'battle' && <BattlePage onBack={() => setPage('home')} />}
         {page === 'progress' && <ProgressPage onLesson={openLesson} />}
         {page === 'profile' && <ProfilePage />}
       </main>
@@ -225,7 +229,7 @@ function NavButton({ active, icon, label, onClick }: { active: boolean; icon: Re
   return <button className={active ? 'nav-button active' : 'nav-button'} onClick={onClick}>{icon}<span>{label}</span></button>
 }
 
-function HomePage({ onStart, completedCount }: { onStart: (index?: number) => void; completedCount: number }) {
+function HomePage({ onStart, onBattle, completedCount }: { onStart: (index?: number) => void; onBattle: () => void; completedCount: number }) {
   return (
     <div className="home-page page-wrap">
       <section className="hero-card">
@@ -233,7 +237,7 @@ function HomePage({ onStart, completedCount }: { onStart: (index?: number) => vo
           <span className="eyebrow"><Sparkles /> 训练 · 对弈 · 复盘</span>
           <h1>你好，棋友！<br /><em>今天想练哪一步？</em></h1>
           <p>和零七一起训练、对弈、复盘，轻松读懂每一步棋。</p>
-          <button className="primary-button" onClick={() => onStart(0)}>开始今日挑战 <ChevronRight /></button>
+          <div className="hero-actions"><button className="primary-button" onClick={onBattle}><Swords /> 开始人机对战</button><button className="secondary-button" onClick={() => onStart(0)}>进入训练 <ChevronRight /></button></div>
         </div>
         <div className="hero-art" aria-hidden="true">
           <div className="sun sun-a" /><div className="sun sun-b" />
@@ -321,6 +325,101 @@ function LessonPage(props: {
               <button className="primary-button full" onClick={props.onContinue}>{props.levelIndex < levels.length - 1 ? '挑战下一关' : '查看今日成长'} <ChevronRight /></button>
             </div>
           )}
+        </aside>
+      </section>
+    </div>
+  )
+}
+
+function BattlePage({ onBack }: { onBack: () => void }) {
+  const initialGame = useMemo(() => createBattle(), [])
+  const game = useRef<Chess>(initialGame)
+  const [pieces, setPieces] = useState(() => battlePieces(initialGame))
+  const [selected, setSelected] = useState<Square | null>(null)
+  const [targets, setTargets] = useState<Square[]>([])
+  const [history, setHistory] = useState<string[]>([])
+  const [status, setStatus] = useState('轮到红方走棋')
+  const [difficulty, setDifficulty] = useState<'入门' | '初级' | '中级'>('初级')
+  const [thinking, setThinking] = useState(false)
+
+  const refresh = (lastMove?: Move) => {
+    setPieces(battlePieces(game.current))
+    setHistory(game.current.history())
+    setStatus(lastMove?.isCheckmate ? battleStatus(game.current) : battleStatus(game.current))
+  }
+
+  const aiTurn = () => {
+    if (game.current.isGameOver()) return
+    setThinking(true)
+    setStatus('ZERO7 正在思考…')
+    window.setTimeout(() => {
+      const choice = chooseAiMove(game.current, difficulty)
+      if (choice) {
+        const move = game.current.move({ from: choice.from, to: choice.to })
+        refresh(move)
+      }
+      setThinking(false)
+    }, 520)
+  }
+
+  const handleSquare = (square: Square) => {
+    if (thinking || game.current.isGameOver() || game.current.turn() !== 'w') return
+    const piece = pieces.find((item) => sameSquare(item, square))
+    if (!selected) {
+      if (piece?.side === 'red') {
+        setSelected(square)
+        setTargets(battleLegalTargets(game.current, square))
+      }
+      return
+    }
+    if (piece?.side === 'red') {
+      setSelected(square)
+      setTargets(battleLegalTargets(game.current, square))
+      return
+    }
+    const move = makeBattleMove(game.current, selected, square)
+    setSelected(null)
+    setTargets([])
+    if (!move) {
+      setStatus('这步棋现在不能走，请换一步。')
+      return
+    }
+    refresh(move)
+    aiTurn()
+  }
+
+  const restart = () => {
+    game.current = createBattle()
+    setPieces(battlePieces(game.current))
+    setHistory([])
+    setSelected(null)
+    setTargets([])
+    setStatus('轮到红方走棋')
+    setThinking(false)
+  }
+
+  const undo = () => {
+    if (thinking || history.length === 0) return
+    game.current.undo()
+    if (game.current.turn() === 'b') game.current.undo()
+    setSelected(null)
+    setTargets([])
+    refresh()
+  }
+
+  const selectedPiece = selected ? pieces.find((item) => sameSquare(item, selected)) : undefined
+  return (
+    <div className="battle-page page-wrap">
+      <div className="lesson-topline"><button className="back-button" onClick={onBack}><ArrowLeft /> 返回首页</button><div className="battle-heading"><Swords /> 人机对战</div><button className="icon-button" onClick={restart} aria-label="重新开局"><RotateCcw /></button></div>
+      <section className="battle-layout">
+        <div className="board-panel battle-board-panel">
+          <div className="battle-status"><span className={thinking ? 'thinking-dot active' : 'thinking-dot'} />{status}</div>
+          <ChessBoard pieces={pieces} selectedId={selectedPiece?.id ?? null} legalTargets={targets} instruction="你执红方 · ZERO7 执黑方" onSquare={handleSquare} />
+        </div>
+        <aside className="battle-sidebar">
+          <div className="battle-card"><span className="section-kicker">DIFFICULTY</span><h2>选择棋力</h2><div className="difficulty-row">{(['入门', '初级', '中级'] as const).map((item) => <button key={item} className={difficulty === item ? 'active' : ''} onClick={() => setDifficulty(item)}>{item}</button>)}</div></div>
+          <div className="battle-card move-list"><span className="section-kicker">MOVES</span><h2>对局棋谱</h2>{history.length === 0 ? <p>走出第一步后，棋谱会显示在这里。</p> : <ol>{Array.from({ length: Math.ceil(history.length / 2) }, (_, index) => <li key={index}><span>{history[index * 2]}</span><span>{history[index * 2 + 1] ?? '…'}</span></li>)}</ol>}</div>
+          <div className="battle-actions"><button className="secondary-button" onClick={undo} disabled={thinking || history.length === 0}><RotateCcw /> 悔棋</button><button className="danger-button" onClick={() => setStatus('你已认输，本局由 ZERO7 获胜。')}>认输</button></div>
         </aside>
       </section>
     </div>

@@ -26,6 +26,10 @@
 .primary-button:active { transform: translateY(3px); box-shadow: 0 2px 0 #c9533e; }
 .primary-button svg { width: 18px; }
 .primary-button.full { width: 100%; }
+.hero-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.secondary-button, .danger-button { border: 1px solid var(--line); background: var(--paper); color: var(--ink); padding: 13px 20px; border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; cursor: pointer; }
+.secondary-button:hover { border-color: var(--blue); color: var(--blue); } .secondary-button svg { width: 17px; } .secondary-button:disabled { opacity: .45; cursor: default; }
+.danger-button { color: var(--coral-dark); border-color: #f1c7bd; }
 .hero-art { background: #527f91; position: relative; overflow: hidden; }
 .hero-art::after { content: ''; position: absolute; left: -10%; right: -10%; bottom: -100px; height: 210px; border-radius: 50%; background: #406d80; }
 .sun { position: absolute; border-radius: 50%; border: 1px solid rgba(255,255,255,.18); }
@@ -132,19 +136,30 @@
 .profile-card, .settings-card { max-width: 700px; margin: 24px auto; background: var(--paper); border: 1px solid var(--line); border-radius: 24px; padding: 30px; text-align: left; }
 .profile-card { display: flex; align-items: center; gap: 22px; } .profile-avatar { width: 85px; height: 85px; background: var(--blue); color: white; border-radius: 28px; display: grid; place-items: center; text-align: center; font: 24px/1 'Ma Shan Zheng'; transform: rotate(-3deg); } .profile-card h2 { margin: 0; color: var(--ink); } .profile-card p { color: var(--muted); } .profile-tag { display: inline-flex; gap: 5px; align-items: center; color: #9c702c; background: #fff4d9; padding: 6px 9px; border-radius: 8px; font-size: 11px; } .profile-tag svg { width: 13px; fill: var(--gold); color: var(--gold); }
 .settings-card h2 { color: var(--ink); } .settings-card > div { padding: 16px 0; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; } .settings-card span { display: flex; align-items: center; gap: 10px; color: var(--muted); } .settings-card svg { width: 18px; color: var(--blue); } .settings-card strong { color: var(--ink); font-size: 13px; }
+.battle-page { padding-top: 28px; }
+.battle-heading { justify-self: center; display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--ink); } .battle-heading svg { width: 18px; color: var(--coral); }
+.battle-layout { display: grid; grid-template-columns: minmax(520px, 1fr) 340px; gap: 26px; align-items: start; }
+.battle-board-panel { padding-top: 22px; }
+.battle-status { width: min(520px,100%); margin: 0 auto 16px; padding: 11px 16px; border-radius: 12px; background: #edf3f2; color: #52606c; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.thinking-dot { width: 8px; height: 8px; border-radius: 50%; background: #5aa987; } .thinking-dot.active { background: var(--gold); animation: dot-pulse 1s infinite; }
+.battle-sidebar { display: grid; gap: 18px; position: sticky; top: 100px; }
+.battle-card { background: var(--paper); border: 1px solid var(--line); border-radius: 20px; padding: 22px; } .battle-card h2 { margin: 6px 0 17px; font-size: 18px; color: var(--ink); }
+.difficulty-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; } .difficulty-row button { border: 1px solid var(--line); border-radius: 10px; padding: 9px 4px; background: white; color: var(--muted); cursor: pointer; } .difficulty-row button.active { background: var(--coral); border-color: var(--coral); color: white; }
+.move-list { min-height: 280px; max-height: 430px; overflow: auto; } .move-list > p { color: var(--muted); font-size: 12px; line-height: 1.7; } .move-list ol { margin: 0; padding-left: 25px; } .move-list li { color: var(--muted); padding: 7px 0; border-bottom: 1px dashed var(--line); display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px; } .move-list li::marker { color: #aaa; }
+.battle-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .toast { position: fixed; left: 50%; bottom: 30px; transform: translateX(-50%); border-radius: 13px; padding: 12px 18px; background: #26324a; color: white; z-index: 100; display: flex; gap: 8px; align-items: center; box-shadow: 0 10px 30px rgba(20,25,40,.25); font-size: 13px; } .toast svg { width: 17px; }
 
 @media (max-width: 900px) {
   .hero-card { grid-template-columns: 1fr; } .hero-art { min-height: 310px; } .hero-copy { padding: 45px; }
   .lesson-grid { grid-template-columns: 1fr; } .lesson-card { min-height: 190px; }
-  .challenge-layout { grid-template-columns: 1fr; } .coach-panel { position: static; }
-  .challenge-layout { max-width: 650px; margin: 0 auto; }
+  .challenge-layout, .battle-layout { grid-template-columns: 1fr; } .coach-panel, .battle-sidebar { position: static; }
+  .challenge-layout, .battle-layout { max-width: 650px; margin: 0 auto; }
 }
 @media (max-width: 640px) {
   .app-shell { padding-bottom: 86px; }
   .topbar { height: 64px; padding: 0 17px; } .brand-mark { width: 37px; height: 37px; } .brand-name { font-size: 17px; } .desktop-nav, .streak { display: none; }
   .page-wrap { width: min(100% - 28px, 560px); }
-  .hero-card { margin-top: 16px; border-radius: 22px; } .hero-copy { padding: 32px 25px 34px; } .hero-copy h1 { font-size: 43px; } .hero-copy p { font-size: 14px; margin-bottom: 22px; } .hero-art { min-height: 270px; }
+  .hero-card { margin-top: 16px; border-radius: 22px; } .hero-copy { padding: 32px 25px 34px; } .hero-actions { align-items: stretch; } .hero-actions > button { width: 100%; } .hero-copy h1 { font-size: 43px; } .hero-copy p { font-size: 14px; margin-bottom: 22px; } .hero-art { min-height: 270px; }
   .mascot { transform: translate(-50%,-50%) scale(.85); } .piece-one { left: 23px; top: 40px; } .piece-two { right: 25px; bottom: 30px; }
   .section-block { margin-top: 32px; } .section-heading h2 { font-size: 29px; }
   .encourage-card { align-items: flex-start; padding: 18px; } .encourage-card p { font-size: 18px; } .weekly { display: none; }
