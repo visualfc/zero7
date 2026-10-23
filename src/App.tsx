@@ -339,6 +339,7 @@ function BattlePage({ onBack }: { onBack: () => void }) {
   const [selected, setSelected] = useState<Square | null>(null)
   const [targets, setTargets] = useState<Square[]>([])
   const [history, setHistory] = useState<string[]>([])
+  const [replayStep, setReplayStep] = useState<number | null>(null)
   const [status, setStatus] = useState('轮到红方走棋')
   const [difficulty, setDifficulty] = useState<EngineLevel>('初级')
   const [thinking, setThinking] = useState(false)
@@ -376,6 +377,7 @@ function BattlePage({ onBack }: { onBack: () => void }) {
   const refresh = (lastMove?: Move) => {
     setPieces(battlePieces(game.current))
     setHistory((game.current.history({ verbose: true }) as Move[]).map((move) => move.zh))
+    setReplayStep(null)
     setStatus(lastMove?.isCheckmate ? battleStatus(game.current) : battleStatus(game.current))
   }
 
@@ -439,7 +441,7 @@ function BattlePage({ onBack }: { onBack: () => void }) {
 
   const handleBattleTranscript = (text: string) => {
     if (!voiceMoveAuthorization.current.consume()) return
-    if (thinking || game.current.isGameOver() || game.current.turn() !== 'w') return
+    if (replayStep !== null || thinking || game.current.isGameOver() || game.current.turn() !== 'w') return
     const move = findVoiceMove(game.current, text)
     if (!move) {
       setVoiceText(`听到“${text}”，没有匹配到当前合法走法，请再说一次。`)
@@ -464,7 +466,7 @@ function BattlePage({ onBack }: { onBack: () => void }) {
   }
 
   const startBattleVoice = async () => {
-    if (thinking || game.current.isGameOver() || game.current.turn() !== 'w') return
+    if (replayStep !== null || thinking || game.current.isGameOver() || game.current.turn() !== 'w') return
     if (battleVoiceState.current === 'listening') {
       await battleVoiceClient.current?.stop()
       return
@@ -486,7 +488,7 @@ function BattlePage({ onBack }: { onBack: () => void }) {
   }
 
   const handleSquare = (square: Square) => {
-    if (thinking || game.current.isGameOver() || game.current.turn() !== 'w') return
+    if (replayStep !== null || thinking || game.current.isGameOver() || game.current.turn() !== 'w') return
     voiceMoveAuthorization.current.cancel()
     if (battleVoiceState.current === 'listening' || battleVoiceState.current === 'thinking') battleVoiceClient.current?.disconnect()
     const piece = pieces.find((item) => sameSquare(item, square))
@@ -512,6 +514,24 @@ function BattlePage({ onBack }: { onBack: () => void }) {
     playBattleMove(move)
   }
 
+  const replayMove = (step: number) => {
+    if (thinking) return
+    const replayGame = createBattle()
+    const moves = game.current.history({ verbose: true }) as Move[]
+    moves.slice(0, step).forEach((move) => replayGame.move({ from: move.from, to: move.to }))
+    setPieces(battlePieces(replayGame))
+    setSelected(null)
+    setTargets([])
+    setReplayStep(step)
+    setStatus(`正在复盘第 ${step} 步，共 ${moves.length} 步`)
+  }
+
+  const returnToCurrentPosition = () => {
+    setPieces(battlePieces(game.current))
+    setReplayStep(null)
+    setStatus(battleStatus(game.current))
+  }
+
   const reviewBattle = () => {
     void speakBattleText(buildBattleReview(game.current, resigned))
   }
@@ -523,6 +543,7 @@ function BattlePage({ onBack }: { onBack: () => void }) {
     setHistory([])
     setSelected(null)
     setTargets([])
+    setReplayStep(null)
     setResigned(false)
     setStatus('轮到红方走棋')
     setThinking(false)
@@ -555,9 +576,10 @@ function BattlePage({ onBack }: { onBack: () => void }) {
           <div className="battle-card battle-voice-card">
             <div className="coach-head compact"><div className="coach-avatar small">象</div><div><strong>语音走棋与讲解</strong><span>{voiceStateLabel(voiceState)}</span></div><span className={`connection-dot ${voiceState}`} /></div>
             <p>{voiceText}</p>
-            <button className={voiceState === 'listening' ? 'voice-button listening' : 'voice-button'} onClick={() => void startBattleVoice()} disabled={thinking || voiceState === 'connecting' || voiceState === 'thinking' || game.current.turn() !== 'w'}><span><Mic /></span><strong>{voiceButtonLabel(voiceState)}</strong><small>{voiceState === 'listening' ? '说完后再按一次' : '例如：“炮二平五”'}</small></button>
+            <button className={voiceState === 'listening' ? 'voice-button listening' : 'voice-button'} onClick={() => void startBattleVoice()} disabled={replayStep !== null || thinking || voiceState === 'connecting' || voiceState === 'thinking' || game.current.turn() !== 'w'}><span><Mic /></span><strong>{voiceButtonLabel(voiceState)}</strong><small>{voiceState === 'listening' ? '说完后再按一次' : '例如：“炮二平五”'}</small></button>
           </div>
-          <div className="battle-card move-list"><span className="section-kicker">MOVES</span><h2>对局棋谱</h2>{history.length === 0 ? <p>走出第一步后，棋谱会显示在这里。</p> : <ol>{Array.from({ length: Math.ceil(history.length / 2) }, (_, index) => <li key={index}><span>{history[index * 2]}</span><span>{history[index * 2 + 1] ?? '…'}</span></li>)}</ol>}</div>
+          <div className="battle-card move-list"><span className="section-kicker">MOVES</span><h2>对局棋谱</h2>{history.length === 0 ? <p>走出第一步后，棋谱会显示在这里。</p> : <ol>{Array.from({ length: Math.ceil(history.length / 2) }, (_, index) => <li key={index}><button className={replayStep === index * 2 + 1 ? 'move-replay active' : 'move-replay'} onClick={() => replayMove(index * 2 + 1)}>{history[index * 2]}</button><button className={replayStep === index * 2 + 2 ? 'move-replay active' : 'move-replay'} onClick={() => history[index * 2 + 1] && replayMove(index * 2 + 2)} disabled={!history[index * 2 + 1]}>{history[index * 2 + 1] ?? '…'}</button></li>)}</ol>}</div>
+          {replayStep !== null && <button className="secondary-button full" onClick={returnToCurrentPosition}>返回当前局面</button>}
           <div className="battle-actions"><button className="secondary-button" onClick={undo} disabled={thinking || history.length === 0}><RotateCcw /> 悔棋</button><button className="secondary-button" onClick={() => { setResigned(true); setStatus('你已认输，本局由 ZERO7 获胜。') }}>认输</button></div>
           {(resigned || game.current.isGameOver()) && <button className="secondary-button full review-button" onClick={reviewBattle}><Volume2 /> 语音复盘</button>}
         </aside>

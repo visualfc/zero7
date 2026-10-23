@@ -186,6 +186,23 @@ describe('ZERO7', () => {
     expect(screen.getByText('走出第一步后，棋谱会显示在这里。')).toBeInTheDocument()
   })
 
+  it('点击棋谱可以跳转并返回当前局面', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (input: string | URL | Request) => {
+      if (String(input).includes('/status')) return new Response(JSON.stringify({ available: false }), { status: 200 })
+      return new Response(JSON.stringify({ error: '不可用' }), { status: 503 })
+    }))
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: /开始人机对战/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: '红马' }).at(-1)!)
+    fireEvent.click(screen.getByRole('button', { name: '7-6' }))
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 560)) })
+    fireEvent.click(screen.getByRole('button', { name: '马二进三' }))
+    expect(screen.getByText('正在复盘第 1 步，共 2 步')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '返回当前局面' })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '返回当前局面' }))
+    expect(screen.getByText(/ZERO7 正在思考|轮到红方走棋/)).toBeInTheDocument()
+  })
+
   it('支持人机对战悔棋和重新开局', async () => {
     vi.stubGlobal('fetch', vi.fn(async (input: string | URL | Request) => {
       if (String(input).includes('/status')) return new Response(JSON.stringify({ available: false }), { status: 200 })
