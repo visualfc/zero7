@@ -25,7 +25,7 @@ describe('ZERO7', () => {
     render(<App />)
     fireEvent.click(screen.getByRole('button', { name: /开始今日挑战/ }))
     fireEvent.click(screen.getByRole('button', { name: '再给我一点提示' }))
-    expect(screen.getByText('看看中路，红炮和黑车之间有什么？')).toBeInTheDocument()
+    expect(screen.getAllByText('看看中路，红炮和黑车之间有什么？')).toHaveLength(2)
   })
 
   it('完成第一关后进入第二关', () => {

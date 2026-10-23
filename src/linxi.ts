@@ -1,3 +1,5 @@
+import { LingxiAudioPlayer } from './audio-player'
+
 export type LinxiState = 'idle' | 'connecting' | 'ready' | 'listening' | 'thinking' | 'speaking' | 'error'
 
 export interface LinxiEvent {
@@ -11,6 +13,7 @@ interface LinxiMessage {
   state?: string
   text?: string
   message?: string
+  is_aborted?: boolean
 }
 
 export class LinxiVoiceClient {
@@ -21,12 +24,16 @@ export class LinxiVoiceClient {
   private processor: ScriptProcessorNode | null = null
   private silentGain: GainNode | null = null
   private frameBuffer = new PcmFrameBuffer(320)
+  private player = new LingxiAudioPlayer()
   private recognitionTimer: number | null = null
   private state: LinxiState = 'idle'
   private readonly emit: (event: LinxiEvent) => void
 
   constructor(emit: (event: LinxiEvent) => void) {
     this.emit = emit
+    this.player.setPlaybackEndHandler(() => {
+      if (this.state === 'speaking') this.setState('ready')
+    })
   }
 
   get currentState() {
@@ -49,6 +56,15 @@ export class LinxiVoiceClient {
     this.setState('listening')
   }
 
+  async speakText(text: string) {
+    await this.player.prepare()
+    if (this.socket?.readyState !== WebSocket.OPEN) {
+      this.setState('connecting')
+      await this.connect()
+    }
+    this.socket?.send(JSON.stringify({ type: 'speak', text }))
+  }
+
   async stop() {
     if (this.state === 'listening') {
       this.frameBuffer.flush((frame) => this.sendFrame(frame))
@@ -62,6 +78,7 @@ export class LinxiVoiceClient {
   disconnect() {
     this.clearRecognitionTimeout()
     this.stopCapture()
+    void this.player.dispose()
     this.socket?.close()
     this.socket = null
     this.setState('idle')
@@ -79,6 +96,12 @@ export class LinxiVoiceClient {
       }, 10000)
 
       socket.onmessage = (event) => {
+        if (event.data instanceof ArrayBuffer) {
+          void this.player.enqueue(event.data).catch(() => {
+            this.emit({ type: 'error', text: '零七的语音播放失败，请重试' })
+          })
+          return
+        }
         if (typeof event.data !== 'string') return
         const message = JSON.parse(event.data) as LinxiMessage
         if (message.type === 'ready') {
@@ -90,14 +113,22 @@ export class LinxiVoiceClient {
           this.emit({ type: 'transcript', text: message.text })
           this.setState('thinking')
         } else if (message.type === 'tts') {
-          if (message.state === 'start') this.setState('speaking')
+          if (message.state === 'start') {
+            this.clearRecognitionTimeout()
+            this.setState('speaking')
+            void this.player.startStream()
+          }
           if (message.state === 'sentence_start' && message.text) {
             this.emit({ type: 'reply', text: message.text })
-            this.speak(message.text)
           }
           if (message.state === 'stop') {
             this.clearRecognitionTimeout()
-            this.setState('ready')
+            if (message.is_aborted) {
+              void this.player.stop()
+              this.setState('ready')
+            } else {
+              this.player.finishStream()
+            }
           }
         } else if (message.type === 'error') {
           this.clearRecognitionTimeout()
@@ -166,16 +197,6 @@ export class LinxiVoiceClient {
     this.source = null
     this.processor = null
     this.silentGain = null
-  }
-
-  private speak(text: string) {
-    if (!('speechSynthesis' in window)) return
-    window.speechSynthesis.cancel()
-    const utterance = new SpeechSynthesisUtterance(text)
-    utterance.lang = 'zh-CN'
-    utterance.rate = 0.94
-    utterance.pitch = 1.08
-    window.speechSynthesis.speak(utterance)
   }
 
   private setState(state: LinxiState) {

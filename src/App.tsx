@@ -109,14 +109,7 @@ function App() {
     setToast(`这步还没有匹配成功，可以说“${level.answer}”`)
   }
 
-  const startVoice = async () => {
-    if (completed) return
-    if (voiceStateRef.current === 'listening') {
-      await voiceClient.current?.stop()
-      return
-    }
-
-    voiceClient.current?.disconnect()
+  const createVoiceClient = () => {
     const client = new LinxiVoiceClient((event) => {
       if (event.type === 'state' && event.state) updateVoiceState(event.state)
       if (event.type === 'transcript' && event.text) handleTranscript(event.text)
@@ -128,7 +121,19 @@ function App() {
       }
     })
     voiceClient.current = client
-    setVoiceText('正在连接小象教练…')
+    return client
+  }
+
+  const startVoice = async () => {
+    if (completed) return
+    if (voiceStateRef.current === 'listening') {
+      await voiceClient.current?.stop()
+      return
+    }
+
+    voiceClient.current?.disconnect()
+    const client = createVoiceClient()
+    setVoiceText('正在连接零七教练…')
     try {
       await client.start()
       setVoiceText('我在听，请说出你的走法…说完后再按一次。')
@@ -137,6 +142,24 @@ function App() {
       updateVoiceState('error')
       const message = error instanceof Error ? error.message : '灵矽连接失败'
       setVoiceText(message)
+      setToast(message)
+    }
+  }
+
+  const requestHint = async () => {
+    const nextLevel = Math.min(3, hintLevel + 1)
+    setHintLevel(nextLevel)
+    const hintText = level.hints[nextLevel - 1]
+    setVoiceText(hintText)
+    try {
+      let client = voiceClient.current
+      if (!client || client.currentState === 'error' || client.currentState === 'idle') {
+        client?.disconnect()
+        client = createVoiceClient()
+      }
+      await client.speakText(hintText)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '语音提示播放失败'
       setToast(message)
     }
   }
@@ -178,7 +201,7 @@ function App() {
             onSquare={handleSquare}
             onBack={() => setPage('home')}
             onVoice={startVoice}
-            onHint={() => setHintLevel((level) => Math.min(3, level + 1))}
+            onHint={() => void requestHint()}
             onReset={resetLesson}
             onContinue={() => levelIndex < levels.length - 1 ? loadLevel(levelIndex + 1) : setPage('progress')}
           />
@@ -207,9 +230,9 @@ function HomePage({ onStart, completedCount }: { onStart: (index?: number) => vo
     <div className="home-page page-wrap">
       <section className="hero-card">
         <div className="hero-copy">
-          <span className="eyebrow"><Sparkles /> 今天也来动动脑筋吧</span>
-          <h1>小棋手，<br /><em>准备好闯关了吗？</em></h1>
-          <p>每天 10 分钟，和小象一起学会看棋、想棋、下好每一步。</p>
+          <span className="eyebrow"><Sparkles /> 训练 · 对弈 · 复盘</span>
+          <h1>你好，棋友！<br /><em>今天想练哪一步？</em></h1>
+          <p>和零七一起训练、对弈、复盘，轻松读懂每一步棋。</p>
           <button className="primary-button" onClick={() => onStart(0)}>开始今日挑战 <ChevronRight /></button>
         </div>
         <div className="hero-art" aria-hidden="true">
@@ -330,7 +353,13 @@ function ChessBoard({ pieces, selectedId, legalTargets, instruction, onSquare }:
           const piece = pieces.find((item) => sameSquare(item, square))
           const target = legalTargets.some((item) => sameSquare(item, square))
           return (
-            <button key={`${square.row}-${square.col}`} className={target ? 'board-square target' : 'board-square'} onClick={() => onSquare(square)} aria-label={piece ? `${piece.side === 'red' ? '红' : '黑'}${piece.text}` : `${square.row}-${square.col}`}>
+            <button
+              key={`${square.row}-${square.col}`}
+              className={target ? 'board-square target' : 'board-square'}
+              style={{ '--board-col': square.col, '--board-row': square.row } as React.CSSProperties}
+              onClick={() => onSquare(square)}
+              aria-label={piece ? `${piece.side === 'red' ? '红' : '黑'}${piece.text}` : `${square.row}-${square.col}`}
+            >
               {piece && <span className={`chess-piece ${piece.side} ${selectedId === piece.id ? 'selected' : ''}`}>{piece.text}</span>}
             </button>
           )
@@ -344,7 +373,7 @@ function ChessBoard({ pieces, selectedId, legalTargets, instruction, onSquare }:
 function ProgressPage({ onLesson }: { onLesson: (index?: number) => void }) {
   return (
     <div className="simple-page page-wrap">
-      <span className="eyebrow"><Trophy /> MY JOURNEY</span><h1>小棋手的成长册</h1><p className="lead">每一次认真思考，都让你离象棋高手更近一步。</p>
+      <span className="eyebrow"><Trophy /> MY JOURNEY</span><h1>我的象棋成长</h1><p className="lead">每一次认真思考，都让你的判断更稳一步。</p>
       <div className="stats-grid"><Stat value="3" label="连续学习天数" color="coral" /><Stat value="28" label="收集智慧星" color="gold" /><Stat value="5" label="完成小关卡" color="blue" /></div>
       <section className="journey-card"><div><span className="section-kicker">本周目标</span><h2>完成 3 次象棋练习</h2><p>再完成今天的三小关，就能点亮“小小观察家”徽章。</p><div className="journey-bar"><span /></div><small>2 / 3 次</small></div><div className="badge-art"><Award /></div></section>
       <button className="primary-button" onClick={() => onLesson(0)}>继续今日挑战 <ChevronRight /></button>
@@ -359,9 +388,9 @@ function Stat({ value, label, color }: { value: string; label: string; color: st
 function ProfilePage() {
   return (
     <div className="simple-page page-wrap">
-      <span className="eyebrow"><UserRound /> MY PROFILE</span><h1>你好，小棋手！</h1><p className="lead">这里保存着你的学习偏好和小小成就。</p>
-      <section className="profile-card"><div className="profile-avatar">小<br />棋</div><div><h2>小小棋手</h2><p>当前等级：象棋新芽</p><span className="profile-tag"><Star /> 已学习 3 天</span></div></section>
-      <section className="settings-card"><h2>学习设置</h2><div><span><Volume2 /> 语音讲解</span><strong>开启</strong></div><div><span><BookOpen /> 每日目标</span><strong>3 个小关卡</strong></div><div><span><Target /> 当前难度</span><strong>启蒙</strong></div></section>
+      <span className="eyebrow"><UserRound /> MY PROFILE</span><h1>你好，棋友！</h1><p className="lead">这里保存着你的训练偏好和对局成长。</p>
+      <section className="profile-card"><div className="profile-avatar">棋<br />友</div><div><h2>ZERO7 棋友</h2><p>当前等级：象棋入门</p><span className="profile-tag"><Star /> 已训练 3 天</span></div></section>
+      <section className="settings-card"><h2>训练设置</h2><div><span><Volume2 /> 语音讲解</span><strong>开启</strong></div><div><span><BookOpen /> 每日目标</span><strong>3 个训练关卡</strong></div><div><span><Target /> 当前难度</span><strong>入门</strong></div></section>
     </div>
   )
 }
