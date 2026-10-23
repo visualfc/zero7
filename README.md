@@ -1,6 +1,7 @@
 # ZERO7
 
 [![CI](https://github.com/visualfc/zero7/actions/workflows/ci.yml/badge.svg)](https://github.com/visualfc/zero7/actions/workflows/ci.yml)
+[![Coverage](https://codecov.io/gh/visualfc/zero7/branch/main/graph/badge.svg)](https://codecov.io/gh/visualfc/zero7)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)
 
 ZERO7 是面向象棋初学者与普通爱好者的开源 AI 语音象棋伙伴。它将自然语音、确定性的象棋规则和 AI 棋力结合在一起，让用户可以直接说出走法、获得分级提示、完成专项训练，并与 AI 进行完整对局。
@@ -207,15 +208,6 @@ npm run preview      # 预览生产构建
 - V8 代码覆盖率；
 - 生产构建。
 
-当前最低覆盖率门槛：
-
-| 指标 | 最低要求 |
-| --- | ---: |
-| Statements | 65% |
-| Branches | 58% |
-| Functions | 68% |
-| Lines | 68% |
-
 本地生成报告：
 
 ```bash
@@ -223,7 +215,7 @@ npm run test:coverage
 open coverage/index.html
 ```
 
-GitHub Actions 的任务摘要会显示覆盖率表格，并保留 14 天的 `coverage-report` HTML 报告 Artifact。
+GitHub Actions 的任务摘要会显示覆盖率表格，并保留 14 天的 `coverage-report` HTML 报告 Artifact。覆盖率同时上传到 Codecov，README 顶部的 Coverage 徽章会显示 `main` 分支的实时覆盖率；Pull Request 中会显示改动覆盖率和文件差异。
 
 ## 路线图
 
