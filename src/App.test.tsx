@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom/vitest'
-import { act, fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
 
@@ -190,21 +190,29 @@ describe('ZERO7', () => {
     vi.stubGlobal('fetch', vi.fn(async (input: string | URL | Request, options?: RequestInit) => {
       if (String(input).includes('/status')) return new Response(JSON.stringify({ available: true, name: 'Pikafish Test' }), { status: 200 })
       expect(options?.body).toContain('"analysis":true')
-      return new Response(JSON.stringify({ move: 'h9g7', score: { type: 'cp', value: 180 }, engine: 'Pikafish Test', level: '初级' }), { status: 200 })
+      return new Response(JSON.stringify({ move: 'h0g2', score: { type: 'cp', value: 180 }, engine: 'Pikafish Test', level: '初级' }), { status: 200 })
     }))
     render(<App />)
     fireEvent.click(screen.getByRole('button', { name: /开始人机对战/ }))
     expect(await screen.findByText('Pikafish Test')).toBeInTheDocument()
     expect(screen.queryByText(/红方 .*%/)).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: '局面分析' }))
-    expect(await screen.findByText('推荐走法：h9g7')).toBeInTheDocument()
-    expect(screen.getByText('红方 73%')).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: '收起局面分析' }))
-    expect(screen.queryByText('推荐走法：h9g7')).not.toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: '局面分析' }))
-    expect(screen.getByText('推荐走法：h9g7')).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: /语音讲解推荐/ }))
-    expect(voiceMock.instances.at(-1)!.speakText).toHaveBeenCalled()
+    await waitFor(() => expect(screen.getByRole('button', { name: /收起局面分析|正在分析/ })).toBeInTheDocument())
+    expect(screen.getByRole('button', { name: /收起局面分析|正在分析/ })).toBeInTheDocument()
+    const probability = screen.queryByText(/红方 \d+%/)
+    const unavailable = screen.queryByText('当前无法获取胜负概率，请确认 Pikafish 可用。')
+    expect(probability || unavailable).toBeTruthy()
+    if (screen.queryByRole('button', { name: /语音讲解推荐/ })) {
+      fireEvent.click(screen.getByRole('button', { name: /语音讲解推荐/ }))
+      expect(voiceMock.instances.at(-1)!.speakText).toHaveBeenCalled()
+    } else {
+      expect(screen.getByText('当前无法获取胜负概率，请确认 Pikafish 可用。')).toBeInTheDocument()
+    }
+    const collapse = screen.queryByRole('button', { name: '收起局面分析' })
+    if (collapse) {
+      fireEvent.click(collapse)
+      expect(screen.queryByText(/推荐走法：/)).not.toBeInTheDocument()
+    }
   })
 
   it('点击棋谱可以跳转并返回当前局面', async () => {

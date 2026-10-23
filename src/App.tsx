@@ -21,7 +21,7 @@ import './App.css'
 import { LinxiVoiceClient, type LinxiState } from './linxi'
 import { applyMove, isLevelMove, levels, parseVoiceMove, sameSquare, type Level, type Piece, type Square } from './chess'
 import { battlePieces, battleStatus, buildBattleReview, chooseAiMove, createBattle, describeBattleTurn, findVoiceMove, legalTargets as battleLegalTargets, makeBattleMove, VoiceMoveAuthorization } from './battle'
-import type { Chess, Move } from '@weshell/xiangqi.js'
+import { Chess, type Move } from '@weshell/xiangqi.js'
 import { getPikafishMove, getPikafishStatus, type EngineLevel } from './pikafish'
 
 type Page = 'home' | 'lesson' | 'battle' | 'progress' | 'profile'
@@ -174,7 +174,7 @@ function App() {
   }, [hintLevel, level])
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell ${page === 'battle' ? 'battle-shell' : ''}`}>
       <header className="topbar">
         <button className="brand" onClick={() => setPage('home')} aria-label="返回首页">
           <span className="brand-mark"><span>象</span></span>
@@ -542,7 +542,9 @@ function BattlePage({ onBack }: { onBack: () => void }) {
       const result = await getPikafishMove(game.current.fen(), difficulty, true)
       const score = result.score?.type === 'mate' ? (result.score.value > 0 ? 10000 : -10000) : (result.score?.value ?? 0)
       const red = Math.round(100 / (1 + Math.exp(-score / 180)))
-      const move = result.move
+      const analysisGame = new Chess(game.current.fen())
+      const recommendedMove = analysisGame.move(result.move)
+      const move = recommendedMove?.zh ?? result.move
       const explanation = `推荐${move}，因为它能改善当前局面的子力协调和先手。点击棋谱或棋盘可以继续自己的选择，ZERO7 不会替你走这一步。`
       setAnalysis({ red, black: 100 - red, move, explanation })
     } catch {
@@ -588,14 +590,14 @@ function BattlePage({ onBack }: { onBack: () => void }) {
   const selectedPiece = selected ? pieces.find((item) => sameSquare(item, selected)) : undefined
   return (
     <div className="battle-page page-wrap">
-      <div className="lesson-topline"><button className="back-button" onClick={onBack}><ArrowLeft /> 返回首页</button><div className="battle-heading"><Swords /> 人机对战</div><button className="secondary-button battle-restart-button" onClick={restart}><RotateCcw /> 重开一局</button></div>
+      <div className="lesson-topline battle-topline"><button className="back-button" onClick={onBack}><ArrowLeft /> 返回首页</button><div className="battle-heading"><Swords /> 人机对战</div><div className="battle-top-actions"><div className="difficulty-inline" aria-label="选择棋力">{(['入门', '初级', '中级'] as const).map((item) => <button key={item} className={difficulty === item ? 'active' : ''} onClick={() => setDifficulty(item)}>{item}</button>)}</div><button className="secondary-button battle-restart-button" onClick={restart}><RotateCcw /> 重开一局</button></div></div>
       <section className="battle-layout">
         <div className="board-panel battle-board-panel">
           <div className="battle-status"><span className={thinking ? 'thinking-dot active' : 'thinking-dot'} />{status}</div>
           <ChessBoard pieces={pieces} selectedId={selectedPiece?.id ?? null} legalTargets={targets} instruction="你执红方 · ZERO7 执黑方" onSquare={handleSquare} />
         </div>
         <aside className="battle-sidebar">
-          <div className="battle-card"><div className="engine-badge"><span className={`engine-light ${engineStatus}`} />{engineName}</div><span className="section-kicker">DIFFICULTY</span><h2>选择棋力</h2><div className="difficulty-row">{(['入门', '初级', '中级'] as const).map((item) => <button key={item} className={difficulty === item ? 'active' : ''} onClick={() => setDifficulty(item)}>{item}</button>)}</div><p className="engine-note">入门约 1280 Elo，初级约 1500 Elo，中级约 1900 Elo。</p></div>
+          <div className="battle-card engine-card"><div className="engine-badge"><span className={`engine-light ${engineStatus}`} />{engineName}</div><p className="engine-note">入门约 1280 Elo，初级约 1500 Elo，中级约 1900 Elo。</p></div>
           <div className="battle-card battle-voice-card">
             <div className="coach-head compact"><div className="coach-avatar small">象</div><div><strong>语音走棋与讲解</strong><span>{voiceStateLabel(voiceState)}</span></div><span className={`connection-dot ${voiceState}`} /></div>
             <p>{voiceText}</p>
@@ -604,7 +606,7 @@ function BattlePage({ onBack }: { onBack: () => void }) {
           <div className="battle-card move-list"><span className="section-kicker">MOVES</span><h2>对局棋谱</h2>{history.length === 0 ? <p>走出第一步后，棋谱会显示在这里。</p> : <ol>{Array.from({ length: Math.ceil(history.length / 2) }, (_, index) => <li key={index}><button className={replayStep === index * 2 + 1 ? 'move-replay active' : 'move-replay'} onClick={() => replayMove(index * 2 + 1)}>{history[index * 2]}</button><button className={replayStep === index * 2 + 2 ? 'move-replay active' : 'move-replay'} onClick={() => history[index * 2 + 1] && replayMove(index * 2 + 2)} disabled={!history[index * 2 + 1]}>{history[index * 2 + 1] ?? '…'}</button></li>)}</ol>}</div>
           {replayStep !== null && <button className="secondary-button full" onClick={returnToCurrentPosition}>返回当前局面</button>}
           <div className="battle-actions"><button className="secondary-button" onClick={undo} disabled={thinking || history.length === 0}><RotateCcw /> 悔棋</button><button className="secondary-button" onClick={() => { setResigned(true); setStatus('你已认输，本局由 ZERO7 获胜。') }}>认输</button></div>
-          {engineStatus === 'pikafish' && <div className="analysis-card"><button className="secondary-button full" onClick={() => { if (analysisVisible) setAnalysisVisible(false); else { setAnalysisVisible(true); if (!analysis) void analyzePosition() } }} disabled={analysisLoading || replayStep !== null}><Target /> {analysisLoading ? '正在分析…' : analysisVisible ? '收起局面分析' : '局面分析'}</button>{analysisVisible && analysis && <div className="analysis-result"><div className="probability-row"><span>红方 {analysis.red}%</span><span>黑方 {analysis.black}%</span></div><div className="probability-bar"><i style={{ width: `${analysis.red}%` }} /></div><strong>推荐走法：{analysis.move}</strong><p>{analysis.explanation}</p><button className="voice-button compact" onClick={() => void speakBattleText(analysis.explanation)}><Volume2 /> 语音讲解推荐</button></div>}</div>}
+          {engineStatus === 'pikafish' && <div className="battle-card analysis-card"><button className="secondary-button full compact-action" onClick={() => { if (analysisVisible) setAnalysisVisible(false); else { setAnalysisVisible(true); if (!analysis) void analyzePosition() } }} disabled={analysisLoading || replayStep !== null}><Target /> {analysisLoading ? '正在分析…' : analysisVisible ? '收起局面分析' : '局面分析'}</button>{analysisVisible && analysis && <div className="analysis-result"><div className="probability-row"><span>红方 {analysis.red}%</span><span>黑方 {analysis.black}%</span></div><div className="probability-bar"><i style={{ width: `${analysis.red}%` }} /></div><strong>推荐走法：{analysis.move}</strong><p>{analysis.explanation}</p><button className="voice-button compact-action" onClick={() => void speakBattleText(analysis.explanation)}><Volume2 /> 语音讲解推荐</button></div>}</div>}
           {(resigned || game.current.isGameOver()) && <button className="secondary-button full review-button" onClick={reviewBattle}><Volume2 /> 语音复盘</button>}
         </aside>
       </section>
