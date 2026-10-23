@@ -1,5 +1,5 @@
 {
-  "name": "xiaoxiang-qiban",
+  "name": "zero7",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -37,5 +37,6 @@
     "vite": "^8.3.4",
     "vitest": "^5.0.5"
   },
-  "description": "面向儿童的语音象棋闯关应用"
+  "description": "零七 ZERO7｜面向儿童的 AI 语音象棋伙伴",
+  "license": "Apache-2.0"
 }

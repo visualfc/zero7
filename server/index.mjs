@@ -106,8 +106,8 @@ browserServer.on('connection', async (browser) => {
         features: { mcp: false },
         transport: 'websocket',
         agent_params: {
-          assistant_title: '小象教练',
-          application: '儿童象棋闯关',
+          assistant_title: '零七教练',
+          application: 'ZERO7 儿童象棋闯关',
         },
         audio_params: {
           format: 'pcm',

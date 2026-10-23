@@ -18,36 +18,15 @@ import {
 } from 'lucide-react'
 import './App.css'
 import { LinxiVoiceClient, type LinxiState } from './linxi'
+import { applyMove, isLevelMove, levels, parseVoiceMove, sameSquare, type Level, type Piece, type Square } from './chess'
 
 type Page = 'home' | 'lesson' | 'progress' | 'profile'
-type Square = { row: number; col: number }
-type Piece = Square & { id: string; text: string; side: 'red' | 'black' }
-
-const initialPieces: Piece[] = [
-  { id: 'black-general', text: '将', side: 'black', row: 0, col: 4 },
-  { id: 'black-advisor-a', text: '士', side: 'black', row: 0, col: 3 },
-  { id: 'black-advisor-b', text: '士', side: 'black', row: 0, col: 5 },
-  { id: 'black-rook', text: '车', side: 'black', row: 2, col: 4 },
-  { id: 'black-pawn-a', text: '卒', side: 'black', row: 3, col: 2 },
-  { id: 'black-pawn-b', text: '卒', side: 'black', row: 3, col: 6 },
-  { id: 'red-general', text: '帅', side: 'red', row: 9, col: 4 },
-  { id: 'red-advisor-a', text: '仕', side: 'red', row: 9, col: 3 },
-  { id: 'red-advisor-b', text: '仕', side: 'red', row: 9, col: 5 },
-  { id: 'red-cannon', text: '炮', side: 'red', row: 7, col: 4 },
-  { id: 'red-rook', text: '车', side: 'red', row: 8, col: 8 },
-]
-
-const destinations: Record<string, Square[]> = {
-  'red-cannon': [{ row: 2, col: 4 }],
-}
-
-function sameSquare(a: Square, b: Square) {
-  return a.row === b.row && a.col === b.col
-}
 
 function App() {
   const [page, setPage] = useState<Page>('home')
-  const [pieces, setPieces] = useState(initialPieces)
+  const [levelIndex, setLevelIndex] = useState(0)
+  const level = levels[levelIndex]
+  const [pieces, setPieces] = useState<Piece[]>(() => level.pieces.map((piece) => ({ ...piece })))
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [hintLevel, setHintLevel] = useState(0)
   const [voiceState, setVoiceState] = useState<LinxiState>('idle')
@@ -58,7 +37,7 @@ function App() {
   const voiceStateRef = useRef<LinxiState>('idle')
 
   const selectedPiece = pieces.find((piece) => piece.id === selectedId)
-  const legalTargets = selectedId ? destinations[selectedId] ?? [] : []
+  const legalTargets = selectedId === level.move.pieceId ? [level.move.to] : []
 
   useEffect(() => {
     if (!toast) return
@@ -73,60 +52,61 @@ function App() {
     setVoiceState(state)
   }
 
-  const resetLesson = () => {
-    setPieces(initialPieces)
+  const loadLevel = (index: number) => {
+    const nextLevel = levels[index]
+    voiceClient.current?.disconnect()
+    setLevelIndex(index)
+    setPieces(nextLevel.pieces.map((piece) => ({ ...piece })))
     setSelectedId(null)
     setHintLevel(0)
     setVoiceText('')
     setCompleted(false)
+    updateVoiceState('idle')
   }
 
-  const openLesson = () => {
-    resetLesson()
+  const resetLesson = () => loadLevel(levelIndex)
+
+  const openLesson = (index = 0) => {
+    loadLevel(index)
     setPage('lesson')
   }
 
   const makeWinningMove = () => {
-    setPieces((current) =>
-      current
-        .filter((piece) => piece.id !== 'black-rook')
-        .map((piece) =>
-          piece.id === 'red-cannon' ? { ...piece, row: 2, col: 4 } : piece,
-        ),
-    )
+    setPieces((current) => applyMove(current, level.move))
     setSelectedId(null)
     setCompleted(true)
-    setVoiceText('炮五进五，吃掉黑车！')
+    setVoiceText(`${level.answer}，${level.successText}`)
   }
 
   const handleSquare = (square: Square) => {
     if (completed) return
     const piece = pieces.find((item) => sameSquare(item, square))
 
-    if (selectedPiece && legalTargets.some((target) => sameSquare(target, square))) {
+    if (selectedPiece && isLevelMove(level, selectedPiece.id, square)) {
       makeWinningMove()
       return
     }
 
     if (piece?.side === 'red') {
       setSelectedId(piece.id)
-      setVoiceText(piece.id === 'red-cannon' ? '选中了红炮，它可以沿直线前进。' : `选中了红${piece.text}。`)
+      setVoiceText(piece.id === level.move.pieceId ? `选中了红${piece.text}，想想它应该走到哪里。` : `选中了红${piece.text}，再看看有没有更合适的棋子。`)
       return
     }
 
     setSelectedId(null)
-    setToast('试试先选中红色的炮')
+    const targetPiece = pieces.find((item) => item.id === level.move.pieceId)
+    setToast(`试试先选中红色的${targetPiece?.text ?? '棋子'}`)
   }
 
   const handleTranscript = (text: string) => {
     setVoiceText(`听到“${text}”`)
-    const normalized = text.replace(/[，。！？,.!?\s]/g, '').replace('砲', '炮')
-    if (normalized.includes('炮五进五') || (normalized.includes('炮') && normalized.includes('进五'))) {
-      setVoiceText(`听到“${text}”。这步能吃掉黑车！`)
+    const result = parseVoiceMove(text, level)
+    if (result.matched) {
+      setVoiceText(`听到“${text}”，识别为“${result.notation}”。`)
       window.setTimeout(makeWinningMove, 450)
       return
     }
-    setToast('这步还没有匹配成功，可以说“炮五进五”')
+    setToast(`这步还没有匹配成功，可以说“${level.answer}”`)
   }
 
   const startVoice = async () => {
@@ -163,17 +143,15 @@ function App() {
 
   const hint = useMemo(() => {
     if (hintLevel === 0) return '需要帮助时，我会一点点提示你。'
-    if (hintLevel === 1) return '看看棋盘中路，黑车正在将军。'
-    if (hintLevel === 2) return '红炮和黑车在同一条直线上。'
-    return '选中红炮，再走到黑车的位置：炮五进五。'
-  }, [hintLevel])
+    return level.hints[hintLevel - 1]
+  }, [hintLevel, level])
 
   return (
     <div className="app-shell">
       <header className="topbar">
         <button className="brand" onClick={() => setPage('home')} aria-label="返回首页">
           <span className="brand-mark"><span>象</span></span>
-          <span className="brand-name">小象棋伴</span>
+          <span className="brand-name">零七 <small>ZERO7</small></span>
         </button>
         <nav className="desktop-nav" aria-label="主导航">
           <NavButton active={page === 'home'} icon={<Home />} label="首页" onClick={() => setPage('home')} />
@@ -184,12 +162,14 @@ function App() {
       </header>
 
       <main>
-        {page === 'home' && <HomePage onStart={openLesson} />}
+        {page === 'home' && <HomePage onStart={openLesson} completedCount={levelIndex} />}
         {page === 'lesson' && (
           <LessonPage
             pieces={pieces}
             selectedId={selectedId}
             legalTargets={legalTargets}
+            level={level}
+            levelIndex={levelIndex}
             completed={completed}
             voiceState={voiceState}
             voiceText={voiceText}
@@ -200,7 +180,7 @@ function App() {
             onVoice={startVoice}
             onHint={() => setHintLevel((level) => Math.min(3, level + 1))}
             onReset={resetLesson}
-            onContinue={() => setPage('progress')}
+            onContinue={() => levelIndex < levels.length - 1 ? loadLevel(levelIndex + 1) : setPage('progress')}
           />
         )}
         {page === 'progress' && <ProgressPage onLesson={openLesson} />}
@@ -222,7 +202,7 @@ function NavButton({ active, icon, label, onClick }: { active: boolean; icon: Re
   return <button className={active ? 'nav-button active' : 'nav-button'} onClick={onClick}>{icon}<span>{label}</span></button>
 }
 
-function HomePage({ onStart }: { onStart: () => void }) {
+function HomePage({ onStart, completedCount }: { onStart: (index?: number) => void; completedCount: number }) {
   return (
     <div className="home-page page-wrap">
       <section className="hero-card">
@@ -230,7 +210,7 @@ function HomePage({ onStart }: { onStart: () => void }) {
           <span className="eyebrow"><Sparkles /> 今天也来动动脑筋吧</span>
           <h1>小棋手，<br /><em>准备好闯关了吗？</em></h1>
           <p>每天 10 分钟，和小象一起学会看棋、想棋、下好每一步。</p>
-          <button className="primary-button" onClick={onStart}>开始今日挑战 <ChevronRight /></button>
+          <button className="primary-button" onClick={() => onStart(0)}>开始今日挑战 <ChevronRight /></button>
         </div>
         <div className="hero-art" aria-hidden="true">
           <div className="sun sun-a" /><div className="sun sun-b" />
@@ -246,17 +226,17 @@ function HomePage({ onStart }: { onStart: () => void }) {
       </section>
 
       <section className="section-block">
-        <div className="section-heading"><div><span className="section-kicker">TODAY</span><h2>今日三小关</h2></div><span className="progress-copy">已完成 0 / 3</span></div>
+        <div className="section-heading"><div><span className="section-kicker">TODAY</span><h2>今日三小关</h2></div><span className="progress-copy">已完成 {completedCount} / 3</span></div>
         <div className="lesson-grid">
-          <LessonCard number="01" color="coral" icon={<Target />} title="找出危险" text="谁正在攻击我们的帅？" tags={['观察力', '2 分钟']} onClick={onStart} />
-          <LessonCard number="02" color="gold" icon={<Lightbulb />} title="一步解围" text="找到既安全又聪明的一步。" tags={['救将', '3 分钟']} onClick={onStart} />
-          <LessonCard number="03" color="blue" icon={<Award />} title="将军挑战" text="用一招漂亮地将军！" tags={['进攻', '3 分钟']} onClick={onStart} />
+          <LessonCard number="01" color="coral" icon={<Target />} title="隔山打牛" text="找到炮架，吃掉闯进中路的黑车。" tags={['观察力', '2 分钟']} onClick={() => onStart(0)} />
+          <LessonCard number="02" color="gold" icon={<Lightbulb />} title="一步解围" text="移动红车，挡住中路的将军。" tags={['救将', '3 分钟']} onClick={() => onStart(1)} />
+          <LessonCard number="03" color="blue" icon={<Award />} title="马到成功" text="找到一步漂亮的马将军！" tags={['进攻', '3 分钟']} onClick={() => onStart(2)} />
         </div>
       </section>
 
       <section className="encourage-card">
         <div className="coach-avatar">象</div>
-        <div><span>小象教练说</span><p>“下棋不用急，先看看对方下一步想做什么。”</p></div>
+        <div><span>零七教练说</span><p>“下棋不用急，先看看对方下一步想做什么。”</p></div>
         <div className="weekly"><strong>3</strong><span>本周完成</span></div>
       </section>
     </div>
@@ -277,7 +257,7 @@ function LessonCard({ number, color, icon, title, text, tags, onClick }: { numbe
 }
 
 function LessonPage(props: {
-  pieces: Piece[]; selectedId: string | null; legalTargets: Square[]; completed: boolean; voiceState: LinxiState;
+  pieces: Piece[]; selectedId: string | null; legalTargets: Square[]; level: Level; levelIndex: number; completed: boolean; voiceState: LinxiState;
   voiceText: string; hint: string; hintLevel: number; onSquare: (square: Square) => void; onBack: () => void;
   onVoice: () => void; onHint: () => void; onReset: () => void; onContinue: () => void
 }) {
@@ -285,26 +265,26 @@ function LessonPage(props: {
     <div className="lesson-page page-wrap">
       <div className="lesson-topline">
         <button className="back-button" onClick={props.onBack}><ArrowLeft /> 返回</button>
-        <div className="step-progress"><span style={{ width: props.completed ? '100%' : '33%' }} /><small>今日第 1 关</small></div>
+        <div className="step-progress"><span style={{ width: `${props.completed ? ((props.levelIndex + 1) / levels.length) * 100 : (props.levelIndex / levels.length) * 100 + 12}%` }} /><small>今日第 {props.levelIndex + 1} 关 / 共 {levels.length} 关</small></div>
         <button className="icon-button" onClick={props.onReset} aria-label="重新开始"><RotateCcw /></button>
       </div>
 
       <section className="challenge-layout">
         <div className="board-panel">
-          <div className="challenge-title"><span className="mini-badge">观察力</span><h1>黑车正在将军，<br />你能帮红方解围吗？</h1><p>点击棋子走棋，也可以按住麦克风说出答案。</p></div>
-          <ChessBoard pieces={props.pieces} selectedId={props.selectedId} legalTargets={props.legalTargets} onSquare={props.onSquare} />
+          <div className="challenge-title"><span className="mini-badge">{props.level.category}</span><h1>{props.level.title.split('\n').map((line, index) => <span key={line}>{index > 0 && <br />}{line}</span>)}</h1><p>{props.level.description}</p></div>
+          <ChessBoard pieces={props.pieces} selectedId={props.selectedId} legalTargets={props.legalTargets} instruction={props.level.instruction} onSquare={props.onSquare} />
         </div>
 
         <aside className="coach-panel">
-          <div className="coach-head"><div className="coach-avatar small">象</div><div><strong>小象教练</strong><span>{voiceStateLabel(props.voiceState)}</span></div><span className={`connection-dot ${props.voiceState}`} aria-label={`灵矽状态：${voiceStateLabel(props.voiceState)}`} /></div>
+          <div className="coach-head"><div className="coach-avatar small">象</div><div><strong>零七教练</strong><span>{voiceStateLabel(props.voiceState)}</span></div><span className={`connection-dot ${props.voiceState}`} aria-label={`灵矽状态：${voiceStateLabel(props.voiceState)}`} /></div>
           <div className="speech-bubble">
-            {props.completed ? <><strong>太棒了！</strong><br />红炮沿着中路向前，吃掉黑车，帅就安全啦。</> : (props.voiceText || '先别急着走。看看是谁在攻击红帅，再找一找能吃掉它的棋子。')}
+            {props.completed ? <><strong>太棒了！</strong><br />{props.level.successText}</> : (props.voiceText || `先别急着走。${props.level.hints[0]}`)}
           </div>
 
           {!props.completed && (
             <>
               <button className={props.voiceState === 'listening' ? 'voice-button listening' : 'voice-button'} onClick={props.onVoice} disabled={props.voiceState === 'connecting' || props.voiceState === 'thinking'}>
-                <span><Mic /></span><strong>{voiceButtonLabel(props.voiceState)}</strong><small>{props.voiceState === 'listening' ? '说完后再按一次' : '例如：“炮五进五”'}</small>
+                <span><Mic /></span><strong>{voiceButtonLabel(props.voiceState)}</strong><small>{props.voiceState === 'listening' ? '说完后再按一次' : `例如：“${props.level.answer}”`}</small>
               </button>
               <div className="hint-card"><div><Lightbulb /><strong>分级提示</strong><span>{props.hintLevel}/3</span></div><p>{props.hint}</p><button onClick={props.onHint} disabled={props.hintLevel >= 3}>{props.hintLevel >= 3 ? '已显示完整提示' : '再给我一点提示'}</button></div>
             </>
@@ -313,9 +293,9 @@ function LessonPage(props: {
           {props.completed && (
             <div className="success-card">
               <div className="stars"><Star /><Star /><Star /></div>
-              <h2>成功解围！</h2><p>你发现了炮能沿直线吃掉黑车。</p>
-              <div className="reward"><Sparkles /> 获得 10 颗智慧星</div>
-              <button className="primary-button full" onClick={props.onContinue}>查看今日成长 <ChevronRight /></button>
+              <h2>{props.level.successTitle}</h2><p>{props.level.successText}</p>
+              <div className="reward"><Sparkles /> 获得 {props.level.reward} 颗智慧星</div>
+              <button className="primary-button full" onClick={props.onContinue}>{props.levelIndex < levels.length - 1 ? '挑战下一关' : '查看今日成长'} <ChevronRight /></button>
             </div>
           )}
         </aside>
@@ -340,7 +320,7 @@ function voiceButtonLabel(state: LinxiState) {
   return '按下说走法'
 }
 
-function ChessBoard({ pieces, selectedId, legalTargets, onSquare }: { pieces: Piece[]; selectedId: string | null; legalTargets: Square[]; onSquare: (square: Square) => void }) {
+function ChessBoard({ pieces, selectedId, legalTargets, instruction, onSquare }: { pieces: Piece[]; selectedId: string | null; legalTargets: Square[]; instruction: string; onSquare: (square: Square) => void }) {
   const squares = Array.from({ length: 90 }, (_, index) => ({ row: Math.floor(index / 9), col: index % 9 }))
   return (
     <div className="board-wrap">
@@ -356,18 +336,18 @@ function ChessBoard({ pieces, selectedId, legalTargets, onSquare }: { pieces: Pi
           )
         })}
       </div>
-      <div className="board-tip"><span className="red-dot" /> 红方走棋 <span>·</span> 吃掉正在将军的黑车</div>
+      <div className="board-tip"><span className="red-dot" /> {instruction}</div>
     </div>
   )
 }
 
-function ProgressPage({ onLesson }: { onLesson: () => void }) {
+function ProgressPage({ onLesson }: { onLesson: (index?: number) => void }) {
   return (
     <div className="simple-page page-wrap">
       <span className="eyebrow"><Trophy /> MY JOURNEY</span><h1>小棋手的成长册</h1><p className="lead">每一次认真思考，都让你离象棋高手更近一步。</p>
       <div className="stats-grid"><Stat value="3" label="连续学习天数" color="coral" /><Stat value="28" label="收集智慧星" color="gold" /><Stat value="5" label="完成小关卡" color="blue" /></div>
       <section className="journey-card"><div><span className="section-kicker">本周目标</span><h2>完成 3 次象棋练习</h2><p>再完成今天的三小关，就能点亮“小小观察家”徽章。</p><div className="journey-bar"><span /></div><small>2 / 3 次</small></div><div className="badge-art"><Award /></div></section>
-      <button className="primary-button" onClick={onLesson}>继续今日挑战 <ChevronRight /></button>
+      <button className="primary-button" onClick={() => onLesson(0)}>继续今日挑战 <ChevronRight /></button>
     </div>
   )
 }

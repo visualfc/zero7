@@ -4,6 +4,7 @@
 .brand-mark { width: 42px; height: 42px; border-radius: 50%; background: var(--coral); border: 3px solid #f7b29f; display: grid; place-items: center; box-shadow: 0 3px 0 #c84f3b; }
 .brand-mark span { font: 25px 'Ma Shan Zheng', cursive; color: #fff9ec; }
 .brand-name { font-size: 20px; font-weight: 800; letter-spacing: .08em; }
+.brand-name small { font-size: 8px; letter-spacing: .16em; color: var(--coral); margin-left: 4px; vertical-align: middle; }
 .desktop-nav { display: flex; align-items: stretch; height: 100%; gap: 36px; }
 .nav-button { border: 0; background: none; color: #858b99; display: flex; align-items: center; gap: 7px; cursor: pointer; padding: 0 8px; position: relative; font-weight: 600; }
 .nav-button svg { width: 18px; }
