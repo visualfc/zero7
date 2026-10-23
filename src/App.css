@@ -1,0 +1,156 @@
+.app-shell { min-height: 100vh; background: var(--cream); padding-bottom: 36px; }
+.topbar { height: 76px; padding: 0 max(24px, calc((100vw - 1180px)/2)); display: flex; align-items: center; justify-content: space-between; background: rgba(255,253,248,.92); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 30; backdrop-filter: blur(16px); }
+.brand { border: 0; background: none; display: flex; align-items: center; gap: 10px; cursor: pointer; color: var(--ink); padding: 0; }
+.brand-mark { width: 42px; height: 42px; border-radius: 50%; background: var(--coral); border: 3px solid #f7b29f; display: grid; place-items: center; box-shadow: 0 3px 0 #c84f3b; }
+.brand-mark span { font: 25px 'Ma Shan Zheng', cursive; color: #fff9ec; }
+.brand-name { font-size: 20px; font-weight: 800; letter-spacing: .08em; }
+.desktop-nav { display: flex; align-items: stretch; height: 100%; gap: 36px; }
+.nav-button { border: 0; background: none; color: #858b99; display: flex; align-items: center; gap: 7px; cursor: pointer; padding: 0 8px; position: relative; font-weight: 600; }
+.nav-button svg { width: 18px; }
+.nav-button.active { color: var(--coral-dark); }
+.nav-button.active::after { content: ''; position: absolute; height: 3px; border-radius: 3px 3px 0 0; background: var(--coral); left: 8px; right: 8px; bottom: 0; }
+.streak { border-radius: 22px; background: #fff1df; color: #915f24; padding: 9px 15px; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+.streak svg { width: 17px; color: #f08d36; fill: #f08d36; }
+.page-wrap { width: min(1180px, calc(100% - 48px)); margin: 0 auto; }
+.hero-card { margin-top: 34px; min-height: 390px; background: #ece8dd; border-radius: 30px; overflow: hidden; display: grid; grid-template-columns: 1.08fr .92fr; position: relative; box-shadow: inset 0 0 0 1px rgba(255,255,255,.65); }
+.hero-card::before { content: ''; position: absolute; width: 280px; height: 280px; border: 1px solid rgba(66,101,112,.1); border-radius: 50%; left: -100px; top: -120px; }
+.hero-copy { padding: 58px 20px 50px 66px; z-index: 2; }
+.eyebrow { display: inline-flex; align-items: center; gap: 7px; color: var(--coral-dark); font-size: 12px; font-weight: 800; letter-spacing: .16em; }
+.eyebrow svg { width: 16px; }
+.hero-copy h1, .simple-page > h1 { font-family: 'Ma Shan Zheng', cursive; color: var(--ink); font-size: clamp(42px, 5vw, 65px); line-height: 1.1; font-weight: 400; margin: 18px 0; }
+.hero-copy h1 em { color: var(--coral-dark); font-style: normal; }
+.hero-copy p { color: #707889; max-width: 520px; line-height: 1.8; margin-bottom: 28px; }
+.primary-button { border: 0; background: var(--coral); color: white; padding: 14px 24px; border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; font-weight: 700; cursor: pointer; box-shadow: 0 5px 0 #c9533e; transition: transform .15s, box-shadow .15s; }
+.primary-button:hover { transform: translateY(-2px); box-shadow: 0 7px 0 #c9533e; }
+.primary-button:active { transform: translateY(3px); box-shadow: 0 2px 0 #c9533e; }
+.primary-button svg { width: 18px; }
+.primary-button.full { width: 100%; }
+.hero-art { background: #527f91; position: relative; overflow: hidden; }
+.hero-art::after { content: ''; position: absolute; left: -10%; right: -10%; bottom: -100px; height: 210px; border-radius: 50%; background: #406d80; }
+.sun { position: absolute; border-radius: 50%; border: 1px solid rgba(255,255,255,.18); }
+.sun-a { width: 320px; height: 320px; left: 70px; top: 30px; }
+.sun-b { width: 220px; height: 220px; left: 120px; top: 80px; }
+.mascot { position: absolute; left: 50%; top: 55%; transform: translate(-50%,-50%); z-index: 3; }
+.mascot .face { width: 150px; height: 130px; border-radius: 50% 50% 42% 42%; background: #9ebdc4; position: relative; border: 5px solid #d5e4e2; }
+.mascot .ear { position: absolute; width: 70px; height: 90px; top: 18px; border-radius: 50%; background: #7fa6b0; border: 4px solid #c5dbdc; z-index: -1; }
+.mascot .ear.left { left: -43px; transform: rotate(-18deg); } .mascot .ear.right { right: -43px; transform: rotate(18deg); }
+.mascot .eye { position: absolute; top: 43px; width: 10px; height: 13px; border-radius: 50%; background: #27394a; }
+.mascot .eye.left { left: 45px; } .mascot .eye.right { right: 45px; }
+.mascot .trunk { font-family: sans-serif; position: absolute; font-size: 65px; line-height: 1; transform: rotate(8deg); left: 66px; top: 55px; color: #779ca6; }
+.mascot .body { width: 145px; height: 105px; margin: -8px auto 0; border-radius: 55% 55% 15px 15px; background: #f0b552; color: #fff6db; font: 52px 'Ma Shan Zheng'; display: grid; place-items: center; border: 6px solid #f6cc7d; }
+.float-piece { position: absolute; width: 62px; height: 62px; border-radius: 50%; display: grid; place-items: center; background: #f5e5c8; color: #be5141; border: 4px double #be5141; font: 29px 'Ma Shan Zheng'; z-index: 4; box-shadow: 0 7px 16px rgba(31,56,69,.25); }
+.piece-one { left: 36px; top: 68px; transform: rotate(-11deg); } .piece-two { right: 46px; bottom: 56px; transform: rotate(10deg); }
+.float-star { color: #ffd275; position: absolute; right: 60px; top: 56px; font-size: 38px; transform: rotate(14deg); }
+.section-block { margin-top: 45px; }
+.section-heading { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 20px; }
+.section-heading h2 { margin: 4px 0 0; color: var(--ink); font: 34px 'Ma Shan Zheng'; }
+.section-kicker { color: var(--coral); font-size: 11px; font-weight: 800; letter-spacing: .18em; }
+.progress-copy { color: var(--muted); font-size: 13px; }
+.lesson-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+.lesson-card { min-height: 224px; border: 1px solid var(--line); border-radius: 20px; padding: 26px; background: var(--paper); text-align: left; cursor: pointer; position: relative; color: var(--ink); overflow: hidden; transition: transform .2s, box-shadow .2s; }
+.lesson-card:hover { transform: translateY(-4px); box-shadow: 0 12px 28px rgba(72,65,53,.09); }
+.lesson-card::after { content: ''; position: absolute; width: 130px; height: 130px; border-radius: 50%; right: -62px; top: -60px; opacity: .09; background: currentColor; }
+.lesson-card.coral { color: var(--coral); } .lesson-card.gold { color: var(--gold); } .lesson-card.blue { color: var(--blue); }
+.lesson-number { position: absolute; right: 20px; top: 18px; font-size: 12px; letter-spacing: .15em; font-weight: 800; }
+.lesson-icon { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 15px; background: currentColor; color: white; }
+.lesson-icon svg { width: 22px; }
+.lesson-title { display: block; color: var(--ink); font-size: 20px; font-weight: 800; margin-top: 22px; }
+.lesson-text { display: block; color: var(--muted); margin-top: 7px; font-size: 14px; }
+.tag-row { display: flex; gap: 8px; margin-top: 18px; }
+.tag-row span { background: #f3efe8; color: #7b7d80; border-radius: 8px; padding: 5px 9px; font-size: 11px; }
+.lesson-arrow { position: absolute; right: 22px; bottom: 22px; color: inherit; }
+.lesson-arrow svg { width: 20px; }
+.encourage-card { margin-top: 24px; padding: 22px 28px; border-radius: 20px; background: #fff5e6; border: 1px solid #f1ddbb; display: flex; align-items: center; gap: 18px; }
+.coach-avatar { flex: 0 0 auto; width: 58px; height: 58px; background: #7fa7af; border: 5px solid #d8e7e4; box-shadow: 0 0 0 2px #5a858f; color: white; border-radius: 50%; display: grid; place-items: center; font: 27px 'Ma Shan Zheng'; }
+.encourage-card div:nth-child(2) { flex: 1; }
+.encourage-card span { color: #b17b2b; font-size: 12px; font-weight: 800; }
+.encourage-card p { margin: 5px 0 0; font: 21px 'Ma Shan Zheng'; color: #5a4b38; }
+.weekly { text-align: center; padding-left: 25px; border-left: 1px solid #ead6b5; }
+.weekly strong { display: block; font-size: 25px; color: var(--coral); }
+.weekly span { font-size: 10px; color: var(--muted); }
+.mobile-nav { display: none; }
+
+.lesson-page { padding-top: 28px; }
+.lesson-topline { display: grid; grid-template-columns: 140px 1fr 140px; align-items: center; margin-bottom: 24px; }
+.back-button, .icon-button { border: 0; color: var(--muted); background: transparent; display: flex; align-items: center; gap: 8px; cursor: pointer; width: max-content; }
+.back-button svg, .icon-button svg { width: 18px; }
+.icon-button { justify-self: end; width: 42px; height: 42px; border-radius: 12px; border: 1px solid var(--line); justify-content: center; background: var(--paper); }
+.step-progress { height: 7px; background: #e5ded2; border-radius: 10px; width: min(300px,100%); justify-self: center; position: relative; }
+.step-progress span { display: block; height: 100%; background: var(--coral); border-radius: 10px; transition: width .5s; }
+.step-progress small { position: absolute; display: block; width: 100%; text-align: center; top: 13px; color: var(--muted); font-size: 10px; }
+.challenge-layout { display: grid; grid-template-columns: minmax(520px, 1fr) 350px; gap: 26px; align-items: start; }
+.board-panel, .coach-panel { background: var(--paper); border: 1px solid var(--line); border-radius: 24px; }
+.board-panel { padding: 30px; }
+.challenge-title { text-align: center; }
+.mini-badge { display: inline-block; padding: 5px 10px; border-radius: 9px; color: var(--coral-dark); background: #ffe7dd; font-size: 11px; font-weight: 800; }
+.challenge-title h1 { font: 31px/1.35 'Ma Shan Zheng'; color: var(--ink); margin: 12px 0 8px; }
+.challenge-title p { color: var(--muted); font-size: 13px; margin: 0 0 24px; }
+.board-wrap { width: min(520px,100%); margin: 0 auto; }
+.chess-board { position: relative; aspect-ratio: 9/10; display: grid; grid-template-columns: repeat(9,1fr); grid-template-rows: repeat(10,1fr); padding: 16px; background-color: #e7b96c; border: 9px solid #9b6035; box-shadow: inset 0 0 0 3px #d28d45, 0 8px 16px rgba(95,55,26,.15); background-image: linear-gradient(rgba(101,62,31,.72) 1px,transparent 1px), linear-gradient(90deg,rgba(101,62,31,.72) 1px,transparent 1px); background-size: calc((100% - 32px)/8) calc((100% - 32px)/9); background-position: 16px 16px; }
+.chess-board::before, .chess-board::after { content: ''; position: absolute; width: 15.7%; height: 15.7%; border-bottom: 1px solid rgba(101,62,31,.72); top: 16px; left: 42.2%; transform: rotate(45deg); pointer-events: none; }
+.chess-board::after { top: auto; bottom: 16px; transform: rotate(-45deg); }
+.river { position: absolute; top: calc(50% - 5.2%); left: 16px; right: 16px; height: 10.5%; background: #e7b96c; z-index: 1; display: flex; align-items: center; justify-content: space-around; color: #75401f; font: 23px 'Ma Shan Zheng'; }
+.board-square { border: 0; background: none; padding: 0; margin: 0; display: grid; place-items: center; z-index: 3; cursor: pointer; position: relative; }
+.board-square.target::after { content: ''; width: 17px; height: 17px; background: rgba(238,116,92,.7); border-radius: 50%; box-shadow: 0 0 0 5px rgba(255,255,255,.38); }
+.chess-piece { width: 75%; aspect-ratio: 1; max-width: 48px; border-radius: 50%; display: grid; place-items: center; background: #f6dfaa; font: clamp(18px,3.2vw,29px) 'Ma Shan Zheng'; border: 3px double currentColor; box-shadow: 0 3px 4px rgba(75,40,16,.28); transition: transform .2s, box-shadow .2s; }
+.chess-piece.red { color: #bd3f32; } .chess-piece.black { color: #283640; }
+.chess-piece.selected { transform: translateY(-4px) scale(1.08); box-shadow: 0 8px 12px rgba(75,40,16,.32), 0 0 0 4px rgba(255,255,255,.65); }
+.board-tip { text-align: center; color: var(--muted); font-size: 12px; margin-top: 15px; display: flex; justify-content: center; gap: 8px; align-items: center; }
+.red-dot { width: 7px; height: 7px; background: var(--coral); border-radius: 50%; }
+.coach-panel { padding: 24px; position: sticky; top: 100px; }
+.coach-head { display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--line); padding-bottom: 18px; }
+.coach-avatar.small { width: 46px; height: 46px; font-size: 21px; border-width: 4px; }
+.coach-head > div:nth-child(2) { flex: 1; } .coach-head strong, .coach-head span { display: block; } .coach-head strong { color: var(--ink); } .coach-head span { color: var(--muted); font-size: 11px; margin-top: 2px; } .coach-head > svg { color: var(--blue); width: 18px; }
+.speech-bubble { padding: 19px; margin: 20px 0; border-radius: 6px 18px 18px 18px; background: #edf3f2; color: #52606c; font-size: 13px; line-height: 1.8; min-height: 98px; }
+.speech-bubble strong { color: var(--coral-dark); font-size: 17px; }
+.voice-button { width: 100%; border: 0; border-radius: 18px; background: var(--coral); color: white; padding: 16px; display: grid; grid-template-columns: 44px 1fr; grid-template-rows: 1fr 1fr; text-align: left; cursor: pointer; box-shadow: 0 5px 0 #c9533e; }
+.voice-button > span { grid-row: 1/3; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.2); }
+.voice-button svg { width: 19px; } .voice-button strong { align-self: end; } .voice-button small { opacity: .75; font-size: 10px; align-self: start; }
+.voice-button.listening { animation: pulse 1s infinite; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 8px rgba(238,116,92,.18); } }
+.hint-card { border: 1px solid #eeddb9; background: #fff9eb; border-radius: 16px; padding: 16px; margin-top: 18px; }
+.hint-card > div { display: flex; align-items: center; gap: 7px; color: #9a702b; } .hint-card svg { width: 17px; } .hint-card strong { font-size: 13px; } .hint-card span { margin-left: auto; font-size: 11px; }
+.hint-card p { color: #776c59; min-height: 40px; font-size: 12px; line-height: 1.6; }
+.hint-card button { width: 100%; border: 1px solid #e5c987; color: #9a702b; background: white; padding: 9px; border-radius: 10px; cursor: pointer; font-size: 12px; }
+.hint-card button:disabled { opacity: .6; cursor: default; }
+.success-card { text-align: center; }
+.stars { display: flex; justify-content: center; gap: 6px; color: var(--gold); margin: 10px 0 2px; } .stars svg { fill: var(--gold); width: 25px; }
+.success-card h2 { font: 30px 'Ma Shan Zheng'; margin: 8px 0; color: var(--ink); } .success-card p { color: var(--muted); font-size: 13px; line-height: 1.6; }
+.reward { background: #fff5db; color: #a6701e; border-radius: 12px; padding: 10px; margin: 16px 0 20px; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 7px; }
+.reward svg { width: 16px; }
+.simple-page { text-align: center; padding-top: 70px; }
+.simple-page > h1 { margin-bottom: 8px; font-size: 55px; }
+.lead { color: var(--muted); margin-bottom: 38px; }
+.stats-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+.stat-card { padding: 28px; background: var(--paper); border: 1px solid var(--line); border-radius: 20px; } .stat-card strong { display: block; font: 46px 'Ma Shan Zheng'; } .stat-card span { color: var(--muted); font-size: 13px; } .stat-card.coral strong { color: var(--coral); } .stat-card.gold strong { color: var(--gold); } .stat-card.blue strong { color: var(--blue); }
+.journey-card { margin: 24px auto; background: var(--paper); border: 1px solid var(--line); border-radius: 24px; padding: 32px; text-align: left; display: flex; align-items: center; max-width: 760px; } .journey-card > div:first-child { flex: 1; } .journey-card h2 { color: var(--ink); margin: 8px 0; } .journey-card p { color: var(--muted); font-size: 13px; } .journey-bar { background: #e9e3d8; height: 8px; border-radius: 5px; margin-top: 22px; } .journey-bar span { display: block; width: 66%; height: 100%; background: var(--coral); border-radius: 5px; } .journey-card small { color: var(--muted); } .badge-art { width: 110px; height: 110px; background: #fff2cf; color: var(--gold); border-radius: 50%; display: grid; place-items: center; margin-left: 30px; } .badge-art svg { width: 55px; height: 55px; }
+.profile-card, .settings-card { max-width: 700px; margin: 24px auto; background: var(--paper); border: 1px solid var(--line); border-radius: 24px; padding: 30px; text-align: left; }
+.profile-card { display: flex; align-items: center; gap: 22px; } .profile-avatar { width: 85px; height: 85px; background: var(--blue); color: white; border-radius: 28px; display: grid; place-items: center; text-align: center; font: 24px/1 'Ma Shan Zheng'; transform: rotate(-3deg); } .profile-card h2 { margin: 0; color: var(--ink); } .profile-card p { color: var(--muted); } .profile-tag { display: inline-flex; gap: 5px; align-items: center; color: #9c702c; background: #fff4d9; padding: 6px 9px; border-radius: 8px; font-size: 11px; } .profile-tag svg { width: 13px; fill: var(--gold); color: var(--gold); }
+.settings-card h2 { color: var(--ink); } .settings-card > div { padding: 16px 0; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; } .settings-card span { display: flex; align-items: center; gap: 10px; color: var(--muted); } .settings-card svg { width: 18px; color: var(--blue); } .settings-card strong { color: var(--ink); font-size: 13px; }
+.toast { position: fixed; left: 50%; bottom: 30px; transform: translateX(-50%); border-radius: 13px; padding: 12px 18px; background: #26324a; color: white; z-index: 100; display: flex; gap: 8px; align-items: center; box-shadow: 0 10px 30px rgba(20,25,40,.25); font-size: 13px; } .toast svg { width: 17px; }
+
+@media (max-width: 900px) {
+  .hero-card { grid-template-columns: 1fr; } .hero-art { min-height: 310px; } .hero-copy { padding: 45px; }
+  .lesson-grid { grid-template-columns: 1fr; } .lesson-card { min-height: 190px; }
+  .challenge-layout { grid-template-columns: 1fr; } .coach-panel { position: static; }
+  .challenge-layout { max-width: 650px; margin: 0 auto; }
+}
+@media (max-width: 640px) {
+  .app-shell { padding-bottom: 86px; }
+  .topbar { height: 64px; padding: 0 17px; } .brand-mark { width: 37px; height: 37px; } .brand-name { font-size: 17px; } .desktop-nav, .streak { display: none; }
+  .page-wrap { width: min(100% - 28px, 560px); }
+  .hero-card { margin-top: 16px; border-radius: 22px; } .hero-copy { padding: 32px 25px 34px; } .hero-copy h1 { font-size: 43px; } .hero-copy p { font-size: 14px; margin-bottom: 22px; } .hero-art { min-height: 270px; }
+  .mascot { transform: translate(-50%,-50%) scale(.85); } .piece-one { left: 23px; top: 40px; } .piece-two { right: 25px; bottom: 30px; }
+  .section-block { margin-top: 32px; } .section-heading h2 { font-size: 29px; }
+  .encourage-card { align-items: flex-start; padding: 18px; } .encourage-card p { font-size: 18px; } .weekly { display: none; }
+  .mobile-nav { height: 68px; padding: 0 35px max(4px,env(safe-area-inset-bottom)); position: fixed; z-index: 40; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-between; background: rgba(255,253,248,.96); border-top: 1px solid var(--line); backdrop-filter: blur(14px); }
+  .mobile-nav .nav-button { flex-direction: column; justify-content: center; gap: 1px; font-size: 10px; } .mobile-nav .nav-button::after { top: 0; bottom: auto; } .mobile-nav .nav-button svg { width: 19px; height: 19px; }
+  .lesson-page { padding-top: 18px; } .lesson-topline { grid-template-columns: 80px 1fr 46px; } .back-button { font-size: 12px; } .step-progress small { display: none; }
+  .board-panel { padding: 22px 12px 18px; } .challenge-title h1 { font-size: 26px; } .challenge-title p { padding: 0 10px; }
+  .chess-board { border-width: 6px; padding: 11px; background-size: calc((100% - 22px)/8) calc((100% - 22px)/9); background-position: 11px 11px; } .river { left: 11px; right: 11px; } .chess-board::before { top: 11px; } .chess-board::after { bottom: 11px; }
+  .chess-piece { width: 83%; border-width: 2px; }
+  .coach-panel { padding: 20px; }
+  .simple-page { padding-top: 45px; } .simple-page > h1 { font-size: 43px; } .stats-grid { grid-template-columns: 1fr; gap: 12px; } .stat-card { padding: 20px; display: flex; justify-content: space-between; align-items: center; } .stat-card strong { font-size: 38px; }
+  .journey-card { padding: 24px; } .badge-art { display: none; }
+  .profile-card { padding: 22px; } .settings-card { padding: 22px; }
+}

@@ -1,0 +1,26 @@
+@import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap');
+
+:root {
+  font-family: 'Noto Sans SC', system-ui, sans-serif;
+  color: #25304a;
+  background: #f7f3ea;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --ink: #26324a;
+  --muted: #778096;
+  --paper: #fffdf8;
+  --cream: #f7f3ea;
+  --coral: #ee745c;
+  --coral-dark: #d95642;
+  --gold: #e9ae42;
+  --blue: #548aa8;
+  --line: #e6dfd2;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; min-height: 100vh; }
+button { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+button:focus-visible { outline: 3px solid rgba(84, 138, 168, .35); outline-offset: 3px; }
+#root { min-height: 100vh; }
