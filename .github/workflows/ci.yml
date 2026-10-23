@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
@@ -56,6 +57,15 @@ jobs:
             console.log(`| ${name} | ${value.pct}% | ${value.covered} / ${value.total} |`)
           }
           NODE
+
+      - name: 上传覆盖率到 Codecov
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        uses: codecov/codecov-action@v5
+        with:
+          use_oidc: true
+          files: coverage/lcov.info
+          fail_ci_if_error: true
+          verbose: true
 
       - name: 上传覆盖率 HTML 报告
         if: always() && hashFiles('coverage/**') != ''
