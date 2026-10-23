@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { battlePieces, chooseAiMove, createBattle, describeBattleTurn, findVoiceMove, legalTargets, makeBattleMove, pointToSquare, squareToPoint } from './battle'
+import { battlePieces, chooseAiMove, createBattle, describeBattleTurn, findVoiceMove, legalTargets, makeBattleMove, pointToSquare, squareToPoint, VoiceMoveAuthorization } from './battle'
 
 describe('完整人机对战规则', () => {
   it('正确转换棋盘坐标', () => {
@@ -28,6 +28,17 @@ describe('完整人机对战规则', () => {
     const game = createBattle()
     expect(findVoiceMove(game, '我走马二进三。')?.lan).toBe('h0g2')
     expect(findVoiceMove(game, '马二进五')).toBeNull()
+  })
+
+  it('每次语音授权只允许消费一个识别结果', () => {
+    const authorization = new VoiceMoveAuthorization()
+    expect(authorization.consume()).toBe(false)
+    authorization.arm()
+    expect(authorization.consume()).toBe(true)
+    expect(authorization.consume()).toBe(false)
+    authorization.arm()
+    authorization.cancel()
+    expect(authorization.consume()).toBe(false)
   })
 
   it('生成一回合主动语音讲解', () => {
