@@ -59,6 +59,24 @@ export function findVoiceMove(game: Chess, transcript: string) {
   }) ?? null
 }
 
+export class VoiceMoveAuthorization {
+  private armed = false
+
+  arm() {
+    this.armed = true
+  }
+
+  cancel() {
+    this.armed = false
+  }
+
+  consume() {
+    if (!this.armed) return false
+    this.armed = false
+    return true
+  }
+}
+
 export function describeBattleTurn(playerMove: Move, aiMove?: Move | null) {
   if (playerMove.isCheckmate) return `你走${playerMove.zh}，完成将死，赢下这一局。`
   if (!aiMove) return `你走${playerMove.zh}。`

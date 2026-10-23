@@ -20,7 +20,7 @@ import {
 import './App.css'
 import { LinxiVoiceClient, type LinxiState } from './linxi'
 import { applyMove, isLevelMove, levels, parseVoiceMove, sameSquare, type Level, type Piece, type Square } from './chess'
-import { battlePieces, battleStatus, chooseAiMove, createBattle, describeBattleTurn, findVoiceMove, legalTargets as battleLegalTargets, makeBattleMove } from './battle'
+import { battlePieces, battleStatus, chooseAiMove, createBattle, describeBattleTurn, findVoiceMove, legalTargets as battleLegalTargets, makeBattleMove, VoiceMoveAuthorization } from './battle'
 import type { Chess, Move } from '@weshell/xiangqi.js'
 import { getPikafishMove, getPikafishStatus, type EngineLevel } from './pikafish'
 
@@ -348,6 +348,8 @@ function BattlePage({ onBack }: { onBack: () => void }) {
   const [voiceText, setVoiceText] = useState('按下麦克风，说出“炮二平五”这样的中文棋谱。')
   const battleVoiceClient = useRef<LinxiVoiceClient | null>(null)
   const battleVoiceState = useRef<LinxiState>('idle')
+  const voiceMoveAuthorization = useRef(new VoiceMoveAuthorization())
+  const aiRequestId = useRef(0)
 
   const updateBattleVoiceState = (nextState: LinxiState) => {
     battleVoiceState.current = nextState
@@ -355,6 +357,7 @@ function BattlePage({ onBack }: { onBack: () => void }) {
   }
 
   useEffect(() => {
+    const authorization = voiceMoveAuthorization.current
     void getPikafishStatus().then((result) => {
       setEngineStatus(result.available ? 'pikafish' : 'fallback')
       setEngineName(result.available ? (result.name || 'Pikafish') : '基础 AI（Pikafish 未安装）')
@@ -362,7 +365,11 @@ function BattlePage({ onBack }: { onBack: () => void }) {
       setEngineStatus('fallback')
       setEngineName('基础 AI（Pikafish 连接失败）')
     })
-    return () => battleVoiceClient.current?.disconnect()
+    return () => {
+      aiRequestId.current += 1
+      authorization.cancel()
+      battleVoiceClient.current?.disconnect()
+    }
   }, [])
 
   const refresh = (lastMove?: Move) => {
@@ -390,27 +397,34 @@ function BattlePage({ onBack }: { onBack: () => void }) {
       void speakBattleText(describeBattleTurn(playerMove))
       return
     }
+    const requestId = ++aiRequestId.current
     setThinking(true)
     setStatus(engineStatus === 'pikafish' ? 'Pikafish 正在思考…' : 'ZERO7 基础 AI 正在思考…')
     let aiMove: Move | null = null
     try {
       if (engineStatus === 'pikafish') {
-        const result = await getPikafishMove(game.current.fen(), difficulty)
+        const fen = game.current.fen()
+        const result = await getPikafishMove(fen, difficulty)
+        if (requestId !== aiRequestId.current || game.current.fen() !== fen || game.current.turn() !== 'b') return
         aiMove = game.current.move(result.move)
       } else {
         await new Promise((resolve) => window.setTimeout(resolve, 520))
+        if (requestId !== aiRequestId.current || game.current.turn() !== 'b') return
         const choice = chooseAiMove(game.current, difficulty)
         if (choice) aiMove = game.current.move({ from: choice.from, to: choice.to })
       }
     } catch {
+      if (requestId !== aiRequestId.current || game.current.turn() !== 'b') return
       setEngineStatus('fallback')
       setEngineName('基础 AI（Pikafish 暂不可用）')
       const choice = chooseAiMove(game.current, difficulty)
       if (choice) aiMove = game.current.move({ from: choice.from, to: choice.to })
     } finally {
-      if (aiMove) refresh(aiMove)
-      setThinking(false)
-      void speakBattleText(describeBattleTurn(playerMove, aiMove))
+      if (requestId === aiRequestId.current) {
+        if (aiMove) refresh(aiMove)
+        setThinking(false)
+        void speakBattleText(describeBattleTurn(playerMove, aiMove))
+      }
     }
   }
 
@@ -423,6 +437,7 @@ function BattlePage({ onBack }: { onBack: () => void }) {
   }
 
   const handleBattleTranscript = (text: string) => {
+    if (!voiceMoveAuthorization.current.consume()) return
     if (thinking || game.current.isGameOver() || game.current.turn() !== 'w') return
     const move = findVoiceMove(game.current, text)
     if (!move) {
@@ -454,12 +469,15 @@ function BattlePage({ onBack }: { onBack: () => void }) {
       return
     }
     battleVoiceClient.current?.disconnect()
+    voiceMoveAuthorization.current.cancel()
     const client = createBattleVoiceClient()
     setVoiceText('正在连接零七，请准备说出走法…')
     try {
       await client.start()
+      voiceMoveAuthorization.current.arm()
       setVoiceText('我在听，请说出中文棋谱，说完后再按一次。')
     } catch (error) {
+      voiceMoveAuthorization.current.cancel()
       client.disconnect()
       updateBattleVoiceState('error')
       setVoiceText(error instanceof Error ? error.message : '灵矽连接失败')
@@ -468,6 +486,8 @@ function BattlePage({ onBack }: { onBack: () => void }) {
 
   const handleSquare = (square: Square) => {
     if (thinking || game.current.isGameOver() || game.current.turn() !== 'w') return
+    voiceMoveAuthorization.current.cancel()
+    if (battleVoiceState.current === 'listening' || battleVoiceState.current === 'thinking') battleVoiceClient.current?.disconnect()
     const piece = pieces.find((item) => sameSquare(item, square))
     if (!selected) {
       if (piece?.side === 'red') {
@@ -492,6 +512,7 @@ function BattlePage({ onBack }: { onBack: () => void }) {
   }
 
   const restart = () => {
+    aiRequestId.current += 1
     game.current = createBattle()
     setPieces(battlePieces(game.current))
     setHistory([])
@@ -499,6 +520,7 @@ function BattlePage({ onBack }: { onBack: () => void }) {
     setTargets([])
     setStatus('轮到红方走棋')
     setThinking(false)
+    voiceMoveAuthorization.current.cancel()
     battleVoiceClient.current?.disconnect()
     updateBattleVoiceState('idle')
     setVoiceText('按下麦克风，说出“炮二平五”这样的中文棋谱。')

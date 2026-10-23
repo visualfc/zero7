@@ -55,6 +55,24 @@ describe('ZERO7', () => {
     expect(await screen.findByText('马８进７')).toBeInTheDocument()
   })
 
+  it('重新开局后忽略上一局延迟返回的 AI 走法', async () => {
+    let resolveMove!: (response: Response) => void
+    const moveResponse = new Promise<Response>((resolve) => { resolveMove = resolve })
+    vi.stubGlobal('fetch', vi.fn(async (input: string | URL | Request) => {
+      if (String(input).includes('/status')) return new Response(JSON.stringify({ available: true, name: 'Pikafish Test' }), { status: 200 })
+      return moveResponse
+    }))
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: /开始人机对战/ }))
+    expect(await screen.findByText('Pikafish Test')).toBeInTheDocument()
+    fireEvent.click(screen.getAllByRole('button', { name: '红马' }).at(-1)!)
+    fireEvent.click(screen.getByRole('button', { name: '7-6' }))
+    fireEvent.click(screen.getByRole('button', { name: '重新开局' }))
+    await act(async () => resolveMove(new Response(JSON.stringify({ move: 'h9g7', engine: 'Pikafish Test', level: '初级' }), { status: 200 })))
+    expect(screen.getByText('走出第一步后，棋谱会显示在这里。')).toBeInTheDocument()
+    expect(screen.getByText('轮到红方走棋')).toBeInTheDocument()
+  })
+
   it('支持人机对战悔棋和重新开局', async () => {
     vi.stubGlobal('fetch', vi.fn(async (input: string | URL | Request) => {
       if (String(input).includes('/status')) return new Response(JSON.stringify({ available: false }), { status: 200 })
