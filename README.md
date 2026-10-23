@@ -8,6 +8,10 @@ ZERO7 是面向象棋初学者与普通爱好者的开源 AI 语音象棋伙伴�
 
 > 当前版本已支持语音训练、语音人机对战与 Pikafish 正式棋力。
 
+## 棋盘预览
+
+![ZERO7 人机对战棋盘](./docs/images/board-desktop.png)
+
 ## 产品定位
 
 ZERO7 包含两个核心模式：
