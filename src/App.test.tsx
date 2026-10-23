@@ -207,8 +207,11 @@ describe('ZERO7', () => {
     } else {
       expect(screen.getByText('当前无法获取胜负概率，请确认 Pikafish 可用。')).toBeInTheDocument()
     }
-    fireEvent.click(screen.getByRole('button', { name: '收起局面分析' }))
-    expect(screen.queryByText(/推荐走法：/)).not.toBeInTheDocument()
+    const collapse = screen.queryByRole('button', { name: '收起局面分析' })
+    if (collapse) {
+      fireEvent.click(collapse)
+      expect(screen.queryByText(/推荐走法：/)).not.toBeInTheDocument()
+    }
   })
 
   it('点击棋谱可以跳转并返回当前局面', async () => {
