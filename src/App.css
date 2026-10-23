@@ -100,13 +100,17 @@
 .coach-panel { padding: 24px; position: sticky; top: 100px; }
 .coach-head { display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--line); padding-bottom: 18px; }
 .coach-avatar.small { width: 46px; height: 46px; font-size: 21px; border-width: 4px; }
-.coach-head > div:nth-child(2) { flex: 1; } .coach-head strong, .coach-head span { display: block; } .coach-head strong { color: var(--ink); } .coach-head span { color: var(--muted); font-size: 11px; margin-top: 2px; } .coach-head > svg { color: var(--blue); width: 18px; }
+.coach-head > div:nth-child(2) { flex: 1; } .coach-head strong, .coach-head div > span { display: block; } .coach-head strong { color: var(--ink); } .coach-head div > span { color: var(--muted); font-size: 11px; margin-top: 2px; }
+.connection-dot { width: 11px; height: 11px; border-radius: 50%; background: #b7b3aa; box-shadow: 0 0 0 4px #efede7; }
+.connection-dot.ready, .connection-dot.listening { background: #5aa987; box-shadow: 0 0 0 4px #e1f1e9; } .connection-dot.connecting, .connection-dot.thinking, .connection-dot.speaking { background: var(--gold); box-shadow: 0 0 0 4px #fff2d6; animation: dot-pulse 1s infinite; } .connection-dot.error { background: var(--coral); box-shadow: 0 0 0 4px #ffe6df; }
+@keyframes dot-pulse { 50% { opacity: .45; } }
 .speech-bubble { padding: 19px; margin: 20px 0; border-radius: 6px 18px 18px 18px; background: #edf3f2; color: #52606c; font-size: 13px; line-height: 1.8; min-height: 98px; }
 .speech-bubble strong { color: var(--coral-dark); font-size: 17px; }
 .voice-button { width: 100%; border: 0; border-radius: 18px; background: var(--coral); color: white; padding: 16px; display: grid; grid-template-columns: 44px 1fr; grid-template-rows: 1fr 1fr; text-align: left; cursor: pointer; box-shadow: 0 5px 0 #c9533e; }
 .voice-button > span { grid-row: 1/3; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.2); }
 .voice-button svg { width: 19px; } .voice-button strong { align-self: end; } .voice-button small { opacity: .75; font-size: 10px; align-self: start; }
 .voice-button.listening { animation: pulse 1s infinite; }
+.voice-button:disabled { opacity: .68; cursor: wait; }
 @keyframes pulse { 50% { box-shadow: 0 0 0 8px rgba(238,116,92,.18); } }
 .hint-card { border: 1px solid #eeddb9; background: #fff9eb; border-radius: 16px; padding: 16px; margin-top: 18px; }
 .hint-card > div { display: flex; align-items: center; gap: 7px; color: #9a702b; } .hint-card svg { width: 17px; } .hint-card strong { font-size: 13px; } .hint-card span { margin-left: auto; font-size: 11px; }

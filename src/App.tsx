@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   ArrowLeft,
   Award,
@@ -17,6 +17,7 @@ import {
   Volume2,
 } from 'lucide-react'
 import './App.css'
+import { LinxiVoiceClient, type LinxiState } from './linxi'
 
 type Page = 'home' | 'lesson' | 'progress' | 'profile'
 type Square = { row: number; col: number }
@@ -49,10 +50,12 @@ function App() {
   const [pieces, setPieces] = useState(initialPieces)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [hintLevel, setHintLevel] = useState(0)
-  const [isListening, setIsListening] = useState(false)
+  const [voiceState, setVoiceState] = useState<LinxiState>('idle')
   const [voiceText, setVoiceText] = useState('')
   const [completed, setCompleted] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
+  const voiceClient = useRef<LinxiVoiceClient | null>(null)
+  const voiceStateRef = useRef<LinxiState>('idle')
 
   const selectedPiece = pieces.find((piece) => piece.id === selectedId)
   const legalTargets = selectedId ? destinations[selectedId] ?? [] : []
@@ -62,6 +65,13 @@ function App() {
     const timer = window.setTimeout(() => setToast(null), 2400)
     return () => window.clearTimeout(timer)
   }, [toast])
+
+  useEffect(() => () => voiceClient.current?.disconnect(), [])
+
+  const updateVoiceState = (state: LinxiState) => {
+    voiceStateRef.current = state
+    setVoiceState(state)
+  }
 
   const resetLesson = () => {
     setPieces(initialPieces)
@@ -108,15 +118,47 @@ function App() {
     setToast('试试先选中红色的炮')
   }
 
-  const startVoice = () => {
-    if (isListening || completed) return
-    setIsListening(true)
-    setVoiceText('我在听，请说出你的走法…')
-    window.setTimeout(() => {
-      setIsListening(false)
-      setVoiceText('听到“炮五进五”。这步能吃掉黑车！')
-      window.setTimeout(makeWinningMove, 650)
-    }, 1300)
+  const handleTranscript = (text: string) => {
+    setVoiceText(`听到“${text}”`)
+    const normalized = text.replace(/[，。！？,.!?\s]/g, '').replace('砲', '炮')
+    if (normalized.includes('炮五进五') || (normalized.includes('炮') && normalized.includes('进五'))) {
+      setVoiceText(`听到“${text}”。这步能吃掉黑车！`)
+      window.setTimeout(makeWinningMove, 450)
+      return
+    }
+    setToast('这步还没有匹配成功，可以说“炮五进五”')
+  }
+
+  const startVoice = async () => {
+    if (completed) return
+    if (voiceStateRef.current === 'listening') {
+      await voiceClient.current?.stop()
+      return
+    }
+
+    voiceClient.current?.disconnect()
+    const client = new LinxiVoiceClient((event) => {
+      if (event.type === 'state' && event.state) updateVoiceState(event.state)
+      if (event.type === 'transcript' && event.text) handleTranscript(event.text)
+      if (event.type === 'reply' && event.text) setVoiceText(event.text)
+      if (event.type === 'error' && event.text) {
+        updateVoiceState('error')
+        setVoiceText(event.text)
+        setToast(event.text)
+      }
+    })
+    voiceClient.current = client
+    setVoiceText('正在连接小象教练…')
+    try {
+      await client.start()
+      setVoiceText('我在听，请说出你的走法…说完后再按一次。')
+    } catch (error) {
+      client.disconnect()
+      updateVoiceState('error')
+      const message = error instanceof Error ? error.message : '灵矽连接失败'
+      setVoiceText(message)
+      setToast(message)
+    }
   }
 
   const hint = useMemo(() => {
@@ -149,7 +191,7 @@ function App() {
             selectedId={selectedId}
             legalTargets={legalTargets}
             completed={completed}
-            isListening={isListening}
+            voiceState={voiceState}
             voiceText={voiceText}
             hint={hint}
             hintLevel={hintLevel}
@@ -235,7 +277,7 @@ function LessonCard({ number, color, icon, title, text, tags, onClick }: { numbe
 }
 
 function LessonPage(props: {
-  pieces: Piece[]; selectedId: string | null; legalTargets: Square[]; completed: boolean; isListening: boolean;
+  pieces: Piece[]; selectedId: string | null; legalTargets: Square[]; completed: boolean; voiceState: LinxiState;
   voiceText: string; hint: string; hintLevel: number; onSquare: (square: Square) => void; onBack: () => void;
   onVoice: () => void; onHint: () => void; onReset: () => void; onContinue: () => void
 }) {
@@ -254,15 +296,15 @@ function LessonPage(props: {
         </div>
 
         <aside className="coach-panel">
-          <div className="coach-head"><div className="coach-avatar small">象</div><div><strong>小象教练</strong><span>{props.isListening ? '正在认真听…' : '陪你一起想'}</span></div><Volume2 /></div>
+          <div className="coach-head"><div className="coach-avatar small">象</div><div><strong>小象教练</strong><span>{voiceStateLabel(props.voiceState)}</span></div><span className={`connection-dot ${props.voiceState}`} aria-label={`灵矽状态：${voiceStateLabel(props.voiceState)}`} /></div>
           <div className="speech-bubble">
             {props.completed ? <><strong>太棒了！</strong><br />红炮沿着中路向前，吃掉黑车，帅就安全啦。</> : (props.voiceText || '先别急着走。看看是谁在攻击红帅，再找一找能吃掉它的棋子。')}
           </div>
 
           {!props.completed && (
             <>
-              <button className={props.isListening ? 'voice-button listening' : 'voice-button'} onClick={props.onVoice}>
-                <span><Mic /></span><strong>{props.isListening ? '正在听…' : '按下说走法'}</strong><small>例如：“炮五进五”</small>
+              <button className={props.voiceState === 'listening' ? 'voice-button listening' : 'voice-button'} onClick={props.onVoice} disabled={props.voiceState === 'connecting' || props.voiceState === 'thinking'}>
+                <span><Mic /></span><strong>{voiceButtonLabel(props.voiceState)}</strong><small>{props.voiceState === 'listening' ? '说完后再按一次' : '例如：“炮五进五”'}</small>
               </button>
               <div className="hint-card"><div><Lightbulb /><strong>分级提示</strong><span>{props.hintLevel}/3</span></div><p>{props.hint}</p><button onClick={props.onHint} disabled={props.hintLevel >= 3}>{props.hintLevel >= 3 ? '已显示完整提示' : '再给我一点提示'}</button></div>
             </>
@@ -280,6 +322,22 @@ function LessonPage(props: {
       </section>
     </div>
   )
+}
+
+function voiceStateLabel(state: LinxiState) {
+  const labels: Record<LinxiState, string> = {
+    idle: '语音待命', connecting: '正在连接灵矽…', ready: '灵矽已连接', listening: '正在认真听…',
+    thinking: '正在识别走法…', speaking: '正在讲解…', error: '语音暂不可用',
+  }
+  return labels[state]
+}
+
+function voiceButtonLabel(state: LinxiState) {
+  if (state === 'connecting') return '正在连接…'
+  if (state === 'listening') return '说完了'
+  if (state === 'thinking') return '正在识别…'
+  if (state === 'error') return '重新连接语音'
+  return '按下说走法'
 }
 
 function ChessBoard({ pieces, selectedId, legalTargets, onSquare }: { pieces: Piece[]; selectedId: string | null; legalTargets: Square[]; onSquare: (square: Square) => void }) {
