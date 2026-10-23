@@ -107,3 +107,12 @@ export function battleStatus(game: Chess) {
   if (game.isCheck()) return game.turn() === 'w' ? '红方被将军，请先应将。' : '黑方被将军。'
   return game.turn() === 'w' ? '轮到红方走棋' : 'ZERO7 正在思考…'
 }
+
+export function buildBattleReview(game: Chess, resigned = false) {
+  const history = game.history({ verbose: true }) as Move[]
+  const lastMove = history.at(-1)
+  const result = resigned ? '你选择认输，本局由 ZERO7 获胜。' : battleStatus(game)
+  const turns = Math.ceil(history.length / 2)
+  const lastMoveText = lastMove ? `最后一步是${lastMove.zh}。` : '本局还没有走棋。'
+  return `本局共进行${turns}回合。${result}${lastMoveText}`
+}
