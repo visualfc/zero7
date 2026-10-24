@@ -7,8 +7,8 @@ import { PikafishEngine } from './pikafish.mjs'
 const pikafish = new PikafishEngine()
 const port = Number(process.env.LINXI_BRIDGE_PORT || 8787)
 const app = express()
-const server = app.listen(port, '127.0.0.1', () => {
-  console.log(`灵矽桥接服务已启动：http://127.0.0.1:${port}`)
+const server = app.listen(port, '0.0.0.0', () => {
+  console.log(`灵矽桥接服务已启动：http://0.0.0.0:${port}`)
 })
 const browserServer = new WebSocketServer({ server, path: '/linxi' })
 
@@ -17,7 +17,7 @@ app.get('/', (_request, response) => {
 <html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width">
 <title>ZERO7｜灵矽桥接服务</title>
 <style>body{font:16px system-ui;color:#26324a;background:#f7f3ea;display:grid;place-items:center;min-height:100vh;margin:0}.card{background:#fffdf8;border:1px solid #e6dfd2;border-radius:20px;padding:32px;max-width:560px;box-shadow:0 12px 30px #0000000d}h1{margin-top:0;color:#d95642}code{background:#f0ebe2;padding:3px 7px;border-radius:6px}a{color:#548aa8}</style>
-<div class="card"><h1>灵矽桥接服务运行正常</h1><p>这里是语音桥接端口，不是 ZERO7 网页。</p><p>请启动完整开发服务后，打开终端中标记为“网页”的地址，通常是：</p><p><a href="http://localhost:5173/"><code>http://localhost:5173/</code></a></p><p>如果 5173 被占用，请以终端实际显示的地址为准。</p></div></html>`)
+<div class="card"><h1>灵矽桥接服务运行正常</h1><p>这里是语音桥接端口，不是零七网页。</p><p>请启动完整开发服务后，使用电脑或手机访问电脑的局域网 IP：</p><p><code>http://电脑局域网IP:5173/</code></p><p>手机和电脑需要连接同一个 Wi-Fi。</p></div></html>`)
 })
 
 app.get('/api/linxi/status', (_request, response) => {

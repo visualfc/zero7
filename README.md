@@ -1,4 +1,4 @@
-# ZERO7
+# 零七 ZERO7
 
 [![CI](https://github.com/visualfc/zero7/actions/workflows/ci.yml/badge.svg)](https://github.com/visualfc/zero7/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/github/visualfc/zero7/graph/badge.svg?token=LMDDHGZNPV)](https://codecov.io/github/visualfc/zero7)
@@ -10,11 +10,11 @@ ZERO7 是面向象棋初学者与普通爱好者的开源 AI 语音象棋伙伴�
 
 ## 棋盘预览
 
-![ZERO7 人机对战棋盘](./docs/images/board-desktop.png)
+![零七人机对战棋盘](./docs/images/board-desktop.png)
 
 ## 产品定位
 
-ZERO7 包含两个核心模式：
+零七包含两个核心模式：
 
 ### 训练模式
 
@@ -30,7 +30,7 @@ ZERO7 包含两个核心模式：
 当前对战能力包括：
 
 - 标准 32 子开局与完整象棋规则
-- 用户执红、ZERO7 执黑
+- 用户执红、零七执黑
 - Pikafish 正式棋力引擎
 - 入门、初级和中级三档棋力
 - Pikafish 不可用时自动降级为基础 AI
@@ -47,7 +47,7 @@ ZERO7 包含两个核心模式：
 
 ## 当前功能
 
-- ZERO7 中文响应式界面
+- 零七中文响应式界面
 - 三道规则正确的象棋训练关卡
 - 车、炮、马的基础规则校验
 - 标准棋谱与常见语音误识别纠正
