@@ -152,6 +152,10 @@ describe('ZERO7', () => {
   it('在非安全上下文中提示使用 HTTPS 进行语音输入', async () => {
     vi.stubGlobal('isSecureContext', false)
     render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: /进入训练/ }))
+    await act(async () => fireEvent.pointerDown(screen.getByRole('button', { name: /按住说走法/ })))
+    expect(screen.getByText('手机语音输入需要使用 HTTPS，请访问终端显示的 https:// 地址。')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '返回' }))
     fireEvent.click(screen.getByRole('button', { name: /开始人机对战/ }))
     await act(async () => fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住说走法/ })[0]))
     expect(screen.getByText('手机语音输入需要使用 HTTPS，请访问终端显示的 https:// 地址。')).toBeInTheDocument()
