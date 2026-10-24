@@ -442,6 +442,7 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const [replayStep, setReplayStep] = useState<number | null>(null)
   const [status, setStatus] = useState('轮到红方走棋')
   const [difficulty, setDifficulty] = useState<EngineLevel>('初级')
+  const difficultyDescriptions = { 入门: '入门棋力，约 1280 Elo', 初级: '初级棋力，约 1500 Elo', 中级: '中级棋力，约 1900 Elo' } as const
   const [thinking, setThinking] = useState(false)
   const [resigned, setResigned] = useState(false)
   const [analysis, setAnalysis] = useState<{ red: number; black: number; move: string; explanation: string } | null>(null)
@@ -882,7 +883,7 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
         </div>
         <aside className="battle-sidebar">
           <nav className="battle-side-nav" aria-label="对战导航"><button className="brand battle-side-brand" onClick={() => onNavigate('home')} aria-label="返回首页"><span className="brand-mark"><span>象</span></span><span className="brand-name">零七 <small>ZERO7</small></span></button><div className="battle-side-nav-buttons"><NavButton active={false} icon={<Home />} label="首页" onClick={() => onNavigate('home')} /><NavButton active={false} icon={<Trophy />} label="成长" onClick={() => onNavigate('progress')} /><NavButton active={false} icon={<UserRound />} label="我的" onClick={() => onNavigate('profile')} /></div></nav>
-          <div className="battle-card engine-card"><div className="battle-side-actions"><div className="difficulty-inline" aria-label="选择棋力">{(['入门', '初级', '中级'] as const).map((item) => <button key={item} className={difficulty === item ? 'active' : ''} onClick={() => setDifficulty(item)}>{item}</button>)}</div><button className="secondary-button battle-restart-button" onClick={restart}><RotateCcw /> 重开一局</button></div><div className="engine-badge"><span className={`engine-light ${engineStatus}`} />{engineName}</div><p className="engine-note">入门约 1280 Elo，初级约 1500 Elo，中级约 1900 Elo。</p></div>
+          <div className="battle-card engine-card"><div className="battle-side-actions"><div className="difficulty-inline" aria-label="选择棋力">{(['入门', '初级', '中级'] as const).map((item) => <button key={item} className={difficulty === item ? 'active' : ''} onClick={() => setDifficulty(item)} aria-describedby={`difficulty-${item}`} data-tooltip={difficultyDescriptions[item]}>{item}</button>)}</div><span className="visually-hidden" id="difficulty-入门">{difficultyDescriptions.入门}</span><span className="visually-hidden" id="difficulty-初级">{difficultyDescriptions.初级}</span><span className="visually-hidden" id="difficulty-中级">{difficultyDescriptions.中级}</span><button className="secondary-button battle-restart-button" onClick={restart}><RotateCcw /> 重开一局</button></div><span className="visually-hidden" aria-live="polite">{engineName}</span></div>
           <div className="battle-card battle-voice-card">
             {!['轮到红方走棋', `${BATTLE_RULES.brandName}正在思考…`, '轮到你继续走棋。'].includes(status) && <p className="battle-message">{status}</p>}
             <div className="coach-head compact"><div className="coach-avatar small">象</div><div><strong>语音走棋与讲解</strong><span>{voiceStateLabel(voiceState)}</span></div><span className={`connection-dot ${voiceState}`} /></div>
