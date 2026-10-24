@@ -36,7 +36,7 @@
 .lesson-page .unified-main { height: calc(100dvh - 16px); overflow: hidden; }
 .lesson-page .challenge-layout { display: block; max-width: none; height: 100%; }
 .lesson-page .board-panel { height: 100%; padding: 8px 14px 28px; display: flex; flex-direction: column; align-items: center; overflow: hidden; }
-.lesson-page .board-wrap { width: min(620px, 100%, calc((100dvh - 76px) * .9)); margin: 18px auto 0; }
+.lesson-page .board-wrap { width: min(620px, 100%, calc((100dvh - 55px) * .9)); margin: 8px auto 0; }
 .lesson-sidebar { height: calc(100dvh - 16px); overflow: hidden; }
 .lesson-sidebar .coach-panel { position: static; min-height: 0; flex: 1; padding: 10px 12px; display: flex; flex-direction: column; gap: 7px; overflow-y: auto; scrollbar-width: thin; }
 .lesson-side-description { padding-bottom: 7px; border-bottom: 1px solid var(--line); }
@@ -297,6 +297,10 @@
   .battle-sidebar .coach-head { display: none; }
   .battle-sidebar .battle-voice-card > p { min-height: 0; margin-top: 0; }
   .battle-sidebar .move-list h2 { margin: 3px 0 7px; font-size: 14px; }
+}
+@media (min-width: 641px) and (max-width: 900px) {
+  .lesson-page, .battle-page { --responsive-board-width: min(100%, calc((100dvh - 55px) * .9)); }
+  .lesson-page .board-wrap, .battle-board-panel .board-wrap { width: var(--responsive-board-width); transform: none; }
 }
 @media (min-width: 641px) and (max-width: 1100px) {
   .battle-layout { grid-template-columns: minmax(0, 1fr) 180px; }
