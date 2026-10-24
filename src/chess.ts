@@ -76,9 +76,9 @@ export const levels: Level[] = [
     instruction: '红方走棋 · 用红马将军', answer: '马三进四',
     answerAliases: ['马3进4', '馬三進四', '马山进四', '马三近四'],
     pieces: [
-      piece('black-general', '将', 'black', 'general', 0, 4),
-      piece('black-advisor-a', '士', 'black', 'advisor', 0, 3),
-      piece('black-advisor-b', '士', 'black', 'advisor', 0, 5),
+      piece('black-general', '将', 'black', 'general', 0, 3),
+      piece('black-advisor-a', '士', 'black', 'advisor', 0, 5),
+      piece('black-advisor-b', '士', 'black', 'advisor', 2, 3),
       piece('red-horse', '马', 'red', 'horse', 3, 6),
       piece('red-general', '帅', 'red', 'general', 9, 4),
       piece('red-advisor-a', '仕', 'red', 'advisor', 9, 3),
@@ -100,6 +100,26 @@ function move(pieceId: string, fromRow: number, fromCol: number, toRow: number, 
 
 export function sameSquare(a: Square, b: Square) {
   return a.row === b.row && a.col === b.col
+}
+
+export function isHorseAttacking(pieces: Piece[], horseId: string, target: Square) {
+  const horse = pieces.find((item) => item.id === horseId && item.kind === 'horse')
+  if (!horse) return false
+  const rowDelta = target.row - horse.row
+  const colDelta = target.col - horse.col
+  const isHorseStep = (Math.abs(rowDelta) === 2 && Math.abs(colDelta) === 1) || (Math.abs(rowDelta) === 1 && Math.abs(colDelta) === 2)
+  if (!isHorseStep) return false
+  const leg = Math.abs(rowDelta) === 2
+    ? { row: horse.row + Math.sign(rowDelta), col: horse.col }
+    : { row: horse.row, col: horse.col + Math.sign(colDelta) }
+  return !pieces.some((item) => sameSquare(item, leg))
+}
+
+export function hasFacingGenerals(pieces: Piece[]) {
+  const blackGeneral = pieces.find((item) => item.side === 'black' && item.kind === 'general')
+  const redGeneral = pieces.find((item) => item.side === 'red' && item.kind === 'general')
+  if (!blackGeneral || !redGeneral || blackGeneral.col !== redGeneral.col) return false
+  return piecesBetween(pieces, blackGeneral, redGeneral) === 0
 }
 
 export function isLevelMove(level: Level, pieceId: string, target: Square) {

@@ -42,6 +42,7 @@ function App() {
   const [toast, setToast] = useState<string | null>(null)
   const [pendingVoiceAction, setPendingVoiceAction] = useState<'undo' | 'restart' | 'resign' | null>(null)
   const voiceClient = useRef<LinxiVoiceClient | null>(null)
+  const lessonSuccessVoiceClient = useRef<LinxiVoiceClient | null>(null)
   const voiceStateRef = useRef<LinxiState>('idle')
 
   const selectedPiece = pieces.find((piece) => piece.id === selectedId)
@@ -53,7 +54,10 @@ function App() {
     return () => window.clearTimeout(timer)
   }, [toast])
 
-  useEffect(() => () => voiceClient.current?.disconnect(), [])
+  useEffect(() => () => {
+    voiceClient.current?.disconnect()
+    lessonSuccessVoiceClient.current?.disconnect()
+  }, [])
 
   useEffect(() => {
     const blockSpace = (event: KeyboardEvent) => {
@@ -127,11 +131,27 @@ function App() {
     setPage('lesson')
   }
 
+  const speakLessonSuccess = async () => {
+    lessonSuccessVoiceClient.current?.disconnect()
+    const client = new LinxiVoiceClient(() => {})
+    lessonSuccessVoiceClient.current = client
+    try {
+      await client.speakText(`${level.successTitle}${level.successText}`)
+      await client.waitForPlayback()
+    } catch (error) {
+      setToast(error instanceof Error ? error.message : '成功讲解播放失败')
+    } finally {
+      client.disconnect()
+      if (lessonSuccessVoiceClient.current === client) lessonSuccessVoiceClient.current = null
+    }
+  }
+
   const makeWinningMove = () => {
     setPieces((current) => applyMove(current, level.move))
     setSelectedId(null)
     setCompleted(true)
     setVoiceText(`${level.answer}，${level.successText}`)
+    void speakLessonSuccess()
   }
 
   const handleSquare = (square: Square) => {
@@ -390,7 +410,6 @@ function LessonPage(props: {
       <div className="unified-main">
       <section className="challenge-layout">
         <div className="board-panel">
-          <div className="challenge-title"><span className="mini-badge">{props.level.category}</span><h1>{props.level.title.split('\n').map((line, index) => <span key={line}>{index > 0 && <br />}{line}</span>)}</h1><p>{props.level.description}</p></div>
           <ChessBoard pieces={props.pieces} selectedId={props.selectedId} legalTargets={props.legalTargets} instruction={props.level.instruction} onSquare={props.onSquare} />
         </div>
       </section>
@@ -398,7 +417,8 @@ function LessonPage(props: {
 
       <aside className="unified-sidebar lesson-sidebar">
         <SideNavigation active="lesson" onNavigate={props.onNavigate} />
-        <div className="coach-panel">
+        <div className={`coach-panel ${props.completed ? 'lesson-completed' : ''}`}>
+          <div className="lesson-side-description"><span className="mini-badge">{props.level.category}</span><h1>{props.level.title.split('\n').map((line, index) => <span key={line}>{index > 0 && <br />}{line}</span>)}</h1><p>{props.level.description}</p></div>
           <div className="coach-head"><div className="coach-avatar small">象</div><div><strong>零七教练</strong><span>{voiceStateLabel(props.voiceState)}</span></div><button className="icon-button coach-reset-button" onClick={props.onReset} aria-label="重新开始"><RotateCcw /></button><span className={`connection-dot ${props.voiceState}`} aria-label={`灵矽状态：${voiceStateLabel(props.voiceState)}`} /></div>
           <div className="speech-bubble">
             {props.completed ? <><strong>太棒了！</strong><br />{props.level.successText}</> : (props.voiceText || `先别急着走。${props.level.hints[0]}`)}
