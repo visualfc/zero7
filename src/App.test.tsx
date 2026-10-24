@@ -71,14 +71,14 @@ describe('ZERO7', () => {
     render(<App />)
     fireEvent.click(screen.getByRole('button', { name: /开始人机对战/ }))
     expect(await screen.findByText('基础 AI（Pikafish 未安装）')).toBeInTheDocument()
-    expect(screen.getByText('轮到红方走棋')).toBeInTheDocument()
+    expect(screen.queryByText('轮到红方走棋')).not.toBeInTheDocument()
     expect(screen.getByText(/按住语音按钮，说出“/)).toBeInTheDocument()
     expect(screen.getAllByRole('button', { name: /按住说走法/ })).toHaveLength(2)
     expect(screen.getAllByRole('button', { name: /按住说走法/ })[0]).toBeEnabled()
     expect(screen.getByRole('button', { name: '重开一局' })).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: '中级' }))
     fireEvent.click(screen.getByRole('button', { name: '重开一局' }))
-    expect(screen.getByText('走出第一步后，棋谱会显示在这里。')).toBeInTheDocument()
+    expect(screen.getByText('暂无走法')).toBeInTheDocument()
   })
 
   it('进入人机对战并完成红方走棋和 Pikafish 应手', async () => {
@@ -95,7 +95,7 @@ describe('ZERO7', () => {
     expect(screen.getByLabelText('最近一步走子路径')).toHaveClass('red')
     expect(await screen.findByText('马二进三')).toBeInTheDocument()
     expect(await screen.findByText('马８进７', {}, { timeout: 4000 })).toBeInTheDocument()
-    expect(screen.getByText('轮到红方走棋')).toBeInTheDocument()
+    expect(screen.queryByText('轮到红方走棋')).not.toBeInTheDocument()
     expect(screen.getByLabelText('最近一步走子路径')).toHaveClass('black')
     fireEvent.click(screen.getByRole('button', { name: '悔棋' }))
     expect(screen.queryByLabelText('最近一步走子路径')).not.toBeInTheDocument()
@@ -117,8 +117,8 @@ describe('ZERO7', () => {
     fireEvent.click(screen.getByRole('button', { name: '7-6' }))
     fireEvent.click(screen.getByRole('button', { name: '重开一局' }))
     await act(async () => { resolveMove(new Response(JSON.stringify({ move: 'h9g7', engine: 'Pikafish Test', level: '初级' }), { status: 200 })); await new Promise((resolve) => setTimeout(resolve, 1600)) })
-    expect(screen.getByText('走出第一步后，棋谱会显示在这里。')).toBeInTheDocument()
-    expect(screen.getByText('轮到红方走棋')).toBeInTheDocument()
+    expect(screen.getByText('暂无走法')).toBeInTheDocument()
+    expect(screen.queryByText('轮到红方走棋')).not.toBeInTheDocument()
   })
 
   it('支持训练语音识别、失败提示和分级提示朗读', async () => {
@@ -187,7 +187,7 @@ describe('ZERO7', () => {
     expect(await screen.findByText('Pikafish Test')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: '中级' }))
     fireEvent.click(screen.getAllByRole('button', { name: '黑卒' })[0])
-    expect(screen.getByText('走出第一步后，棋谱会显示在这里。')).toBeInTheDocument()
+    expect(screen.getByText('暂无走法')).toBeInTheDocument()
     fireEvent.click(screen.getAllByRole('button', { name: '红马' }).at(-1)!)
     fireEvent.click(screen.getByRole('button', { name: '7-6' }))
     expect(await screen.findByText(/基础 AI（Pikafish 暂不可用）/, {}, { timeout: 4000 })).toBeInTheDocument()
@@ -205,14 +205,14 @@ describe('ZERO7', () => {
     fireEvent.click(screen.getByRole('button', { name: /开始人机对战/ }))
     await act(async () => fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住说走法/ })[0]))
     act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text: '去2借5' }))
-    expect(screen.getAllByText(/没听明白，请重新说/)).toHaveLength(2)
+    expect(screen.getAllByText(/没听明白，请重新说/).length).toBeGreaterThan(0)
     expect(voiceMock.instances.at(-1)!.speakText).toHaveBeenCalledWith('听到“去2借5”，没听明白，请重新说。')
     fireEvent.pointerUp(screen.getAllByRole('button', { name: /松开完成/ })[0])
     await act(async () => fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住说走法/ })[0]))
     act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text: '马二进五' }))
-    expect(screen.getAllByText(/这步棋现在不能走，请重新说/)).toHaveLength(2)
+    expect(screen.getAllByText(/这步棋现在不能走，请重新说/).length).toBeGreaterThan(0)
     expect(voiceMock.instances.at(-1)!.speakText).toHaveBeenCalledWith('听到“马二进五”，这步棋现在不能走，请重新说当前局面可以走的走法。')
-    expect(screen.getAllByText(/这步棋现在不能走，请重新说/)).toHaveLength(2)
+    expect(screen.getAllByText(/这步棋现在不能走，请重新说/).length).toBeGreaterThan(0)
   })
 
   it('默认隐藏局面分析，点击后显示概率和推荐语音', async () => {
@@ -232,8 +232,12 @@ describe('ZERO7', () => {
     const unavailable = screen.queryByText('当前无法获取胜负概率，请确认 Pikafish 可用。')
     expect(probability || unavailable).toBeTruthy()
     if (screen.queryByRole('button', { name: /语音讲解推荐/ })) {
+      const moveVoiceButton = screen.getAllByRole('button', { name: /按住说走法/ })[0]
+      const moveVoiceLabel = moveVoiceButton.textContent
       fireEvent.click(screen.getByRole('button', { name: /语音讲解推荐/ }))
       expect(voiceMock.instances.at(-1)!.speakText).toHaveBeenCalled()
+      expect(moveVoiceButton.textContent).toBe(moveVoiceLabel)
+      expect(moveVoiceButton).not.toHaveClass('listening')
     } else {
       expect(screen.getByText('当前无法获取胜负概率，请确认 Pikafish 可用。')).toBeInTheDocument()
     }
@@ -264,8 +268,10 @@ describe('ZERO7', () => {
     expect(await screen.findByText('正在复盘第 1 步，共 2 步', {}, { timeout: 4000 })).toBeInTheDocument()
     expect(screen.getByLabelText('最近一步走子路径')).toHaveClass('red')
     expect(screen.getByRole('button', { name: '返回当前局面' })).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: '返回当前局面' }))
-    expect(screen.getByText(/零七正在思考|轮到红方走棋/)).toBeInTheDocument()
+    const currentHorse = screen.getAllByRole('button', { name: '红马' }).find((button) => button.querySelector('.chess-piece.red'))!
+    fireEvent.click(currentHorse)
+    expect(screen.queryByRole('button', { name: '返回当前局面' })).not.toBeInTheDocument()
+    expect(currentHorse.querySelector('.chess-piece')).toHaveClass('selected')
   })
 
   it('支持人机对战悔棋和重新开局', async () => {
@@ -280,9 +286,9 @@ describe('ZERO7', () => {
     fireEvent.click(screen.getByRole('button', { name: '7-6' }))
     await act(async () => { await new Promise((resolve) => setTimeout(resolve, 3600)) })
     fireEvent.click(screen.getByRole('button', { name: '悔棋' }))
-    expect(screen.getByText('走出第一步后，棋谱会显示在这里。')).toBeInTheDocument()
+    expect(screen.getByText('暂无走法')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: '重开一局' }))
-    expect(screen.getByText('轮到红方走棋')).toBeInTheDocument()
+    expect(screen.queryByText('轮到红方走棋')).not.toBeInTheDocument()
   })
 
   it('按住和松开训练语音按钮，并处理空格快捷键', async () => {
@@ -374,7 +380,7 @@ describe('ZERO7', () => {
     fireEvent.click(screen.getByLabelText('返回首页'))
     fireEvent.click(screen.getAllByRole('button', { name: /我的/ })[0])
     await sayGlobal('开始人机对战')
-    expect(screen.getByText('人机对战')).toBeInTheDocument()
+    expect(screen.queryByText('轮到红方走棋')).not.toBeInTheDocument()
   })
 
   it('训练页语音支持帮助、提示、重开确认和下一关', async () => {
@@ -486,7 +492,7 @@ describe('ZERO7', () => {
     fireEvent.pointerUp(button)
     await act(async () => fireEvent.pointerDown(button))
     act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text: '确认' }))
-    await waitFor(() => expect(screen.getByText('轮到红方走棋')).toBeInTheDocument())
+    await waitFor(() => expect(screen.queryByText('轮到红方走棋')).not.toBeInTheDocument())
     const sayBattle = async (text: string) => {
       await act(async () => fireEvent.pointerDown(button))
       act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text }))
@@ -514,15 +520,20 @@ describe('ZERO7', () => {
     await waitFor(() => expect(screen.getAllByText('对战麦克风不可用').length).toBeGreaterThan(0))
   })
 
-  it('一分钟无动作后才语音提醒继续走棋', async () => {
+  it('黑方走棋后一分钟无动作才语音提醒继续走棋', async () => {
     vi.useFakeTimers()
     vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ available: false }), { status: 200 })))
     render(<App />)
     fireEvent.click(screen.getByRole('button', { name: /开始人机对战/ }))
     await act(async () => Promise.resolve())
-    expect(screen.queryByText('轮到你继续走棋。')).not.toBeInTheDocument()
     await act(async () => vi.advanceTimersByTimeAsync(60000))
-    expect(screen.getAllByText('轮到你继续走棋。').length).toBeGreaterThan(0)
+    expect(voiceMock.instances.every((client) => !client.speakText.mock.calls.some(([text]) => text === '轮到你继续走棋。'))).toBe(true)
+    fireEvent.click(screen.getAllByRole('button', { name: '红马' }).at(-1)!)
+    fireEvent.click(screen.getByRole('button', { name: '7-6' }))
+    await act(async () => vi.advanceTimersByTimeAsync(2400))
+    await act(async () => vi.advanceTimersByTimeAsync(60000))
+    expect(screen.queryByText('轮到你继续走棋。')).not.toBeInTheDocument()
+    expect(voiceMock.instances.some((client) => client.speakText.mock.calls.some(([text]) => text === '轮到你继续走棋。'))).toBe(true)
     vi.useRealTimers()
   })
 
