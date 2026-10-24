@@ -12,8 +12,7 @@ import {
   Swords,
   Target,
   Trophy,
-  UserRound,
-  Volume2,
+    Volume2,
 } from 'lucide-react'
 import './App.css'
 import { LinxiVoiceClient, type LinxiState } from './linxi'
@@ -24,7 +23,7 @@ import { BATTLE_RULES, describeAiResponse, describePlayerMove } from './battle-r
 import { commandHelp, parseVoiceCommand, type VoiceCommand } from './voice-command'
 import { getPikafishMove, getPikafishStatus, type EngineLevel } from './pikafish'
 
-type Page = 'home' | 'lesson' | 'battle' | 'progress' | 'profile'
+type Page = 'home' | 'lesson' | 'battle' | 'progress'
 const MIN_VOICE_HOLD_MS = 350
 
 function App() {
@@ -190,8 +189,8 @@ function App() {
   const executeGlobalCommand = (command: VoiceCommand) => {
     if (command.type === 'help') { setVoiceText(commandHelp(page)); return true }
     if (command.type === 'navigation.home') { setPage('home'); return true }
-    if (command.type === 'battle.start' && (page === 'home' || page === 'progress' || page === 'profile')) { setPage('battle'); return true }
-    if (command.type === 'training.start' && (page === 'home' || page === 'progress' || page === 'profile')) { openLesson(); return true }
+    if (command.type === 'battle.start' && (page === 'home' || page === 'progress')) { setPage('battle'); return true }
+    if (command.type === 'training.start' && (page === 'home' || page === 'progress')) { openLesson(); return true }
     return false
   }
 
@@ -286,7 +285,7 @@ function App() {
   }, [hintLevel, level])
 
   return (
-    <div className={`app-shell ${page === 'battle' ? 'battle-shell' : ''} ${page === 'home' ? 'home-shell' : ''} ${page === 'lesson' || page === 'progress' || page === 'profile' ? 'content-shell' : ''}`}>
+    <div className={`app-shell ${page === 'battle' ? 'battle-shell' : ''} ${page === 'home' ? 'home-shell' : ''} ${page === 'lesson' || page === 'progress' ? 'content-shell' : ''}`}>
       <main>
         {page === 'home' && <HomePage onStart={openLesson} onBattle={() => setPage('battle')} onNavigate={setPage} completedCount={levelIndex} />}
         {page === 'lesson' && (
@@ -307,13 +306,12 @@ function App() {
             onVoiceStart={() => { voicePressStartedAt.current = Date.now(); setVoiceHeld(true); void startVoice() }} onVoiceStop={() => { setVoiceHeld(false); void stopVoice() }}
             onHint={() => void requestHint()}
             onReset={resetLesson}
-            onContinue={() => levelIndex < levels.length - 1 ? loadLevel(levelIndex + 1) : setPage('progress')}
+            onContinue={() => loadLevel((levelIndex + 1) % levels.length)}
             onNavigate={setPage}
           />
         )}
         {page === 'battle' && <BattlePage onNavigate={setPage} />}
         {page === 'progress' && <ProgressPage onLesson={openLesson} onNavigate={setPage} />}
-        {page === 'profile' && <ProfilePage onNavigate={setPage} />}
       </main>
 
       {toast && <div className="toast" role="status"><Volume2 /> {toast}</div>}
@@ -323,7 +321,6 @@ function App() {
         <NavButton active={page === 'lesson'} icon={<BookOpen />} label="训练" onClick={() => setPage('lesson')} />
         <NavButton active={page === 'battle'} icon={<Swords />} label="对战" onClick={() => setPage('battle')} />
         <NavButton active={page === 'progress'} icon={<Trophy />} label="成长" onClick={() => setPage('progress')} />
-        <NavButton active={page === 'profile'} icon={<UserRound />} label="我的" onClick={() => setPage('profile')} />
       </nav>
     </div>
   )
@@ -334,7 +331,7 @@ function NavButton({ active, icon, label, onClick }: { active: boolean; icon: Re
 }
 
 function SideNavigation({ active, onNavigate }: { active: Page; onNavigate: (page: Page) => void }) {
-  return <nav className="battle-side-nav unified-side-nav" aria-label="主导航"><button className="brand battle-side-brand" onClick={() => onNavigate('home')} aria-label="返回首页"><span className="brand-mark"><span>象</span></span><span className="brand-name">零七 <small>ZERO7</small></span></button><div className="battle-side-nav-buttons"><NavButton active={active === 'home'} icon={<Home />} label="首页" onClick={() => onNavigate('home')} /><NavButton active={active === 'lesson'} icon={<BookOpen />} label="训练" onClick={() => onNavigate('lesson')} /><NavButton active={active === 'battle'} icon={<Swords />} label="对战" onClick={() => onNavigate('battle')} /><NavButton active={active === 'progress'} icon={<Trophy />} label="成长" onClick={() => onNavigate('progress')} /><NavButton active={active === 'profile'} icon={<UserRound />} label="我的" onClick={() => onNavigate('profile')} /></div></nav>
+  return <nav className="battle-side-nav unified-side-nav" aria-label="主导航"><button className="brand battle-side-brand" onClick={() => onNavigate('home')} aria-label="返回首页"><span className="brand-mark"><span>象</span></span><span className="brand-name">零七 <small>ZERO7</small></span></button><div className="battle-side-nav-buttons"><NavButton active={active === 'home'} icon={<Home />} label="首页" onClick={() => onNavigate('home')} /><NavButton active={active === 'lesson'} icon={<BookOpen />} label="训练" onClick={() => onNavigate('lesson')} /><NavButton active={active === 'battle'} icon={<Swords />} label="对战" onClick={() => onNavigate('battle')} /><NavButton active={active === 'progress'} icon={<Trophy />} label="成长" onClick={() => onNavigate('progress')} /></div></nav>
 }
 
 function HomePage({ onStart, onBattle, onNavigate, completedCount }: { onStart: (index?: number) => void; onBattle: () => void; onNavigate: (page: Page) => void; completedCount: number }) {
@@ -346,7 +343,7 @@ function HomePage({ onStart, onBattle, onNavigate, completedCount }: { onStart: 
           <span className="eyebrow"><Sparkles /> 训练 · 对弈 · 复盘</span>
           <h1>你好，棋友！<br /><em>今天想练哪一步？</em></h1>
           <p>和零七一起训练、对弈、复盘，轻松读懂每一步棋。</p>
-          <div className="hero-actions"><button className="primary-button" onClick={onBattle}><Swords /> 开始人机对战</button><button className="secondary-button" onClick={() => onStart(0)}>进入训练 <ChevronRight /></button></div>
+          <div className="hero-actions"><button className="primary-button" onClick={onBattle}><Swords /> 人机对战</button><button className="secondary-button" onClick={() => onStart(0)}>进入训练 <ChevronRight /></button></div>
         </div>
         <div className="hero-art" aria-hidden="true">
           <div className="sun sun-a" /><div className="sun sun-b" />
@@ -419,7 +416,7 @@ function LessonPage(props: {
         <SideNavigation active="lesson" onNavigate={props.onNavigate} />
         <div className={`coach-panel ${props.completed ? 'lesson-completed' : ''}`}>
           <div className="lesson-side-description"><span className="mini-badge">{props.level.category}</span><h1>{props.level.title.split('\n').map((line, index) => <span key={line}>{index > 0 && <br />}{line}</span>)}</h1><p>{props.level.description}</p></div>
-          <div className="coach-head"><div className="coach-avatar small">象</div><div><strong>零七教练</strong><span>{voiceStateLabel(props.voiceState)}</span></div><button className="icon-button coach-reset-button" onClick={props.onReset} aria-label="重新开始"><RotateCcw /></button><span className={`connection-dot ${props.voiceState}`} aria-label={`灵矽状态：${voiceStateLabel(props.voiceState)}`} /></div>
+          <div className="coach-head"><div className="coach-avatar small">象</div><div><strong>零七教练</strong><span>{voiceStateLabel(props.voiceState)}</span></div><button className="secondary-button compact-action coach-reset-button" onClick={props.onReset} aria-label="重新开始"><RotateCcw /></button><span className={`connection-dot ${props.voiceState}`} aria-label={`灵矽状态：${voiceStateLabel(props.voiceState)}`} /></div>
           <div className="speech-bubble">
             {props.completed ? <><strong>太棒了！</strong><br />{props.level.successText}</> : (props.voiceText || `先别急着走。${props.level.hints[0]}`)}
           </div>
@@ -429,7 +426,7 @@ function LessonPage(props: {
               <button className={props.voiceHeld ? 'voice-button listening' : 'voice-button'} onPointerDown={(event) => { event.currentTarget.setPointerCapture?.(event.pointerId); props.onVoiceStart() }} onPointerUp={props.onVoiceStop} onPointerCancel={props.onVoiceStop} onPointerLeave={(event) => { if (event.currentTarget.hasPointerCapture(event.pointerId)) props.onVoiceStop() }} disabled={props.voiceState === 'connecting' || props.voiceState === 'thinking'}>
                 <span><Mic /></span><strong>{props.voiceHeld ? '松开完成' : '按住说走法'}</strong><small>按住按钮，说完后松开</small>
               </button>
-              <div className="hint-card"><div><Lightbulb /><strong>分级提示</strong><span>{props.hintLevel}/3</span></div><p>{props.hint}</p><button onClick={props.onHint} disabled={props.hintLevel >= 3}>{props.hintLevel >= 3 ? '已显示完整提示' : '再给我一点提示'}</button></div>
+              <div className="hint-card"><div><Lightbulb /><strong>分级提示</strong><span>{props.hintLevel}/3</span></div><p>{props.hint}</p><button className="secondary-button compact-action" onClick={props.onHint} disabled={props.hintLevel >= 3}>{props.hintLevel >= 3 ? '已显示完整提示' : '再给我一点提示'}</button></div>
             </>
           )}
 
@@ -438,7 +435,7 @@ function LessonPage(props: {
               <div className="stars"><Star /><Star /><Star /></div>
               <h2>{props.level.successTitle}</h2><p>{props.level.successText}</p>
               <div className="reward"><Sparkles /> 获得 {props.level.reward} 颗智慧星</div>
-              <button className="primary-button full" onClick={props.onContinue}>{props.levelIndex < levels.length - 1 ? '挑战下一关' : '查看今日成长'} <ChevronRight /></button>
+              <button className="primary-button full" onClick={props.onContinue}>{props.levelIndex < levels.length - 1 ? '挑战下一关' : '继续下一题'} <ChevronRight /></button>
             </div>
           )}
         </div>
@@ -1006,7 +1003,9 @@ function ProgressPage({ onLesson, onNavigate }: { onLesson: (index?: number) => 
     <div className="simple-page unified-page"><div className="unified-main simple-main">
       <span className="eyebrow"><Trophy /> MY JOURNEY</span><h1>我的象棋成长</h1><p className="lead">每一次认真思考，都让你的判断更稳一步。</p>
       <div className="stats-grid"><Stat value="3" label="连续学习天数" color="coral" /><Stat value="28" label="收集智慧星" color="gold" /><Stat value="5" label="完成小关卡" color="blue" /></div>
+      <section className="profile-card"><div className="profile-avatar">棋<br />友</div><div><h2>零七棋友</h2><p>当前等级：象棋入门</p><span className="profile-tag"><Star /> 已训练 3 天</span></div></section>
       <section className="journey-card"><div><span className="section-kicker">本周目标</span><h2>完成 3 次象棋练习</h2><p>再完成今天的三小关，就能点亮“小小观察家”徽章。</p><div className="journey-bar"><span /></div><small>2 / 3 次</small></div><div className="badge-art"><Award /></div></section>
+      <section className="settings-card"><h2>训练设置</h2><div><span><Volume2 /> 语音讲解</span><strong>开启</strong></div><div><span><BookOpen /> 每日目标</span><strong>3 个训练关卡</strong></div><div><span><Target /> 当前难度</span><strong>入门</strong></div></section>
       <button className="primary-button" onClick={() => onLesson(0)}>继续今日挑战 <ChevronRight /></button>
     </div><aside className="unified-sidebar"><SideNavigation active="progress" onNavigate={onNavigate} /><div className="home-side-card"><span className="section-kicker">THIS WEEK</span><strong>本周完成 2 / 3</strong><p>再完成一次练习即可达成目标。</p></div><button className="primary-button full" onClick={() => onLesson(0)}><Target /> 继续训练</button></aside></div>
   )
@@ -1014,16 +1013,6 @@ function ProgressPage({ onLesson, onNavigate }: { onLesson: (index?: number) => 
 
 function Stat({ value, label, color }: { value: string; label: string; color: string }) {
   return <div className={`stat-card ${color}`}><strong>{value}</strong><span>{label}</span></div>
-}
-
-function ProfilePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
-  return (
-    <div className="simple-page unified-page"><div className="unified-main simple-main">
-      <span className="eyebrow"><UserRound /> MY PROFILE</span><h1>你好，棋友！</h1><p className="lead">这里保存着你的训练偏好和对局成长。</p>
-      <section className="profile-card"><div className="profile-avatar">棋<br />友</div><div><h2>零七棋友</h2><p>当前等级：象棋入门</p><span className="profile-tag"><Star /> 已训练 3 天</span></div></section>
-      <section className="settings-card"><h2>训练设置</h2><div><span><Volume2 /> 语音讲解</span><strong>开启</strong></div><div><span><BookOpen /> 每日目标</span><strong>3 个训练关卡</strong></div><div><span><Target /> 当前难度</span><strong>入门</strong></div></section>
-    </div><aside className="unified-sidebar"><SideNavigation active="profile" onNavigate={onNavigate} /><div className="home-side-card"><span className="section-kicker">PROFILE</span><strong>训练档案</strong><p>已连续训练 3 天。</p></div><button className="secondary-button full" onClick={() => onNavigate('home')}><Home /> 返回首页</button></aside></div>
-  )
 }
 
 export default App
