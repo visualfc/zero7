@@ -205,6 +205,15 @@ describe('ZERO7', () => {
     expect(screen.getByText('今日三小关')).toBeInTheDocument()
   })
 
+  it('移动端导航可以直接进入训练和对战', () => {
+    render(<App />)
+    const mobileNavigation = within(screen.getByRole('navigation', { name: '移动端主导航' }))
+    fireEvent.click(mobileNavigation.getByRole('button', { name: '训练' }))
+    expect(screen.getByText(/黑车闯进中路/)).toBeInTheDocument()
+    fireEvent.click(mobileNavigation.getByRole('button', { name: '对战' }))
+    expect(screen.getByText('暂无走法')).toBeInTheDocument()
+  })
+
   it('人机对战处理引擎失败、难度切换、非法点击和认输', async () => {
     vi.stubGlobal('fetch', vi.fn(async (input: string | URL | Request) => {
       if (String(input).includes('/status')) return new Response(JSON.stringify({ available: true, name: 'Pikafish Test' }), { status: 200 })
