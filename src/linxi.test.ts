@@ -108,17 +108,18 @@ describe('灵矽语音客户端', () => {
     expect(events).toContainEqual({ type: 'transcript', text: '炮二平五' })
     expect(events).toContainEqual({ type: 'reply', text: '好棋' })
     expect(events.some((event) => event.state === 'speaking')).toBe(true)
-    expect(events.at(-1)).toEqual({ type: 'state', state: 'ready' })
+    expect(events.at(-1)).toEqual({ type: 'state', state: 'idle' })
   })
 
   it('发送朗读请求并处理被打断的播放', async () => {
     const events: LinxiEvent[] = []
     const client = new LinxiVoiceClient((event) => events.push(event))
-    const speaking = client.speakText('提示内容'); await ready(); await speaking
+    const speaking = client.speakText('提示内容'); await ready(); await vi.waitFor(() => expect(FakeWebSocket.instances[0]?.sent).toContain(JSON.stringify({ type: 'speak', text: '提示内容' })))
     const socket = FakeWebSocket.instances[0]
     expect(socket.sent).toContain(JSON.stringify({ type: 'speak', text: '提示内容' }))
     socket.message(JSON.stringify({ type: 'tts', state: 'start' }))
     socket.message(JSON.stringify({ type: 'tts', state: 'stop', is_aborted: true }))
+    await speaking
     expect(events.at(-1)).toEqual({ type: 'state', state: 'ready' })
     client.disconnect()
     expect(client.currentState).toBe('idle')
@@ -133,7 +134,7 @@ describe('灵矽语音客户端', () => {
     socket.message(JSON.stringify({ type: 'error', message: '服务错误' }))
     socket.message(JSON.stringify({ type: 'disconnected' }))
     expect(events).toContainEqual({ type: 'error', text: '服务错误' })
-    expect(events).toContainEqual({ type: 'error', text: '灵矽连接已断开' })
+    expect(events).toContainEqual({ type: 'error', text: '灵矽连接已断开，请重新按住语音按钮' })
   })
 
   it('处理浏览器不支持、连接错误和识别超时', async () => {

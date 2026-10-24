@@ -20,11 +20,13 @@ import {
 import './App.css'
 import { LinxiVoiceClient, type LinxiState } from './linxi'
 import { applyMove, isLevelMove, levels, parseVoiceMove, sameSquare, type Level, type Piece, type Square } from './chess'
-import { battlePieces, battleStatus, buildBattleReview, chooseAiMove, createBattle, describeBattleTurn, findVoiceMove, legalTargets as battleLegalTargets, makeBattleMove, VoiceMoveAuthorization } from './battle'
+import { battlePieces, battleStatus, buildBattleReview, chooseAiMove, createBattle, findVoiceMove, isChessMoveTranscript, legalTargets as battleLegalTargets, makeBattleMove, VoiceMoveAuthorization } from './battle'
 import { Chess, type Move } from '@weshell/xiangqi.js'
+import { BATTLE_RULES, describeAiResponse, describePlayerMove } from './battle-rules'
 import { getPikafishMove, getPikafishStatus, type EngineLevel } from './pikafish'
 
 type Page = 'home' | 'lesson' | 'battle' | 'progress' | 'profile'
+const MIN_VOICE_HOLD_MS = 350
 
 function App() {
   const [page, setPage] = useState<Page>('home')
@@ -34,7 +36,9 @@ function App() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [hintLevel, setHintLevel] = useState(0)
   const [voiceState, setVoiceState] = useState<LinxiState>('idle')
+  const [voiceHeld, setVoiceHeld] = useState(false)
   const [voiceText, setVoiceText] = useState('')
+  const voicePressStartedAt = useRef<number | null>(null)
   const [completed, setCompleted] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
   const voiceClient = useRef<LinxiVoiceClient | null>(null)
@@ -51,12 +55,40 @@ function App() {
 
   useEffect(() => () => voiceClient.current?.disconnect(), [])
 
+  useEffect(() => {
+    const blockSpace = (event: KeyboardEvent) => {
+      if (event.code === 'Space') event.preventDefault()
+    }
+    window.addEventListener('keydown', blockSpace)
+    window.addEventListener('keyup', blockSpace)
+    window.addEventListener('keypress', blockSpace)
+    return () => {
+      window.removeEventListener('keydown', blockSpace)
+      window.removeEventListener('keyup', blockSpace)
+      window.removeEventListener('keypress', blockSpace)
+    }
+  }, [])
+
   const updateVoiceState = (state: LinxiState) => {
     voiceStateRef.current = state
     setVoiceState(state)
   }
 
+  const stopVoice = async () => {
+    const startedAt = voicePressStartedAt.current
+    voicePressStartedAt.current = null
+    if (startedAt === null) return
+    if (Date.now() - startedAt < MIN_VOICE_HOLD_MS) {
+      voiceClient.current?.disconnect()
+      updateVoiceState('idle')
+      return
+    }
+    await voiceClient.current?.stop()
+  }
+
   const loadLevel = (index: number) => {
+    voicePressStartedAt.current = null
+    setVoiceHeld(false)
     const nextLevel = levels[index]
     voiceClient.current?.disconnect()
     setLevelIndex(index)
@@ -103,6 +135,7 @@ function App() {
   }
 
   const handleTranscript = (text: string) => {
+    voiceClient.current?.disconnect()
     setVoiceText(`听到“${text}”`)
     const result = parseVoiceMove(text, level)
     if (result.matched) {
@@ -117,7 +150,7 @@ function App() {
     const client = new LinxiVoiceClient((event) => {
       if (event.type === 'state' && event.state) updateVoiceState(event.state)
       if (event.type === 'transcript' && event.text) handleTranscript(event.text)
-      if (event.type === 'reply' && event.text) setVoiceText(event.text)
+      if (event.type === 'reply' && event.text && !isRepeatedClosingReply(event.text)) setVoiceText(event.text)
       if (event.type === 'error' && event.text) {
         updateVoiceState('error')
         setVoiceText(event.text)
@@ -199,12 +232,13 @@ function App() {
             levelIndex={levelIndex}
             completed={completed}
             voiceState={voiceState}
+            voiceHeld={voiceHeld}
             voiceText={voiceText}
             hint={hint}
             hintLevel={hintLevel}
             onSquare={handleSquare}
             onBack={() => setPage('home')}
-            onVoice={startVoice}
+            onVoiceStart={() => { voicePressStartedAt.current = Date.now(); setVoiceHeld(true); void startVoice() }} onVoiceStop={() => { setVoiceHeld(false); void stopVoice() }}
             onHint={() => void requestHint()}
             onReset={resetLesson}
             onContinue={() => levelIndex < levels.length - 1 ? loadLevel(levelIndex + 1) : setPage('progress')}
@@ -285,9 +319,9 @@ function LessonCard({ number, color, icon, title, text, tags, onClick }: { numbe
 }
 
 function LessonPage(props: {
-  pieces: Piece[]; selectedId: string | null; legalTargets: Square[]; level: Level; levelIndex: number; completed: boolean; voiceState: LinxiState;
+  pieces: Piece[]; selectedId: string | null; legalTargets: Square[]; level: Level; levelIndex: number; completed: boolean; voiceState: LinxiState; voiceHeld: boolean;
   voiceText: string; hint: string; hintLevel: number; onSquare: (square: Square) => void; onBack: () => void;
-  onVoice: () => void; onHint: () => void; onReset: () => void; onContinue: () => void
+  onVoiceStart: () => void; onVoiceStop: () => void; onHint: () => void; onReset: () => void; onContinue: () => void
 }) {
   return (
     <div className="lesson-page page-wrap">
@@ -311,8 +345,8 @@ function LessonPage(props: {
 
           {!props.completed && (
             <>
-              <button className={props.voiceState === 'listening' ? 'voice-button listening' : 'voice-button'} onClick={props.onVoice} disabled={props.voiceState === 'connecting' || props.voiceState === 'thinking'}>
-                <span><Mic /></span><strong>{voiceButtonLabel(props.voiceState)}</strong><small>{props.voiceState === 'listening' ? '说完后再按一次' : `例如：“${props.level.answer}”`}</small>
+              <button className={props.voiceHeld ? 'voice-button listening' : 'voice-button'} onPointerDown={(event) => { event.currentTarget.setPointerCapture?.(event.pointerId); props.onVoiceStart() }} onPointerUp={props.onVoiceStop} onPointerCancel={props.onVoiceStop} onPointerLeave={(event) => { if (event.currentTarget.hasPointerCapture(event.pointerId)) props.onVoiceStop() }} disabled={props.voiceState === 'connecting' || props.voiceState === 'thinking'}>
+                <span><Mic /></span><strong>{props.voiceHeld ? '松开完成' : '按住说走法'}</strong><small>按住按钮，说完后松开</small>
               </button>
               <div className="hint-card"><div><Lightbulb /><strong>分级提示</strong><span>{props.hintLevel}/3</span></div><p>{props.hint}</p><button onClick={props.onHint} disabled={props.hintLevel >= 3}>{props.hintLevel >= 3 ? '已显示完整提示' : '再给我一点提示'}</button></div>
             </>
@@ -350,11 +384,16 @@ function BattlePage({ onBack }: { onBack: () => void }) {
   const [engineStatus, setEngineStatus] = useState<'checking' | 'pikafish' | 'fallback'>('checking')
   const [engineName, setEngineName] = useState('正在检查 Pikafish…')
   const [voiceState, setVoiceState] = useState<LinxiState>('idle')
-  const [voiceText, setVoiceText] = useState('按下麦克风，说出“炮二平五”这样的中文棋谱。')
+  const [voiceText, setVoiceText] = useState(() => battleVoicePrompt(initialGame))
+  const [voiceHeld, setVoiceHeld] = useState(false)
+  const voicePressStartedAt = useRef<number | null>(null)
   const battleVoiceClient = useRef<LinxiVoiceClient | null>(null)
   const battleVoiceState = useRef<LinxiState>('idle')
   const voiceMoveAuthorization = useRef(new VoiceMoveAuthorization())
+  const ignoreBattleReplies = useRef(false)
   const aiRequestId = useRef(0)
+  const startBattleVoiceRef = useRef<(() => void) | undefined>(undefined)
+  const stopBattleVoiceRef = useRef<(() => void) | undefined>(undefined)
 
   const updateBattleVoiceState = (nextState: LinxiState) => {
     battleVoiceState.current = nextState
@@ -373,6 +412,8 @@ function BattlePage({ onBack }: { onBack: () => void }) {
     return () => {
       aiRequestId.current += 1
       authorization.cancel()
+      voicePressStartedAt.current = null
+      setVoiceHeld(false)
       battleVoiceClient.current?.disconnect()
     }
   }, [])
@@ -393,19 +434,26 @@ function BattlePage({ onBack }: { onBack: () => void }) {
         client = createBattleVoiceClient()
       }
       await client.speakText(text)
+      await client.waitForPlayback()
+      await new Promise((resolve) => window.setTimeout(resolve, BATTLE_RULES.voicePlaybackSettleMs))
+      client.disconnect()
     } catch {
       updateBattleVoiceState('error')
     }
   }
 
   const aiTurn = async (playerMove: Move) => {
+    ignoreBattleReplies.current = false
+    const requestId = ++aiRequestId.current
     if (game.current.isGameOver()) {
-      void speakBattleText(describeBattleTurn(playerMove))
+      await speakBattleText(describePlayerMove(playerMove))
       return
     }
-    const requestId = ++aiRequestId.current
+    await speakBattleText(describePlayerMove(playerMove))
+    if (requestId !== aiRequestId.current || ignoreBattleReplies.current) return
     setThinking(true)
-    setStatus(engineStatus === 'pikafish' ? 'Pikafish 正在思考…' : 'ZERO7 基础 AI 正在思考…')
+    setStatus(`${BATTLE_RULES.brandName}正在思考…`)
+    if (requestId !== aiRequestId.current || game.current.turn() !== 'b') return
     let aiMove: Move | null = null
     try {
       if (engineStatus === 'pikafish') {
@@ -413,23 +461,30 @@ function BattlePage({ onBack }: { onBack: () => void }) {
         const result = await getPikafishMove(fen, difficulty)
         if (requestId !== aiRequestId.current || game.current.fen() !== fen || game.current.turn() !== 'b') return
         aiMove = game.current.move(result.move)
+        if (!aiMove) throw new Error('Pikafish 返回了无效应手')
       } else {
-        await new Promise((resolve) => window.setTimeout(resolve, 520))
         if (requestId !== aiRequestId.current || game.current.turn() !== 'b') return
         const choice = chooseAiMove(game.current, difficulty)
         if (choice) aiMove = game.current.move({ from: choice.from, to: choice.to })
+        if (!aiMove) throw new Error('基础 AI 没有返回有效应手')
       }
     } catch {
       if (requestId !== aiRequestId.current || game.current.turn() !== 'b') return
       setEngineStatus('fallback')
       setEngineName('基础 AI（Pikafish 暂不可用）')
+      await new Promise((resolve) => window.setTimeout(resolve, BATTLE_RULES.aiThinkDelayMs))
       const choice = chooseAiMove(game.current, difficulty)
       if (choice) aiMove = game.current.move({ from: choice.from, to: choice.to })
+      if (!aiMove) {
+        setThinking(false)
+        setStatus(`${BATTLE_RULES.brandName}暂时无法走棋，请重新开始本局。`)
+        return
+      }
     } finally {
       if (requestId === aiRequestId.current) {
         if (aiMove) refresh(aiMove)
         setThinking(false)
-        void speakBattleText(describeBattleTurn(playerMove, aiMove))
+        if (!ignoreBattleReplies.current && aiMove) void speakBattleText(describeAiResponse(aiMove))
       }
     }
   }
@@ -438,8 +493,22 @@ function BattlePage({ onBack }: { onBack: () => void }) {
     setSelected(null)
     setTargets([])
     refresh(move)
-    setVoiceText(`已识别为“${move.zh}”，零七正在思考。`)
+    setVoiceText(`已识别为“${move.zh}”，${BATTLE_RULES.brandName}正在思考。`)
     void aiTurn(move)
+  }
+
+  const stopBattleVoice = async () => {
+    const startedAt = voicePressStartedAt.current
+    voicePressStartedAt.current = null
+    setVoiceHeld(false)
+    if (startedAt === null) return
+    if (Date.now() - startedAt < MIN_VOICE_HOLD_MS) {
+      battleVoiceClient.current?.disconnect()
+      voiceMoveAuthorization.current.cancel()
+      updateBattleVoiceState('idle')
+      return
+    }
+    if (battleVoiceState.current === 'listening' || battleVoiceState.current === 'thinking') await battleVoiceClient.current?.stop()
   }
 
   const handleBattleTranscript = (text: string) => {
@@ -447,10 +516,18 @@ function BattlePage({ onBack }: { onBack: () => void }) {
     if (replayStep !== null || thinking || game.current.isGameOver() || game.current.turn() !== 'w') return
     const move = findVoiceMove(game.current, text)
     if (!move) {
-      setVoiceText(`听到“${text}”，没有匹配到当前合法走法，请再说一次。`)
-      setStatus('语音走法无法匹配，请使用“炮二平五”这样的中文棋谱。')
+      battleVoiceClient.current?.disconnect()
+      updateBattleVoiceState('idle')
+      ignoreBattleReplies.current = true
+      const message = isChessMoveTranscript(text)
+        ? BATTLE_RULES.invalidMovePrompt(text)
+        : BATTLE_RULES.unclearMovePrompt(text)
+      setVoiceText(message)
+      setStatus(isChessMoveTranscript(text) ? '这步棋现在不能走，请重新说。' : '没听明白，请重新说。')
+      void speakBattleText(message)
       return
     }
+    battleVoiceClient.current?.disconnect()
     playBattleMove(game.current.move({ from: move.from, to: move.to }))
   }
 
@@ -458,7 +535,7 @@ function BattlePage({ onBack }: { onBack: () => void }) {
     const client = new LinxiVoiceClient((event) => {
       if (event.type === 'state' && event.state) updateBattleVoiceState(event.state)
       if (event.type === 'transcript' && event.text) handleBattleTranscript(event.text)
-      if (event.type === 'reply' && event.text) setVoiceText(event.text)
+      if (event.type === 'reply' && event.text && !ignoreBattleReplies.current) setVoiceText(event.text)
       if (event.type === 'error' && event.text) {
         updateBattleVoiceState('error')
         setVoiceText(event.text)
@@ -470,10 +547,7 @@ function BattlePage({ onBack }: { onBack: () => void }) {
 
   const startBattleVoice = async () => {
     if (replayStep !== null || thinking || game.current.isGameOver() || game.current.turn() !== 'w') return
-    if (battleVoiceState.current === 'listening') {
-      await battleVoiceClient.current?.stop()
-      return
-    }
+    if (battleVoiceState.current === 'listening' || battleVoiceState.current === 'connecting') return
     battleVoiceClient.current?.disconnect()
     voiceMoveAuthorization.current.cancel()
     const client = createBattleVoiceClient()
@@ -481,7 +555,7 @@ function BattlePage({ onBack }: { onBack: () => void }) {
     try {
       await client.start()
       voiceMoveAuthorization.current.arm()
-      setVoiceText('我在听，请说出中文棋谱，说完后再按一次。')
+      setVoiceText('我在听，请说出中文棋谱，松开后完成识别。')
     } catch (error) {
       voiceMoveAuthorization.current.cancel()
       client.disconnect()
@@ -575,7 +649,7 @@ function BattlePage({ onBack }: { onBack: () => void }) {
     voiceMoveAuthorization.current.cancel()
     battleVoiceClient.current?.disconnect()
     updateBattleVoiceState('idle')
-    setVoiceText('按下麦克风，说出“炮二平五”这样的中文棋谱。')
+    setVoiceText(battleVoicePrompt(game.current))
   }
 
   const undo = () => {
@@ -587,6 +661,31 @@ function BattlePage({ onBack }: { onBack: () => void }) {
     refresh()
   }
 
+  startBattleVoiceRef.current = startBattleVoice
+  stopBattleVoiceRef.current = stopBattleVoice
+
+  useEffect(() => {
+    const handleSpaceDown = (event: KeyboardEvent) => {
+      if (event.code !== 'Space') return
+      event.preventDefault()
+      if (event.repeat) return
+      voicePressStartedAt.current = Date.now()
+      setVoiceHeld(true)
+      void startBattleVoiceRef.current?.()
+    }
+    const handleSpaceUp = (event: KeyboardEvent) => {
+      if (event.code !== 'Space') return
+      event.preventDefault()
+      void stopBattleVoiceRef.current?.()
+    }
+    window.addEventListener('keydown', handleSpaceDown)
+    window.addEventListener('keyup', handleSpaceUp)
+    return () => {
+      window.removeEventListener('keydown', handleSpaceDown)
+      window.removeEventListener('keyup', handleSpaceUp)
+    }
+  }, [])
+
   const selectedPiece = selected ? pieces.find((item) => sameSquare(item, selected)) : undefined
   return (
     <div className="battle-page page-wrap">
@@ -594,24 +693,35 @@ function BattlePage({ onBack }: { onBack: () => void }) {
       <section className="battle-layout">
         <div className="board-panel battle-board-panel">
           <div className="battle-status"><span className={thinking ? 'thinking-dot active' : 'thinking-dot'} />{status}</div>
-          <ChessBoard pieces={pieces} selectedId={selectedPiece?.id ?? null} legalTargets={targets} instruction="你执红方 · ZERO7 执黑方" onSquare={handleSquare} />
+          <ChessBoard pieces={pieces} selectedId={selectedPiece?.id ?? null} legalTargets={targets} instruction={`你执红方 · ${BATTLE_RULES.brandName}执黑方`} onSquare={handleSquare} />
         </div>
         <aside className="battle-sidebar">
           <div className="battle-card engine-card"><div className="engine-badge"><span className={`engine-light ${engineStatus}`} />{engineName}</div><p className="engine-note">入门约 1280 Elo，初级约 1500 Elo，中级约 1900 Elo。</p></div>
           <div className="battle-card battle-voice-card">
             <div className="coach-head compact"><div className="coach-avatar small">象</div><div><strong>语音走棋与讲解</strong><span>{voiceStateLabel(voiceState)}</span></div><span className={`connection-dot ${voiceState}`} /></div>
             <p>{voiceText}</p>
-            <button className={voiceState === 'listening' ? 'voice-button listening' : 'voice-button'} onClick={() => void startBattleVoice()} disabled={replayStep !== null || thinking || voiceState === 'connecting' || voiceState === 'thinking' || game.current.turn() !== 'w'}><span><Mic /></span><strong>{voiceButtonLabel(voiceState)}</strong><small>{voiceState === 'listening' ? '说完后再按一次' : '例如：“炮二平五”'}</small></button>
+            <button className={voiceHeld ? 'voice-button listening' : 'voice-button'} onPointerDown={(event) => { event.currentTarget.setPointerCapture?.(event.pointerId); voicePressStartedAt.current = Date.now(); setVoiceHeld(true); void startBattleVoice() }} onPointerUp={() => void stopBattleVoice()} onPointerCancel={() => void stopBattleVoice()} disabled={replayStep !== null || thinking || voiceState === 'connecting' || voiceState === 'thinking' || game.current.turn() !== 'w'}><span><Mic /></span><strong>{voiceHeld ? '松开完成' : '按住说走法'}</strong><small>按住按钮，说完后松开</small></button>
           </div>
           <div className="battle-card move-list"><span className="section-kicker">MOVES</span><h2>对局棋谱</h2>{history.length === 0 ? <p>走出第一步后，棋谱会显示在这里。</p> : <ol>{Array.from({ length: Math.ceil(history.length / 2) }, (_, index) => <li key={index}><button className={replayStep === index * 2 + 1 ? 'move-replay active' : 'move-replay'} onClick={() => replayMove(index * 2 + 1)}>{history[index * 2]}</button><button className={replayStep === index * 2 + 2 ? 'move-replay active' : 'move-replay'} onClick={() => history[index * 2 + 1] && replayMove(index * 2 + 2)} disabled={!history[index * 2 + 1]}>{history[index * 2 + 1] ?? '…'}</button></li>)}</ol>}</div>
           {replayStep !== null && <button className="secondary-button full" onClick={returnToCurrentPosition}>返回当前局面</button>}
-          <div className="battle-actions"><button className="secondary-button" onClick={undo} disabled={thinking || history.length === 0}><RotateCcw /> 悔棋</button><button className="secondary-button" onClick={() => { setResigned(true); setStatus('你已认输，本局由 ZERO7 获胜。') }}>认输</button></div>
+          <div className="battle-actions"><button className="secondary-button" onClick={undo} disabled={thinking || history.length === 0}><RotateCcw /> 悔棋</button><button className="secondary-button" onClick={() => { setResigned(true); setStatus(`你已认输，本局由 ${BATTLE_RULES.brandName} 获胜。`) }}>认输</button></div>
           {engineStatus === 'pikafish' && <div className="battle-card analysis-card"><button className="secondary-button full compact-action" onClick={() => { if (analysisVisible) setAnalysisVisible(false); else { setAnalysisVisible(true); if (!analysis) void analyzePosition() } }} disabled={analysisLoading || replayStep !== null}><Target /> {analysisLoading ? '正在分析…' : analysisVisible ? '收起局面分析' : '局面分析'}</button>{analysisVisible && analysis && <div className="analysis-result"><div className="probability-row"><span>红方 {analysis.red}%</span><span>黑方 {analysis.black}%</span></div><div className="probability-bar"><i style={{ width: `${analysis.red}%` }} /></div><strong>推荐走法：{analysis.move}</strong><p>{analysis.explanation}</p><button className="voice-button compact-action" onClick={() => void speakBattleText(analysis.explanation)}><Volume2 /> 语音讲解推荐</button></div>}</div>}
           {(resigned || game.current.isGameOver()) && <button className="secondary-button full review-button" onClick={reviewBattle}><Volume2 /> 语音复盘</button>}
         </aside>
       </section>
     </div>
   )
+}
+
+function isRepeatedClosingReply(text: string) {
+  return /时间过得真快|期待和你下次对弈|期待和你下次再对弈/.test(text)
+}
+
+function battleVoicePrompt(game: Chess) {
+  const firstMove = (game.moves({ verbose: true }) as Move[])[0]
+  return firstMove
+    ? `按住语音按钮，说出“${firstMove.zh}”，松开后完成识别。`
+    : '按住语音按钮，说出当前局面可以走的中文棋谱，松开后完成识别。'
 }
 
 function voiceStateLabel(state: LinxiState) {
@@ -622,15 +732,30 @@ function voiceStateLabel(state: LinxiState) {
   return labels[state]
 }
 
-function voiceButtonLabel(state: LinxiState) {
-  if (state === 'connecting') return '正在连接…'
-  if (state === 'listening') return '说完了'
-  if (state === 'thinking') return '正在识别…'
-  if (state === 'error') return '重新连接语音'
-  return '按下说走法'
-}
 
 function ChessBoard({ pieces, selectedId, legalTargets, instruction, onSquare }: { pieces: Piece[]; selectedId: string | null; legalTargets: Square[]; instruction: string; onSquare: (square: Square) => void }) {
+  const previousPieces = useRef(pieces)
+  const [movingPieceId, setMovingPieceId] = useState<string | null>(null)
+  const [captureSquare, setCaptureSquare] = useState<Square | null>(null)
+
+  useEffect(() => {
+    const previous = previousPieces.current
+    const movedPiece = pieces.find((piece) => {
+      const oldPiece = previous.find((item) => item.id === piece.id)
+      return oldPiece && !sameSquare(oldPiece, piece)
+    })
+    const captured = previous.find((oldPiece) => !pieces.some((piece) => piece.id === oldPiece.id))
+    previousPieces.current = pieces
+    if (!movedPiece) return
+    setMovingPieceId(movedPiece.id)
+    setCaptureSquare(captured ? { row: movedPiece.row, col: movedPiece.col } : null)
+    const timer = window.setTimeout(() => {
+      setMovingPieceId(null)
+      setCaptureSquare(null)
+    }, 1200)
+    return () => window.clearTimeout(timer)
+  }, [pieces])
+
   const squares = Array.from({ length: 90 }, (_, index) => ({ row: Math.floor(index / 9), col: index % 9 }))
   return (
     <div className="board-wrap">
@@ -653,12 +778,12 @@ function ChessBoard({ pieces, selectedId, legalTargets, instruction, onSquare }:
           return (
             <button
               key={`${square.row}-${square.col}`}
-              className={target ? 'board-square target' : 'board-square'}
+              className={`${target ? 'board-square target' : 'board-square'} ${captureSquare && sameSquare(captureSquare, square) ? 'capture-target' : ''}`}
               style={{ '--board-col': square.col, '--board-row': square.row } as React.CSSProperties}
               onClick={() => onSquare(square)}
               aria-label={piece ? `${piece.side === 'red' ? '红' : '黑'}${piece.text}` : `${square.row}-${square.col}`}
             >
-              {piece && <span className={`chess-piece ${piece.side} ${selectedId === piece.id ? 'selected' : ''}`}>{piece.text}</span>}
+              {piece && <span className={`chess-piece ${piece.side} ${selectedId === piece.id ? 'selected' : ''} ${movingPieceId === piece.id ? 'moving' : ''}`}>{piece.text}</span>}
             </button>
           )
         })}

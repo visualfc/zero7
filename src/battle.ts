@@ -1,5 +1,6 @@
 import { Chess, type Move, type Square as EngineSquare } from '@weshell/xiangqi.js'
 import { normalizeMoveText, type Piece, type PieceKind, type Square } from './chess'
+import { BATTLE_RULES } from './battle-rules'
 
 const pieceNames = {
   w: { k: '帅', a: '仕', b: '相', n: '马', r: '车', c: '炮', p: '兵' },
@@ -59,6 +60,11 @@ export function findVoiceMove(game: Chess, transcript: string) {
   }) ?? null
 }
 
+export function isChessMoveTranscript(transcript: string) {
+  const normalized = normalizeMoveText(transcript)
+  return /^[车马炮兵卒相象仕士帅将进退平一二三四五六七八九前后中左右上下到]/.test(normalized)
+}
+
 export class VoiceMoveAuthorization {
   private armed = false
 
@@ -75,15 +81,6 @@ export class VoiceMoveAuthorization {
     this.armed = false
     return true
   }
-}
-
-export function describeBattleTurn(playerMove: Move, aiMove?: Move | null) {
-  if (playerMove.isCheckmate) return `你走${playerMove.zh}，完成将死，赢下这一局。`
-  if (!aiMove) return `你走${playerMove.zh}。`
-  if (aiMove.isCheckmate) return `你走${playerMove.zh}，零七应对${aiMove.zh}，形成将死。`
-  if (aiMove.isCheck) return `你走${playerMove.zh}，零七应对${aiMove.zh}，红方正被将军，请先应将。`
-  if (playerMove.captured) return `你走${playerMove.zh}，完成吃子；零七应对${aiMove.zh}。`
-  return `你走${playerMove.zh}，零七应对${aiMove.zh}。轮到你继续走棋。`
 }
 
 export function chooseAiMove(game: Chess, difficulty: '入门' | '初级' | '中级' = '初级') {
@@ -105,13 +102,13 @@ export function battleStatus(game: Chess) {
   if (game.isStalemate()) return '本局困毙，和棋。'
   if (game.isDraw()) return '本局和棋。'
   if (game.isCheck()) return game.turn() === 'w' ? '红方被将军，请先应将。' : '黑方被将军。'
-  return game.turn() === 'w' ? '轮到红方走棋' : 'ZERO7 正在思考…'
+  return game.turn() === 'w' ? '轮到红方走棋' : `${BATTLE_RULES.brandName}正在思考…`
 }
 
 export function buildBattleReview(game: Chess, resigned = false) {
   const history = game.history({ verbose: true }) as Move[]
   const lastMove = history.at(-1)
-  const result = resigned ? '你选择认输，本局由 ZERO7 获胜。' : battleStatus(game)
+  const result = resigned ? `你选择认输，本局由 ${BATTLE_RULES.brandName} 获胜。` : battleStatus(game)
   const turns = Math.ceil(history.length / 2)
   const lastMoveText = lastMove ? `最后一步是${lastMove.zh}。` : '本局还没有走棋。'
   return `本局共进行${turns}回合。${result}${lastMoveText}`
