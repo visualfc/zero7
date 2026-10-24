@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently -k -n 网页,灵矽 \"vite --host 0.0.0.0\" \"node server/index.mjs\"",
+    "dev": "npm run dev:cert && concurrently -k -n 网页,灵矽 \"vite --host 0.0.0.0\" \"node server/index.mjs\"",
+    "dev:cert": "node scripts/create-dev-cert.mjs",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",

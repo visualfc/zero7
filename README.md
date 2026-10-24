@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/github/visualfc/zero7/graph/badge.svg?token=LMDDHGZNPV)](https://codecov.io/github/visualfc/zero7)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)
 
-ZERO7 是面向象棋初学者与普通爱好者的开源 AI 语音象棋伙伴。它将自然语音、确定性的象棋规则和 AI 棋力结合在一起，让用户可以直接说出走法、获得分级提示、完成专项训练，并与 AI 进行完整对局。
+零七（ZERO7）是面向象棋初学者与普通爱好者的开源 AI 语音象棋伙伴。它将自然语音、确定性的象棋规则和 AI 棋力结合在一起，让用户可以直接说出走法、获得分级提示、完成专项训练，并与 AI 进行完整对局。
 
 > 当前版本已支持语音训练、语音人机对战与 Pikafish 正式棋力。
 
@@ -168,10 +168,51 @@ npm install
 npm run dev
 ```
 
-该命令会同时启动：
+`npm run dev` 会先检查本地 HTTPS 证书，然后同时启动：
 
-- ZERO7 网页：终端显示的 Vite 地址，通常为 `http://localhost:5173/`；
+- 零七网页：终端显示的 HTTPS 地址；
 - 灵矽桥接服务：`http://127.0.0.1:8787`。
+
+### 电脑访问
+
+首次使用需要安装并信任 `mkcert` 的本地根证书：
+
+```bash
+brew install mkcert
+mkcert -install
+npm run dev
+```
+
+`npm run dev` 会自动生成 `.cert/localhost.pem` 和 `.cert/localhost-key.pem`。证书覆盖 `localhost`、`127.0.0.1` 和当前开发机局域网地址。证书和私钥位于 `.cert/`，不会提交到 Git。
+
+请使用终端显示的 HTTPS 地址访问，例如：
+
+```text
+https://localhost:5173/
+```
+
+如果浏览器仍显示 `ERR_CERT_AUTHORITY_INVALID`，说明本机根证书还没有安装成功。重新执行 `mkcert -install`，输入 macOS 登录密码后重启开发服务。
+
+### 手机访问和语音输入
+
+手机和电脑连接同一个 Wi-Fi，然后使用终端显示的局域网 HTTPS 地址，例如：
+
+```text
+https://192.168.1.45:5173/
+```
+
+手机首次访问时需要信任同一个 `mkcert` 根证书，否则浏览器会显示“连接不是私密连接”，并拒绝麦克风权限。查看根证书位置：
+
+```bash
+mkcert -CAROOT
+```
+
+将该目录中的 `rootCA.pem` 安装到手机并启用系统信任：
+
+- iPhone：安装证书描述文件，然后在“设置 → 通用 → 关于本机 → 证书信任设置”中启用完全信任。
+- Android：安装为系统的 CA 证书，具体入口根据系统版本可能位于“安全与隐私 → 更多安全设置 → 从设备存储空间安装证书”。
+
+完成证书信任后，在手机浏览器允许麦克风权限。对战页棋盘下方的“按住说走法”按钮支持按住识别、松开完成；短按会取消本次识别。
 
 首次使用语音时，浏览器会请求麦克风权限。
 

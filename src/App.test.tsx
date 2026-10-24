@@ -23,6 +23,7 @@ vi.mock('./linxi', () => ({
 }))
 
 beforeEach(() => {
+  vi.stubGlobal('isSecureContext', true)
   voiceMock.instances = []
   voiceMock.startError = null
   voiceMock.speakError = null
@@ -72,7 +73,8 @@ describe('ZERO7', () => {
     expect(await screen.findByText('基础 AI（Pikafish 未安装）')).toBeInTheDocument()
     expect(screen.getByText('轮到红方走棋')).toBeInTheDocument()
     expect(screen.getByText(/按住语音按钮，说出“/)).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /按住说走法/ })).toBeEnabled()
+    expect(screen.getAllByRole('button', { name: /按住说走法/ })).toHaveLength(2)
+    expect(screen.getAllByRole('button', { name: /按住说走法/ })[0]).toBeEnabled()
     expect(screen.getByRole('button', { name: '重开一局' })).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: '中级' }))
     fireEvent.click(screen.getByRole('button', { name: '重开一局' }))
@@ -121,7 +123,7 @@ describe('ZERO7', () => {
     vi.useFakeTimers()
     render(<App />)
     fireEvent.click(screen.getByRole('button', { name: /进入训练/ }))
-    fireEvent.pointerDown(screen.getByRole('button', { name: /按住说走法/ }))
+    fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住说走法/ })[0])
     await act(async () => Promise.resolve())
     act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text: '炮五进五' }))
     await act(async () => vi.advanceTimersByTimeAsync(450))
@@ -139,12 +141,24 @@ describe('ZERO7', () => {
     voiceMock.startError = new Error('麦克风不可用')
     render(<App />)
     fireEvent.click(screen.getByRole('button', { name: /进入训练/ }))
-    await act(async () => fireEvent.pointerDown(screen.getByRole('button', { name: /按住说走法/ })))
+    await act(async () => fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住说走法/ })[0]))
     expect(screen.getByRole('status')).toHaveTextContent('麦克风不可用')
 
     voiceMock.speakError = new Error('播放失败')
     await act(async () => fireEvent.click(screen.getByRole('button', { name: '再给我一点提示' })))
     expect(screen.getByRole('status')).toHaveTextContent('播放失败')
+  })
+
+  it('在非安全上下文中提示使用 HTTPS 进行语音输入', async () => {
+    vi.stubGlobal('isSecureContext', false)
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: /进入训练/ }))
+    await act(async () => fireEvent.pointerDown(screen.getByRole('button', { name: /按住说走法/ })))
+    expect(screen.getByText('手机语音输入需要使用 HTTPS，请访问终端显示的 https:// 地址。')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '返回' }))
+    fireEvent.click(screen.getByRole('button', { name: /开始人机对战/ }))
+    await act(async () => fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住说走法/ })[0]))
+    expect(screen.getByText('手机语音输入需要使用 HTTPS，请访问终端显示的 https:// 地址。')).toBeInTheDocument()
   })
 
   it('支持首页卡片、成长页、个人页和品牌导航', () => {
@@ -186,12 +200,12 @@ describe('ZERO7', () => {
     }))
     render(<App />)
     fireEvent.click(screen.getByRole('button', { name: /开始人机对战/ }))
-    await act(async () => fireEvent.pointerDown(screen.getByRole('button', { name: /按住说走法/ })))
+    await act(async () => fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住说走法/ })[0]))
     act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text: '去2借5' }))
     expect(screen.getAllByText(/没听明白，请重新说/)).toHaveLength(2)
     expect(voiceMock.instances.at(-1)!.speakText).toHaveBeenCalledWith('听到“去2借5”，没听明白，请重新说。')
-    fireEvent.pointerUp(screen.getByRole('button', { name: /松开完成/ }))
-    await act(async () => fireEvent.pointerDown(screen.getByRole('button', { name: /按住说走法/ })))
+    fireEvent.pointerUp(screen.getAllByRole('button', { name: /松开完成/ })[0])
+    await act(async () => fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住说走法/ })[0]))
     act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text: '马二进五' }))
     expect(screen.getAllByText(/这步棋现在不能走，请重新说/)).toHaveLength(2)
     expect(voiceMock.instances.at(-1)!.speakText).toHaveBeenCalledWith('听到“马二进五”，这步棋现在不能走，请重新说当前局面可以走的走法。')
@@ -325,7 +339,7 @@ describe('ZERO7', () => {
   it('过滤重复结束语，保留正常语音回复', async () => {
     render(<App />)
     fireEvent.click(screen.getByRole('button', { name: /进入训练/ }))
-    fireEvent.pointerDown(screen.getByRole('button', { name: /按住说走法/ }))
+    fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住说走法/ })[0])
     await act(async () => Promise.resolve())
     act(() => voiceMock.instances.at(-1)!.emit({ type: 'reply', text: '时间过得真快，期待和你下次对弈。' }))
     expect(screen.queryByText(/时间过得真快/)).not.toBeInTheDocument()
@@ -338,7 +352,7 @@ describe('ZERO7', () => {
     render(<App />)
     fireEvent.click(screen.getByRole('button', { name: /开始人机对战/ }))
     await screen.findByText('基础 AI（Pikafish 未安装）')
-    const voiceButton = screen.getByRole('button', { name: /按住说走法/ })
+    const voiceButton = screen.getAllByRole('button', { name: /按住说走法/ })[0]
     fireEvent.pointerDown(voiceButton)
     await act(async () => Promise.resolve())
     fireEvent.pointerUp(voiceButton)
