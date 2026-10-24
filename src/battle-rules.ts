@@ -6,6 +6,7 @@ export const BATTLE_RULES = {
   moveAnimationMs: 1250,
   captureAnimationMs: 1200,
   voicePlaybackSettleMs: 120,
+  movePathDisplayMs: 2000,
   invalidMovePrompt: (text: string) => `听到“${text}”，这步棋现在不能走，请重新说当前局面可以走的走法。`,
   unclearMovePrompt: (text: string) => `听到“${text}”，没听明白，请重新说。`,
 } as const

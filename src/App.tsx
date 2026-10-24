@@ -20,7 +20,7 @@ import {
 import './App.css'
 import { LinxiVoiceClient, type LinxiState } from './linxi'
 import { applyMove, isLevelMove, levels, parseVoiceMove, sameSquare, type Level, type Piece, type Square } from './chess'
-import { battlePieces, battleStatus, buildBattleReview, chooseAiMove, createBattle, findVoiceMove, isChessMoveTranscript, legalTargets as battleLegalTargets, makeBattleMove, VoiceMoveAuthorization } from './battle'
+import { battlePieces, battleStatus, buildBattleReview, chooseAiMove, createBattle, findVoiceMove, isChessMoveTranscript, legalTargets as battleLegalTargets, squareToPoint, makeBattleMove, VoiceMoveAuthorization } from './battle'
 import { Chess, type Move } from '@weshell/xiangqi.js'
 import { BATTLE_RULES, describeAiResponse, describePlayerMove } from './battle-rules'
 import { getPikafishMove, getPikafishStatus, type EngineLevel } from './pikafish'
@@ -373,6 +373,8 @@ function BattlePage({ onBack }: { onBack: () => void }) {
   const [selected, setSelected] = useState<Square | null>(null)
   const [targets, setTargets] = useState<Square[]>([])
   const [history, setHistory] = useState<string[]>([])
+  const [lastPath, setLastPath] = useState<{ from: Square; to: Square; side: 'red' | 'black' } | null>(null)
+  const pathTimer = useRef<number | null>(null)
   const [replayStep, setReplayStep] = useState<number | null>(null)
   const [status, setStatus] = useState('轮到红方走棋')
   const [difficulty, setDifficulty] = useState<EngineLevel>('初级')
@@ -419,6 +421,9 @@ function BattlePage({ onBack }: { onBack: () => void }) {
   }, [])
 
   const refresh = (lastMove?: Move) => {
+    setLastPath(lastMove ? { from: squareToPoint(lastMove.from), to: squareToPoint(lastMove.to), side: lastMove.color === 'w' ? 'red' : 'black' } : null)
+    if (pathTimer.current !== null) window.clearTimeout(pathTimer.current)
+    pathTimer.current = lastMove ? window.setTimeout(() => { setLastPath(null); pathTimer.current = null }, BATTLE_RULES.movePathDisplayMs) : null
     setPieces(battlePieces(game.current))
     setHistory((game.current.history({ verbose: true }) as Move[]).map((move) => move.zh))
     setReplayStep(null)
@@ -596,6 +601,10 @@ function BattlePage({ onBack }: { onBack: () => void }) {
     const replayGame = createBattle()
     const moves = game.current.history({ verbose: true }) as Move[]
     moves.slice(0, step).forEach((move) => replayGame.move({ from: move.from, to: move.to }))
+    const replayMoveData = moves[step - 1]
+    setLastPath(replayMoveData ? { from: squareToPoint(replayMoveData.from), to: squareToPoint(replayMoveData.to), side: replayMoveData.color === 'w' ? 'red' : 'black' } : null)
+    if (pathTimer.current !== null) window.clearTimeout(pathTimer.current)
+    pathTimer.current = replayMoveData ? window.setTimeout(() => { setLastPath(null); pathTimer.current = null }, BATTLE_RULES.movePathDisplayMs) : null
     setPieces(battlePieces(replayGame))
     setSelected(null)
     setTargets([])
@@ -606,6 +615,7 @@ function BattlePage({ onBack }: { onBack: () => void }) {
   const returnToCurrentPosition = () => {
     setPieces(battlePieces(game.current))
     setReplayStep(null)
+    setLastPath(null)
     setStatus(battleStatus(game.current))
   }
 
@@ -638,6 +648,9 @@ function BattlePage({ onBack }: { onBack: () => void }) {
     game.current = createBattle()
     setPieces(battlePieces(game.current))
     setHistory([])
+    setLastPath(null)
+    if (pathTimer.current !== null) window.clearTimeout(pathTimer.current)
+    pathTimer.current = null
     setSelected(null)
     setTargets([])
     setReplayStep(null)
@@ -653,12 +666,20 @@ function BattlePage({ onBack }: { onBack: () => void }) {
   }
 
   const undo = () => {
-    if (thinking || history.length === 0) return
+    if (thinking || history.length === 0 || replayStep !== null) return
+    aiRequestId.current += 1
     game.current.undo()
-    if (game.current.turn() === 'b') game.current.undo()
+    if (game.current.turn() === 'b' && game.current.history().length > 0) game.current.undo()
     setSelected(null)
     setTargets([])
-    refresh()
+    setLastPath(null)
+    if (pathTimer.current !== null) window.clearTimeout(pathTimer.current)
+    pathTimer.current = null
+    setReplayStep(null)
+    setStatus(battleStatus(game.current))
+    setPieces(battlePieces(game.current))
+    setHistory((game.current.history({ verbose: true }) as Move[]).map((move) => move.zh))
+    setThinking(false)
   }
 
   startBattleVoiceRef.current = startBattleVoice
@@ -693,7 +714,7 @@ function BattlePage({ onBack }: { onBack: () => void }) {
       <section className="battle-layout">
         <div className="board-panel battle-board-panel">
           <div className="battle-status"><span className={thinking ? 'thinking-dot active' : 'thinking-dot'} />{status}</div>
-          <ChessBoard pieces={pieces} selectedId={selectedPiece?.id ?? null} legalTargets={targets} instruction={`你执红方 · ${BATTLE_RULES.brandName}执黑方`} onSquare={handleSquare} />
+          <ChessBoard pieces={pieces} selectedId={selectedPiece?.id ?? null} legalTargets={targets} lastPath={lastPath} instruction={`你执红方 · ${BATTLE_RULES.brandName}执黑方`} onSquare={handleSquare} />
         </div>
         <aside className="battle-sidebar">
           <div className="battle-card engine-card"><div className="engine-badge"><span className={`engine-light ${engineStatus}`} />{engineName}</div><p className="engine-note">入门约 1280 Elo，初级约 1500 Elo，中级约 1900 Elo。</p></div>
@@ -733,11 +754,10 @@ function voiceStateLabel(state: LinxiState) {
 }
 
 
-function ChessBoard({ pieces, selectedId, legalTargets, instruction, onSquare }: { pieces: Piece[]; selectedId: string | null; legalTargets: Square[]; instruction: string; onSquare: (square: Square) => void }) {
+function ChessBoard({ pieces, selectedId, legalTargets, lastPath, instruction, onSquare }: { pieces: Piece[]; selectedId: string | null; legalTargets: Square[]; lastPath?: { from: Square; to: Square; side: 'red' | 'black' } | null; instruction: string; onSquare: (square: Square) => void }) {
   const previousPieces = useRef(pieces)
   const [movingPieceId, setMovingPieceId] = useState<string | null>(null)
   const [captureSquare, setCaptureSquare] = useState<Square | null>(null)
-
   useEffect(() => {
     const previous = previousPieces.current
     const movedPiece = pieces.find((piece) => {
@@ -761,6 +781,7 @@ function ChessBoard({ pieces, selectedId, legalTargets, instruction, onSquare }:
     <div className="board-wrap">
       <div className="chess-board" aria-label="中国象棋棋盘">
         <div className="board-coordinates black-files" aria-label="黑方纵线编号">{['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((file) => <span key={file}>{file}</span>)}</div>
+        {lastPath && <svg className={`move-path ${lastPath.side}`} viewBox="0 0 8 9" preserveAspectRatio="none" aria-label="最近一步走子路径"><line x1={lastPath.from.col} y1={lastPath.from.row} x2={lastPath.to.col} y2={lastPath.to.row} /></svg>}
         <svg className="board-grid" viewBox="0 0 8 9" preserveAspectRatio="none" aria-hidden="true">
           {Array.from({ length: 10 }, (_, row) => <line key={`row-${row}`} x1="0" y1={row} x2="8" y2={row} />)}
           <line x1="0" y1="0" x2="0" y2="9" /><line x1="8" y1="0" x2="8" y2="9" />
