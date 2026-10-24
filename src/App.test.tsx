@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom/vitest'
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
 
@@ -187,6 +187,21 @@ describe('ZERO7', () => {
     fireEvent.click(screen.getByRole('button', { name: /继续训练/ }))
     expect(screen.getByText(/黑车闯进中路/)).toBeInTheDocument()
     fireEvent.click(screen.getByLabelText('返回首页'))
+    expect(screen.getByText('今日三小关')).toBeInTheDocument()
+  })
+
+  it('右侧导航可以从任意页面跳转到训练和对战', () => {
+    render(<App />)
+    const navigate = (label: string) => fireEvent.click(within(screen.getByRole('navigation', { name: '主导航' })).getByRole('button', { name: label }))
+    navigate('训练')
+    expect(screen.getByText(/黑车闯进中路/)).toBeInTheDocument()
+    navigate('对战')
+    expect(screen.getByText('暂无走法')).toBeInTheDocument()
+    navigate('成长')
+    expect(screen.getByText('我的象棋成长')).toBeInTheDocument()
+    navigate('我的')
+    expect(screen.getByText('零七棋友')).toBeInTheDocument()
+    navigate('首页')
     expect(screen.getByText('今日三小关')).toBeInTheDocument()
   })
 
