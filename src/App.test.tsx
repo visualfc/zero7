@@ -356,6 +356,27 @@ describe('ZERO7', () => {
     expect(screen.getByText('今日三小关')).toBeInTheDocument()
   })
 
+  it('全局语音支持首页帮助以及成长页和个人页导航', async () => {
+    render(<App />)
+    const sayGlobal = async (text: string) => {
+      await act(async () => {
+        fireEvent.keyDown(window, { code: 'Space' })
+        await Promise.resolve()
+      })
+      act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text }))
+      fireEvent.keyUp(window, { code: 'Space' })
+    }
+    await sayGlobal('帮助')
+    expect(voiceMock.instances.at(-1)!.disconnect).toHaveBeenCalled()
+    fireEvent.click(screen.getAllByRole('button', { name: /成长/ })[0])
+    await sayGlobal('开始训练')
+    expect(screen.getByText(/黑车闯进中路/)).toBeInTheDocument()
+    fireEvent.click(screen.getByLabelText('返回首页'))
+    fireEvent.click(screen.getAllByRole('button', { name: /我的/ })[0])
+    await sayGlobal('开始人机对战')
+    expect(screen.getByText('人机对战')).toBeInTheDocument()
+  })
+
   it('训练页语音支持帮助、提示、重开确认和下一关', async () => {
     render(<App />)
     fireEvent.click(screen.getByRole('button', { name: /进入训练/ }))
@@ -377,6 +398,8 @@ describe('ZERO7', () => {
     await say('重新训练')
     await say('确认')
     expect(screen.getByText(/黑车闯进中路/)).toBeInTheDocument()
+    act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text: '返回首页' }))
+    expect(screen.getByText('今日三小关')).toBeInTheDocument()
   })
 
   it('局面分析展开后零七走棋会重新请求分析并保留面板', async () => {
@@ -470,6 +493,8 @@ describe('ZERO7', () => {
       fireEvent.pointerUp(button)
       await Promise.resolve()
     }
+    await sayBattle('换成中级')
+    expect(screen.getByText('已切换为中级棋力。')).toBeInTheDocument()
     await sayBattle('打开局面分析')
     await sayBattle('关闭局面分析')
     await sayBattle('推荐一步')
@@ -487,6 +512,18 @@ describe('ZERO7', () => {
     voiceMock.startError = new Error('对战麦克风不可用')
     await act(async () => fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住说走法/ })[0]))
     await waitFor(() => expect(screen.getAllByText('对战麦克风不可用').length).toBeGreaterThan(0))
+  })
+
+  it('一分钟无动作后才语音提醒继续走棋', async () => {
+    vi.useFakeTimers()
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ available: false }), { status: 200 })))
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: /开始人机对战/ }))
+    await act(async () => Promise.resolve())
+    expect(screen.queryByText('轮到你继续走棋。')).not.toBeInTheDocument()
+    await act(async () => vi.advanceTimersByTimeAsync(60000))
+    expect(screen.getAllByText('轮到你继续走棋。').length).toBeGreaterThan(0)
+    vi.useRealTimers()
   })
 
   it('覆盖人机对战返回、语音松开和复盘入口', async () => {

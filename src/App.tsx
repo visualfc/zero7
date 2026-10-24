@@ -169,16 +169,6 @@ function App() {
     return false
   }
 
-  const executeHomeCommand = (command: VoiceCommand) => {
-    if (command.type === 'training.start') { openLesson(); return true }
-    if (command.type === 'battle.start') { setPage('battle'); return true }
-    if (command.type === 'navigation.home' || command.type === 'help') {
-      setVoiceText(command.type === 'help' ? commandHelp('home') : '已经在首页。')
-      return true
-    }
-    return false
-  }
-
   const executeGlobalCommand = (command: VoiceCommand) => {
     if (command.type === 'help') { setVoiceText(commandHelp(page)); return true }
     if (command.type === 'navigation.home') { setPage('home'); return true }
@@ -202,7 +192,6 @@ function App() {
     }
     if (executeGlobalCommand(command)) return
     if (executeLessonCommand(command)) return
-    if ((page === 'home' || page === 'progress' || page === 'profile') && executeHomeCommand(command)) return
     setVoiceText(`听到“${text}”`)
     const result = parseVoiceMove(text, level)
     if (result.matched) {
