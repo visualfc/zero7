@@ -619,7 +619,7 @@ function BattlePage({ onBack }: { onBack: () => void }) {
       const analysisGame = new Chess(game.current.fen())
       const recommendedMove = analysisGame.move(result.move)
       const move = recommendedMove?.zh ?? result.move
-      const explanation = `推荐${move}，因为它能改善当前局面的子力协调和先手。点击棋谱或棋盘可以继续自己的选择，ZERO7 不会替你走这一步。`
+      const explanation = `推荐${move}，因为它能改善当前局面的子力协调和先手。点击棋谱或棋盘可以继续自己的选择，${BATTLE_RULES.brandName}不会替你走这一步。`
       setAnalysis({ red, black: 100 - red, move, explanation })
     } catch {
       setAnalysis(null)
@@ -813,7 +813,7 @@ function ProfilePage() {
   return (
     <div className="simple-page page-wrap">
       <span className="eyebrow"><UserRound /> MY PROFILE</span><h1>你好，棋友！</h1><p className="lead">这里保存着你的训练偏好和对局成长。</p>
-      <section className="profile-card"><div className="profile-avatar">棋<br />友</div><div><h2>ZERO7 棋友</h2><p>当前等级：象棋入门</p><span className="profile-tag"><Star /> 已训练 3 天</span></div></section>
+      <section className="profile-card"><div className="profile-avatar">棋<br />友</div><div><h2>零七棋友</h2><p>当前等级：象棋入门</p><span className="profile-tag"><Star /> 已训练 3 天</span></div></section>
       <section className="settings-card"><h2>训练设置</h2><div><span><Volume2 /> 语音讲解</span><strong>开启</strong></div><div><span><BookOpen /> 每日目标</span><strong>3 个训练关卡</strong></div><div><span><Target /> 当前难度</span><strong>入门</strong></div></section>
     </div>
   )

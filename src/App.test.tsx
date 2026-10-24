@@ -151,7 +151,7 @@ describe('ZERO7', () => {
     fireEvent.click(screen.getAllByRole('button', { name: /成长/ })[0])
     expect(screen.getByText('我的象棋成长')).toBeInTheDocument()
     fireEvent.click(screen.getAllByRole('button', { name: /我的/ })[0])
-    expect(screen.getByText('ZERO7 棋友')).toBeInTheDocument()
+    expect(screen.getByText('零七棋友')).toBeInTheDocument()
     fireEvent.click(screen.getByLabelText('返回首页'))
     expect(screen.getByText('今日三小关')).toBeInTheDocument()
   })
@@ -221,6 +221,12 @@ describe('ZERO7', () => {
       fireEvent.click(collapse)
       expect(screen.queryByText(/推荐走法：/)).not.toBeInTheDocument()
     }
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ error: '分析失败' }), { status: 503 })))
+    fireEvent.click(screen.getByRole('button', { name: '重开一局' }))
+    fireEvent.click(screen.getByRole('button', { name: '局面分析' }))
+    await waitFor(() => expect(screen.getByText('当前无法获取胜负概率，请确认 Pikafish 可用。')).toBeInTheDocument())
+    fireEvent.click(screen.getAllByRole('button', { name: '红车' }).at(-1)!)
+    fireEvent.click(screen.getByRole('button', { name: '1-1' }))
   })
 
   it('点击棋谱可以跳转并返回当前局面', async () => {
@@ -294,7 +300,7 @@ describe('ZERO7', () => {
     expect(screen.getByText(/黑车闯进中路/)).toBeInTheDocument()
     fireEvent.click(screen.getByLabelText('返回首页'))
     fireEvent.click(screen.getAllByRole('button', { name: /我的/ })[0])
-    expect(screen.getByText('ZERO7 棋友')).toBeInTheDocument()
+    expect(screen.getByText('零七棋友')).toBeInTheDocument()
     fireEvent.click(screen.getByLabelText('返回首页'))
     const input = document.createElement('input')
     document.body.append(input)
