@@ -507,13 +507,9 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
       turnReminderTimer.current = null
       const currentMoves = game.current.history({ verbose: true }) as Move[]
       if (game.current.isGameOver() || game.current.turn() !== 'w' || currentMoves.at(-1)?.color !== 'b' || replayStep !== null || thinking || resigned) return
-      const reminder = game.current.isCheck() ? '将军，请先应将。' : '轮到你继续走棋。'
-      if (game.current.isCheck()) {
-        setStatus(reminder)
-        void speakBattleText(reminder)
-        return
-      }
-      void speakBattleText(reminder, false)
+      const inCheck = game.current.isCheck()
+      const reminder = inCheck ? '将军，请先应将。' : '轮到你继续走棋。'
+      void speakBattleText(reminder, inCheck)
     }, BATTLE_RULES.turnReminderDelayMs)
   }
 
