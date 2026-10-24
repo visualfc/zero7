@@ -147,6 +147,33 @@ describe('ZERO7', () => {
     expect(screen.getByRole('button', { name: '跳过这题' })).toBeEnabled()
   })
 
+  it('引擎返回无应手但局面未将死时不会判定绝杀', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ move: null, terminal: true, engine: 'Pikafish Test', level: '初级', score: null }), { status: 200 })))
+    render(<App initialLevels={[defendedCandidateLevel, ...testLevels.slice(1)]} />)
+    fireEvent.click(screen.getByRole('button', { name: /进入训练/ }))
+    clickBoardSquare(9, 2)
+    clickBoardSquare(7, 4)
+    expect(await screen.findByText(/对方没有合法应手，但当前没有形成将死/)).toBeInTheDocument()
+    expect(screen.queryByText('绝杀！')).not.toBeInTheDocument()
+  })
+
+  it('Pikafish 返回非法应手时保留局面并显示失败', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ move: 'a0a9', terminal: false, engine: 'Pikafish Test', level: '初级', score: null }), { status: 200 })))
+    render(<App initialLevels={[defendedCandidateLevel, ...testLevels.slice(1)]} />)
+    fireEvent.click(screen.getByRole('button', { name: /进入训练/ }))
+    clickBoardSquare(9, 2)
+    clickBoardSquare(7, 4)
+    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Invalid move: a0a9'))
+    expect(screen.queryByText('绝杀！')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '重新练习' })).toBeEnabled()
+  })
+
+  it('题库加载失败时显示错误状态', async () => {
+    puzzleMock.fetch.mockRejectedValueOnce(new Error('题库服务不可用'))
+    render(<App />)
+    expect(await screen.findByRole('status')).toHaveTextContent('题库服务不可用')
+  })
+
   it('候选答案验证失败时不会直接判定成功', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ error: '验证超时' }), { status: 503 })))
     render(<App initialLevels={testLevels} />)
