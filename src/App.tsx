@@ -162,6 +162,11 @@ function App() {
   }
 
   const startVoice = async () => {
+    if (!window.isSecureContext) {
+      setVoiceText('手机语音输入需要使用 HTTPS，请访问终端显示的 https:// 地址。')
+      updateVoiceState('error')
+      return
+    }
     if (completed) return
     if (voiceStateRef.current === 'listening') {
       await voiceClient.current?.stop()
@@ -551,6 +556,11 @@ function BattlePage({ onBack }: { onBack: () => void }) {
   }
 
   const startBattleVoice = async () => {
+    if (!window.isSecureContext) {
+      setVoiceText('手机语音输入需要使用 HTTPS，请访问终端显示的 https:// 地址。')
+      updateBattleVoiceState('error')
+      return
+    }
     if (replayStep !== null || thinking || game.current.isGameOver() || game.current.turn() !== 'w') return
     if (battleVoiceState.current === 'listening' || battleVoiceState.current === 'connecting') return
     battleVoiceClient.current?.disconnect()

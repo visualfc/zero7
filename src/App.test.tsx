@@ -23,6 +23,7 @@ vi.mock('./linxi', () => ({
 }))
 
 beforeEach(() => {
+  vi.stubGlobal('isSecureContext', true)
   voiceMock.instances = []
   voiceMock.startError = null
   voiceMock.speakError = null
