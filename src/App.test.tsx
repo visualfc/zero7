@@ -93,6 +93,7 @@ describe('ZERO7', () => {
     expect(await screen.findByText('马二进三')).toBeInTheDocument()
     expect(await screen.findByText('马８进７', {}, { timeout: 4000 })).toBeInTheDocument()
     expect(screen.getByText('轮到红方走棋')).toBeInTheDocument()
+    expect(screen.getByLabelText('最近一步走子路径')).toBeInTheDocument()
   })
 
   it('重新开局后忽略上一局延迟返回的 AI 走法', async () => {
