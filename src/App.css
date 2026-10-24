@@ -36,22 +36,37 @@
 .lesson-page .unified-main { height: calc(100dvh - 16px); overflow: hidden; }
 .lesson-page .challenge-layout { display: block; max-width: none; height: 100%; }
 .lesson-page .board-panel { height: 100%; padding: 8px 14px 28px; display: flex; flex-direction: column; align-items: center; overflow: hidden; }
+.lesson-first-player { margin-top: 2px; color: #a53c2e; font-size: 11px; line-height: 1.4; font-weight: 700; }
+.lesson-first-player.black { color: #303946; }
 .lesson-page .board-wrap { width: min(620px, 100%, calc((100dvh - 55px) * .9)); margin: 8px auto 0; }
 .lesson-sidebar { height: calc(100dvh - 16px); overflow: hidden; }
-.lesson-sidebar .coach-panel { position: static; min-height: 0; flex: 1; padding: 10px 12px; display: flex; flex-direction: column; gap: 7px; overflow-y: auto; scrollbar-width: thin; }
-.lesson-side-description { padding-bottom: 7px; border-bottom: 1px solid var(--line); }
-.lesson-side-description h1 { margin: 7px 0 4px; color: var(--ink); font-family: 'Ma Shan Zheng', cursive; font-size: 24px; line-height: 1.15; font-weight: 400; }
-.lesson-side-description p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.45; }
-.lesson-sidebar .speech-bubble { padding: 9px; font-size: 11px; line-height: 1.4; }
-.lesson-sidebar .voice-button { min-height: 48px; padding: 7px; }
-.lesson-sidebar .hint-card { padding: 9px; }
-.lesson-sidebar .hint-card p { margin: 4px 0; line-height: 1.4; }
-.lesson-sidebar .success-card { margin-top: auto; padding: 8px; flex: 0 0 auto; }
+.lesson-sidebar .coach-panel { position: static; min-height: 0; flex: 1; padding: 8px 10px; display: flex; flex-direction: column; gap: 5px; overflow: visible; }
+.lesson-side-description { padding-bottom: 5px; border-bottom: 1px solid var(--line); }
+.lesson-side-description h1 { margin: 4px 0 1px; color: var(--ink); font-family: 'Ma Shan Zheng', cursive; font-size: clamp(18px, 2.5dvh, 23px); line-height: 1.08; font-weight: 400; }
+.lesson-badges { display: flex; gap: 5px; align-items: center; }
+.difficulty-badge { color: #8b6421; background: #fff2cf; }
+.puzzle-title-tooltip { position: relative; width: fit-content; max-width: 100%; border-radius: 5px; outline: none; cursor: help; }
+.puzzle-title-tooltip:focus-visible { box-shadow: 0 0 0 2px color-mix(in srgb, var(--coral) 40%, transparent); }
+.puzzle-tooltip { position: absolute; z-index: 20; top: calc(100% + 5px); left: 0; width: min(250px, calc(100vw - 40px)); padding: 8px 10px; border: 1px solid var(--line); border-radius: 9px; color: var(--muted); background: #fffdf8; box-shadow: 0 8px 22px #4939211f; font: 10px/1.45 system-ui, sans-serif; opacity: 0; visibility: hidden; transform: translateY(-3px); transition: opacity .15s ease, transform .15s ease, visibility .15s; }
+.puzzle-tooltip span, .puzzle-tooltip a { display: block; }
+.puzzle-tooltip a { margin-top: 4px; color: var(--coral-dark); text-decoration: none; }
+.puzzle-tooltip a:hover { text-decoration: underline; }
+.puzzle-title-tooltip:hover .puzzle-tooltip, .puzzle-title-tooltip:focus-within .puzzle-tooltip { opacity: 1; visibility: visible; transform: translateY(0); }
+.lesson-status { padding: 6px 8px; border-radius: 8px; color: #52606c; background: #edf3f2; font-size: 10px; line-height: 1.35; }
+.lesson-sidebar .voice-button { min-height: 42px; padding: 5px 7px; grid-template-columns: 32px 1fr; }
+.lesson-sidebar .voice-button > span { width: 30px; height: 30px; }
+.lesson-sidebar .hint-card { margin-top: 1px; padding: 7px; }
+.lesson-sidebar .hint-card p { min-height: 0; margin: 3px 0; font-size: 10px; line-height: 1.3; }
+.lesson-sidebar .hint-card button { padding: 5px; font-size: 10px; }
+.lesson-sidebar .success-card { margin-top: 1px; padding: 6px; flex: 0 0 auto; }
 .lesson-sidebar .success-icon { width: 35px; height: 35px; font-size: 17px; }
 .lesson-sidebar .success-card h2 { margin: 2px 0; font-size: 16px; }
 .lesson-sidebar .success-card p { margin: 2px 0 5px; font-size: 10px; line-height: 1.3; }
 .lesson-sidebar .reward { margin: 4px 0; padding: 5px; font-size: 10px; }
 .lesson-sidebar .continue-button { width: 100%; min-height: 34px; padding: 5px 8px; }
+.lesson-actions { display: grid; grid-template-columns: auto 1fr; gap: 6px; margin-top: auto; flex: 0 0 auto; }
+.lesson-actions .lesson-reset-button, .lesson-actions .lesson-next-button { min-height: 36px; padding: 6px 9px; justify-content: center; }
+.lesson-actions .lesson-reset-button svg, .lesson-actions .lesson-next-button svg { width: 14px; height: 14px; }
 .lesson-sidebar .lesson-completed .lesson-side-description { padding-bottom: 4px; }
 .lesson-sidebar .lesson-completed .lesson-side-description h1 { margin: 3px 0 2px; font-size: 20px; }
 .lesson-sidebar .lesson-completed .lesson-side-description p { display: none; }

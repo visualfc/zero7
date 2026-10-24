@@ -7,13 +7,14 @@
     "dev": "npm run dev:cert && concurrently -k -n 网页,灵矽 \"vite --host 0.0.0.0\" \"node server/index.mjs\"",
     "dev:cert": "node scripts/create-dev-cert.mjs",
     "build": "tsc -b && vite build",
+    "puzzles:import": "node scripts/import-puzzles.mjs",
     "lint": "oxlint",
     "preview": "vite preview",
-    "test": "vitest run && node --test server/pikafish.node-test.mjs",
+    "test": "vitest run && node --test server/*.node-test.mjs",
     "dev:web": "vite",
     "dev:bridge": "node server/index.mjs",
     "start": "node server/index.mjs",
-    "test:coverage": "vitest run --coverage && node --test server/pikafish.node-test.mjs"
+    "test:coverage": "vitest run --coverage && node --test server/*.node-test.mjs"
   },
   "dependencies": {
     "@weshell/xiangqi.js": "^1.0.3",

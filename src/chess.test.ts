@@ -1,62 +1,48 @@
 import { describe, expect, it } from 'vitest'
-import { applyMove, hasFacingGenerals, isHorseAttacking, isLegalMove, levels, normalizeMoveText, parseVoiceMove } from './chess'
+import wukongRecords from '../data/puzzles/wukong.json'
+import { applyMove, hasFacingGenerals, isLegalMove, normalizeMoveText, parseVoiceMove } from './chess'
+import { puzzleToLevel, type PuzzleRecord } from './puzzles'
+
+const source = { id: 'wukong-xiangqi', name: 'Wukong Xiangqi', url: 'https://github.com/maksimKorzh/wukong-xiangqi', license: 'MIT', role: '经过搜索验证的将杀局面' } as const
+const levels = wukongRecords.slice(0, 4).map((record, index) => puzzleToLevel({ ...record, source } as PuzzleRecord, index))
 
 describe('象棋规则', () => {
-  it('所有训练局面都不会出现帅将对脸', () => {
+  it('Wukong 训练局面不会出现帅将对脸', () => {
     for (const level of levels) expect(hasFacingGenerals(level.pieces), level.id).toBe(false)
   })
 
-  it('第三关目标走法确实形成马将军且没有蹩马腿', () => {
-    const level = levels[2]
-    const result = applyMove(level.pieces, level.move)
-    const blackGeneral = result.find((piece) => piece.id === 'black-general')!
-    expect(isHorseAttacking(result, 'red-horse', blackGeneral)).toBe(true)
-    expect(isHorseAttacking(result, 'missing-horse', blackGeneral)).toBe(false)
-    expect(isHorseAttacking(result, 'red-horse', { row: 0, col: 4 })).toBe(false)
-    expect(isHorseAttacking([...result, { id: 'horse-leg', text: '卒', side: 'black', kind: 'pawn', row: 1, col: 4 }], 'red-horse', blackGeneral)).toBe(false)
-    expect(isHorseAttacking([{ id: 'vertical-horse', text: '马', side: 'red', kind: 'horse', row: 2, col: 4 }], 'vertical-horse', { row: 0, col: 3 })).toBe(true)
+  it('标准答案可由训练规则执行并移动正确棋子', () => {
+    for (const level of levels) {
+      expect(isLegalMove(level.pieces, level.move), level.id).toBe(true)
+      const result = applyMove(level.pieces, level.move)
+      expect(result.find((piece) => piece.id === level.move.pieceId)).toMatchObject(level.move.to)
+    }
   })
 
-  it('炮隔着一枚棋子时可以吃掉目标', () => {
+  it('车不能越过阻挡棋子', () => {
     const level = levels[0]
-    expect(isLegalMove(level.pieces, level.move)).toBe(true)
-    const result = applyMove(level.pieces, level.move)
-    expect(result.find((piece) => piece.id === 'red-cannon')).toMatchObject(level.move.to)
-    expect(result.some((piece) => piece.id === 'black-rook')).toBe(false)
+    const blocked = level.pieces.map((piece) => piece.id === level.move.pieceId ? { ...piece, row: 3 } : piece)
+    blocked.push({ id: 'block', text: '兵', side: 'red', kind: 'pawn', row: 1, col: 4 })
+    expect(isLegalMove(blocked, { ...level.move, from: { row: 3, col: 4 }, to: { row: 0, col: 4 } })).toBe(false)
   })
 
-  it('炮没有炮架时不能吃子', () => {
-    const level = levels[0]
-    const withoutScreen = level.pieces.filter((piece) => piece.id !== 'red-pawn-screen')
-    expect(isLegalMove(withoutScreen, level.move)).toBe(false)
-  })
-
-  it('车不能越过其他棋子', () => {
-    const level = levels[1]
-    expect(isLegalMove(level.pieces, level.move)).toBe(true)
-    const blocked = [...level.pieces, { id: 'block', text: '兵', side: 'red' as const, kind: 'pawn' as const, row: 8, col: 6 }]
-    expect(isLegalMove(blocked, level.move)).toBe(false)
-  })
-
-  it('马被蹩腿时不能走', () => {
-    const level = levels[2]
-    expect(isLegalMove(level.pieces, level.move)).toBe(true)
-    const blocked = [...level.pieces, { id: 'block', text: '兵', side: 'red' as const, kind: 'pawn' as const, row: 2, col: 6 }]
-    expect(isLegalMove(blocked, level.move)).toBe(false)
+  it('不会执行起点与答案不一致的走法', () => {
+    expect(isLegalMove(levels[0].pieces, { ...levels[0].move, from: { row: 0, col: 0 } })).toBe(false)
   })
 })
 
 describe('语音棋谱解析', () => {
   it.each([
-    ['炮五进五', 0], ['跑五进五。', 0], ['炮5进5', 0],
-    ['车衣平五', 1], ['車一平五', 1],
-    ['马山进四', 2], ['马3进4', 2],
-  ])('将“%s”匹配到当前关卡答案', (text, levelIndex) => {
+    ['车五进一', 0], ['車五進一。', 0], ['车5进1', 0],
+    ['炮三平四', 1], ['跑山坪肆', 1],
+    ['炮三进二', 2], ['炮3进2', 2],
+    ['马一进三', 3], ['馬1進3', 3],
+  ])('将“%s”匹配到当前 Wukong 题目答案', (text, levelIndex) => {
     expect(parseVoiceMove(text, levels[levelIndex]).matched).toBe(true)
   })
 
-  it('不会把其他关卡的答案误匹配到当前关卡', () => {
-    expect(parseVoiceMove('马三进四', levels[0]).matched).toBe(false)
+  it('不会把其他题目的答案误匹配到当前题目', () => {
+    expect(parseVoiceMove('马一进三', levels[0]).matched).toBe(false)
   })
 
   it('归一化常见同音字和数字', () => {

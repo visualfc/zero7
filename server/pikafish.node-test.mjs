@@ -52,3 +52,23 @@ test('Pikafish UCI 输出解析 bestmove', async () => {
   analysisEngine.close()
   engine.close()
 })
+
+
+test('Pikafish 将无合法应手解析为终局', async () => {
+  const engine = new PikafishEngine({ binary: process.execPath, model: process.execPath })
+  engine.process = new FakeProcess({
+    'setoption name Skill Level value 5': [],
+    'setoption name UCI_LimitStrength value true': [],
+    'setoption name UCI_Elo value 1500': [],
+    isready: ['readyok'],
+    'position fen mate-fen': [],
+    'go movetime 450': ['bestmove (none)'],
+  })
+  engine.process.stdout.setEncoding('utf8')
+  engine.process.stdout.on('data', (chunk) => engine.consume(chunk))
+  engine.ready = true
+  const result = await engine.bestMove({ fen: 'mate-fen', level: '初级' })
+  assert.equal(result.move, null)
+  assert.equal(result.terminal, true)
+  engine.close()
+})

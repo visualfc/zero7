@@ -3,8 +3,11 @@ import crypto from 'node:crypto'
 import express from 'express'
 import { WebSocket, WebSocketServer } from 'ws'
 import { PikafishEngine } from './pikafish.mjs'
+import { ensurePuzzleDatabase, openPuzzleRepository } from './puzzle-database.mjs'
 
 const pikafish = new PikafishEngine()
+const { databasePath } = ensurePuzzleDatabase()
+const puzzles = openPuzzleRepository(databasePath)
 const port = Number(process.env.LINXI_BRIDGE_PORT || 8787)
 const app = express()
 const server = app.listen(port, '0.0.0.0', () => {
@@ -25,6 +28,23 @@ app.get('/api/linxi/status', (_request, response) => {
     configured: Boolean(process.env.LINXI_DEVICE_ID && (process.env.LINXI_TOKEN || process.env.LINXI_USE_OTA === 'true')),
     mode: process.env.LINXI_USE_OTA === 'true' ? 'ota' : 'token',
   })
+})
+
+app.get('/api/puzzles', (request, response) => {
+  const offset = Math.max(0, Number.parseInt(String(request.query.offset ?? '0'), 10) || 0)
+  const limit = Math.min(1000, Math.max(1, Number.parseInt(String(request.query.limit ?? '50'), 10) || 50))
+  response.json(puzzles.list({
+    offset,
+    limit,
+    source: typeof request.query.source === 'string' ? request.query.source : undefined,
+    difficulty: typeof request.query.difficulty === 'string' ? request.query.difficulty : undefined,
+  }))
+})
+
+app.get('/api/puzzles/:id', (request, response) => {
+  const puzzle = puzzles.get(request.params.id)
+  if (!puzzle) { response.status(404).json({ error: '没有找到这道练习题' }); return }
+  response.json(puzzle)
 })
 
 app.get('/api/pikafish/status', async (_request, response) => {
@@ -212,6 +232,7 @@ browserServer.on('connection', async (browser) => {
 
 function shutdown() {
   pikafish.close()
+  puzzles.close()
   browserServer.close()
   server.close(() => process.exit(0))
 }
