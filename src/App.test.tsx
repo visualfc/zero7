@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom/vitest'
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
 
@@ -157,7 +157,7 @@ describe('ZERO7', () => {
     fireEvent.click(screen.getByRole('button', { name: /进入训练/ }))
     await act(async () => fireEvent.pointerDown(screen.getByRole('button', { name: /按住说走法/ })))
     expect(screen.getByText('手机语音输入需要使用 HTTPS，请访问终端显示的 https:// 地址。')).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: '返回' }))
+    fireEvent.click(screen.getByLabelText('返回首页'))
     fireEvent.click(screen.getByRole('button', { name: /开始人机对战/ }))
     await act(async () => fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住说走法/ })[0]))
     expect(screen.getByText('手机语音输入需要使用 HTTPS，请访问终端显示的 https:// 地址。')).toBeInTheDocument()
@@ -165,9 +165,16 @@ describe('ZERO7', () => {
 
   it('支持首页卡片、成长页、个人页和品牌导航', () => {
     render(<App />)
-    fireEvent.click(screen.getByRole('button', { name: '训练' }))
+    fireEvent.click(screen.getAllByRole('button', { name: '训练' })[0])
     expect(screen.getByText(/黑车闯进中路/)).toBeInTheDocument()
     fireEvent.click(screen.getByLabelText('返回首页'))
+    fireEvent.click(screen.getAllByRole('button', { name: '对战' })[0])
+    expect(screen.getByText('暂无走法')).toBeInTheDocument()
+    fireEvent.click(screen.getAllByRole('button', { name: '训练' })[0])
+    expect(screen.getByText(/黑车闯进中路/)).toBeInTheDocument()
+    fireEvent.click(screen.getAllByRole('button', { name: '我的' }).at(-1)!)
+    expect(screen.getByText('零七棋友')).toBeInTheDocument()
+    fireEvent.click(screen.getAllByRole('button', { name: '首页' }).at(-1)!)
     fireEvent.click(screen.getByRole('button', { name: /一步解围/ }))
     expect(screen.getByText(/怎样挡住它/)).toBeInTheDocument()
     fireEvent.click(screen.getByLabelText('返回首页'))
@@ -181,6 +188,30 @@ describe('ZERO7', () => {
     expect(screen.getByText(/黑车闯进中路/)).toBeInTheDocument()
     fireEvent.click(screen.getByLabelText('返回首页'))
     expect(screen.getByText('今日三小关')).toBeInTheDocument()
+  })
+
+  it('右侧导航可以从任意页面跳转到训练和对战', () => {
+    render(<App />)
+    const navigate = (label: string) => fireEvent.click(within(screen.getByRole('navigation', { name: '主导航' })).getByRole('button', { name: label }))
+    navigate('训练')
+    expect(screen.getByText(/黑车闯进中路/)).toBeInTheDocument()
+    navigate('对战')
+    expect(screen.getByText('暂无走法')).toBeInTheDocument()
+    navigate('成长')
+    expect(screen.getByText('我的象棋成长')).toBeInTheDocument()
+    navigate('我的')
+    expect(screen.getByText('零七棋友')).toBeInTheDocument()
+    navigate('首页')
+    expect(screen.getByText('今日三小关')).toBeInTheDocument()
+  })
+
+  it('移动端导航可以直接进入训练和对战', () => {
+    render(<App />)
+    const mobileNavigation = within(screen.getByRole('navigation', { name: '移动端主导航' }))
+    fireEvent.click(mobileNavigation.getByRole('button', { name: '训练' }))
+    expect(screen.getByText(/黑车闯进中路/)).toBeInTheDocument()
+    fireEvent.click(mobileNavigation.getByRole('button', { name: '对战' }))
+    expect(screen.getByText('暂无走法')).toBeInTheDocument()
   })
 
   it('人机对战处理引擎失败、难度切换、非法点击和认输', async () => {
@@ -314,7 +345,7 @@ describe('ZERO7', () => {
     fireEvent.pointerUp(lessonVoice)
     expect(voiceMock.instances.at(-1)?.stop).toHaveBeenCalled()
 
-    fireEvent.click(screen.getByRole('button', { name: '返回' }))
+    fireEvent.click(screen.getByLabelText('返回首页'))
     vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ available: false }), { status: 200 })))
     fireEvent.click(screen.getByRole('button', { name: /开始人机对战/ }))
     await screen.findByText('基础 AI（Pikafish 未安装）')

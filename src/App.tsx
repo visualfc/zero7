@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
-  ArrowLeft,
   Award,
   BookOpen,
   ChevronRight,
@@ -301,6 +300,8 @@ function App() {
 
       <nav className="mobile-nav" aria-label="移动端主导航">
         <NavButton active={page === 'home'} icon={<Home />} label="首页" onClick={() => setPage('home')} />
+        <NavButton active={page === 'lesson'} icon={<BookOpen />} label="训练" onClick={() => setPage('lesson')} />
+        <NavButton active={page === 'battle'} icon={<Swords />} label="对战" onClick={() => setPage('battle')} />
         <NavButton active={page === 'progress'} icon={<Trophy />} label="成长" onClick={() => setPage('progress')} />
         <NavButton active={page === 'profile'} icon={<UserRound />} label="我的" onClick={() => setPage('profile')} />
       </nav>
@@ -313,7 +314,7 @@ function NavButton({ active, icon, label, onClick }: { active: boolean; icon: Re
 }
 
 function SideNavigation({ active, onNavigate }: { active: Page; onNavigate: (page: Page) => void }) {
-  return <nav className="battle-side-nav unified-side-nav" aria-label="主导航"><button className="brand battle-side-brand" onClick={() => onNavigate('home')} aria-label="返回首页"><span className="brand-mark"><span>象</span></span><span className="brand-name">零七 <small>ZERO7</small></span></button><div className="battle-side-nav-buttons"><NavButton active={active === 'home'} icon={<Home />} label="首页" onClick={() => onNavigate('home')} /><NavButton active={active === 'progress'} icon={<Trophy />} label="成长" onClick={() => onNavigate('progress')} /><NavButton active={active === 'profile'} icon={<UserRound />} label="我的" onClick={() => onNavigate('profile')} /></div></nav>
+  return <nav className="battle-side-nav unified-side-nav" aria-label="主导航"><button className="brand battle-side-brand" onClick={() => onNavigate('home')} aria-label="返回首页"><span className="brand-mark"><span>象</span></span><span className="brand-name">零七 <small>ZERO7</small></span></button><div className="battle-side-nav-buttons"><NavButton active={active === 'home'} icon={<Home />} label="首页" onClick={() => onNavigate('home')} /><NavButton active={active === 'lesson'} icon={<BookOpen />} label="训练" onClick={() => onNavigate('lesson')} /><NavButton active={active === 'battle'} icon={<Swords />} label="对战" onClick={() => onNavigate('battle')} /><NavButton active={active === 'progress'} icon={<Trophy />} label="成长" onClick={() => onNavigate('progress')} /><NavButton active={active === 'profile'} icon={<UserRound />} label="我的" onClick={() => onNavigate('profile')} /></div></nav>
 }
 
 function HomePage({ onStart, onBattle, onNavigate, completedCount }: { onStart: (index?: number) => void; onBattle: () => void; onNavigate: (page: Page) => void; completedCount: number }) {
@@ -387,12 +388,6 @@ function LessonPage(props: {
   return (
     <div className="lesson-page unified-page">
       <div className="unified-main">
-      <div className="lesson-topline">
-        <button className="back-button" onClick={props.onBack}><ArrowLeft /> 返回</button>
-        <div className="step-progress"><span style={{ width: `${props.completed ? ((props.levelIndex + 1) / levels.length) * 100 : (props.levelIndex / levels.length) * 100 + 12}%` }} /><small>今日第 {props.levelIndex + 1} 关 / 共 {levels.length} 关</small></div>
-        <button className="icon-button" onClick={props.onReset} aria-label="重新开始"><RotateCcw /></button>
-      </div>
-
       <section className="challenge-layout">
         <div className="board-panel">
           <div className="challenge-title"><span className="mini-badge">{props.level.category}</span><h1>{props.level.title.split('\n').map((line, index) => <span key={line}>{index > 0 && <br />}{line}</span>)}</h1><p>{props.level.description}</p></div>
@@ -404,7 +399,7 @@ function LessonPage(props: {
       <aside className="unified-sidebar lesson-sidebar">
         <SideNavigation active="lesson" onNavigate={props.onNavigate} />
         <div className="coach-panel">
-          <div className="coach-head"><div className="coach-avatar small">象</div><div><strong>零七教练</strong><span>{voiceStateLabel(props.voiceState)}</span></div><span className={`connection-dot ${props.voiceState}`} aria-label={`灵矽状态：${voiceStateLabel(props.voiceState)}`} /></div>
+          <div className="coach-head"><div className="coach-avatar small">象</div><div><strong>零七教练</strong><span>{voiceStateLabel(props.voiceState)}</span></div><button className="icon-button coach-reset-button" onClick={props.onReset} aria-label="重新开始"><RotateCcw /></button><span className={`connection-dot ${props.voiceState}`} aria-label={`灵矽状态：${voiceStateLabel(props.voiceState)}`} /></div>
           <div className="speech-bubble">
             {props.completed ? <><strong>太棒了！</strong><br />{props.level.successText}</> : (props.voiceText || `先别急着走。${props.level.hints[0]}`)}
           </div>
@@ -882,7 +877,7 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
           <button className={`mobile-battle-voice ${voiceHeld ? 'listening' : ''}`} onPointerDown={(event) => { event.currentTarget.setPointerCapture?.(event.pointerId); voicePressStartedAt.current = Date.now(); setVoiceHeld(true); void startBattleVoice() }} onPointerUp={() => void stopBattleVoice()} onPointerCancel={() => void stopBattleVoice()} onContextMenu={(event) => event.preventDefault()} aria-label={voiceHeld ? '松开完成' : '按住说走法'} disabled={replayStep !== null || thinking || voiceState === 'connecting' || voiceState === 'thinking' || game.current.turn() !== 'w'}><Mic /><span><strong>{voiceHeld ? '松开完成' : '按住说走法'}</strong><small>按住按钮，说完后松开</small></span></button>
         </div>
         <aside className="battle-sidebar">
-          <nav className="battle-side-nav" aria-label="对战导航"><button className="brand battle-side-brand" onClick={() => onNavigate('home')} aria-label="返回首页"><span className="brand-mark"><span>象</span></span><span className="brand-name">零七 <small>ZERO7</small></span></button><div className="battle-side-nav-buttons"><NavButton active={false} icon={<Home />} label="首页" onClick={() => onNavigate('home')} /><NavButton active={false} icon={<Trophy />} label="成长" onClick={() => onNavigate('progress')} /><NavButton active={false} icon={<UserRound />} label="我的" onClick={() => onNavigate('profile')} /></div></nav>
+          <SideNavigation active="battle" onNavigate={onNavigate} />
           <div className="battle-card engine-card"><div className="battle-side-actions"><div className="difficulty-inline" aria-label="选择棋力">{(['入门', '初级', '中级'] as const).map((item) => <button key={item} className={difficulty === item ? 'active' : ''} onClick={() => setDifficulty(item)} aria-describedby={`difficulty-${item}`} data-tooltip={difficultyDescriptions[item]}>{item}</button>)}</div><span className="visually-hidden" id="difficulty-入门">{difficultyDescriptions.入门}</span><span className="visually-hidden" id="difficulty-初级">{difficultyDescriptions.初级}</span><span className="visually-hidden" id="difficulty-中级">{difficultyDescriptions.中级}</span><button className="secondary-button battle-restart-button" onClick={restart}><RotateCcw /> 重开一局</button></div><span className="visually-hidden" aria-live="polite">{engineName}</span></div>
           <div className="battle-card battle-voice-card">
             {!['轮到红方走棋', `${BATTLE_RULES.brandName}正在思考…`, '轮到你继续走棋。'].includes(status) && <p className="battle-message">{status}</p>}
