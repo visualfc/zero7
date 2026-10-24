@@ -1,7 +1,18 @@
 import { describe, expect, it } from 'vitest'
-import { applyMove, isLegalMove, levels, normalizeMoveText, parseVoiceMove } from './chess'
+import { applyMove, hasFacingGenerals, isHorseAttacking, isLegalMove, levels, normalizeMoveText, parseVoiceMove } from './chess'
 
 describe('象棋规则', () => {
+  it('所有训练局面都不会出现帅将对脸', () => {
+    for (const level of levels) expect(hasFacingGenerals(level.pieces), level.id).toBe(false)
+  })
+
+  it('第三关目标走法确实形成马将军且没有蹩马腿', () => {
+    const level = levels[2]
+    const result = applyMove(level.pieces, level.move)
+    const blackGeneral = result.find((piece) => piece.id === 'black-general')!
+    expect(isHorseAttacking(result, 'red-horse', blackGeneral)).toBe(true)
+  })
+
   it('炮隔着一枚棋子时可以吃掉目标', () => {
     const level = levels[0]
     expect(isLegalMove(level.pieces, level.move)).toBe(true)

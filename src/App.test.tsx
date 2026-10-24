@@ -130,9 +130,13 @@ describe('ZERO7', () => {
     act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text: '炮五进五' }))
     await act(async () => vi.advanceTimersByTimeAsync(450))
     expect(screen.getByText('隔山打牛！')).toBeInTheDocument()
+    expect(voiceMock.instances.at(-1)!.speakText).toHaveBeenCalledWith('隔山打牛！红炮隔着红兵跳过去，成功吃掉了黑车。')
+    expect(voiceMock.instances.at(-1)!.disconnect).toHaveBeenCalled()
     vi.useRealTimers()
 
     fireEvent.click(screen.getByRole('button', { name: '重新开始' }))
+    fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住说走法/ })[0])
+    await act(async () => Promise.resolve())
     act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text: '马三进四' }))
     expect(screen.getByRole('status')).toHaveTextContent('这步还没有匹配成功')
     await act(async () => fireEvent.click(screen.getByRole('button', { name: '再给我一点提示' })))
