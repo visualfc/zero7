@@ -157,15 +157,16 @@ export type ParseResult = { matched: true; notation: string } | { matched: false
 export function parseVoiceMove(text: string, level: Level): ParseResult {
   const normalized = normalizeMoveText(text)
   const candidates = [level.answer, ...level.answerAliases].map(normalizeMoveText)
-  const matched = candidates.some((candidate) => candidate === normalized || normalized.includes(candidate) || editDistance(candidate, normalized) <= 1)
+  const matched = candidates.some((candidate) => candidate === normalized || normalized.includes(candidate) || (normalized.length === candidate.length && editDistance(candidate, normalized) <= 1))
   return matched ? { matched: true, notation: level.answer } : { matched: false, normalized }
 }
 
 export function normalizeMoveText(text: string) {
   const replacements: Record<string, string> = {
-    '砲': '炮', '跑': '炮', '車': '车', '居': '车', '馬': '马', '進': '进', '近': '进',
+    '砲': '炮', '跑': '炮', '車': '车', '居': '车', '馬': '马', '進': '进', '近': '进', '晋': '进',
+    '退': '退', '平': '平', '坪': '平', '评': '平',
     '衣': '一', '壹': '一', '1': '一', '2': '二', '3': '三', '4': '四', '5': '五', '6': '六', '7': '七', '8': '八', '9': '九',
-    '伍': '五', '肆': '四',
+    '伍': '五', '肆': '四', '两': '二', '兩': '二', '俩': '二', '倆': '二', '儿': '二', '山': '三', '叁': '三', '杉': '三', '散': '三',
   }
   return text.trim().replace(/[，。！？,.!?、\s]/g, '').split('').map((character) => replacements[character] ?? character).join('')
 }

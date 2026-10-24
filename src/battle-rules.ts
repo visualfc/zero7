@@ -7,6 +7,7 @@ export const BATTLE_RULES = {
   captureAnimationMs: 1200,
   voicePlaybackSettleMs: 120,
   movePathDisplayMs: 2000,
+  turnReminderDelayMs: 60000,
   invalidMovePrompt: (text: string) => `听到“${text}”，这步棋现在不能走，请重新说当前局面可以走的走法。`,
   unclearMovePrompt: (text: string) => `听到“${text}”，没听明白，请重新说。`,
 } as const
@@ -24,8 +25,9 @@ export function capturedPieceName(pieceType: string | undefined, side: Side = 'b
 
 export function describeMove(move: Move, speaker = '你', capturedSide: Side = move.color === 'w' ? 'b' : 'w') {
   if (move.isCheckmate) return `${speaker}走${move.zh}，完成将死，赢下这一局。`
-  if (move.captured) return `${speaker}走${move.zh}，吃掉了${capturedPieceName(move.captured, capturedSide)}。`
-  return `${speaker}走${move.zh}。`
+  const capture = move.captured ? `，吃掉了${capturedPieceName(move.captured, capturedSide)}` : ''
+  if (move.isCheck) return `${speaker}走${move.zh}${capture}，将军。`
+  return `${speaker}走${move.zh}${capture}。`
 }
 
 export function describePlayerMove(playerMove: Move) {
@@ -39,8 +41,8 @@ export function capturedAiPieceName(pieceType: string | undefined) {
 export function describeResponse(move: Move, speaker: string = BATTLE_RULES.brandName, capturedSide: Side = move.color === 'w' ? 'b' : 'w') {
   const capture = move.captured ? `，吃掉了${capturedPieceName(move.captured, capturedSide)}` : ''
   if (move.isCheckmate) return `${speaker}应对${move.zh}${capture}，形成将死。`
-  if (move.isCheck) return `${speaker}应对${move.zh}${capture}，对方正在被将军，请先应将。`
-  return `${speaker}应对${move.zh}${capture}。轮到你继续走棋。`
+  if (move.isCheck) return `${speaker}应对${move.zh}${capture}，将军。`
+  return `${speaker}应对${move.zh}${capture}。`
 }
 
 export function describeAiResponse(aiMove: Move) {
