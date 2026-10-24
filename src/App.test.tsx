@@ -135,6 +135,13 @@ describe('ZERO7', () => {
     vi.useRealTimers()
 
     fireEvent.click(screen.getByRole('button', { name: '重新开始' }))
+    voiceMock.speakError = new Error('成功讲解播放失败')
+    fireEvent.click(screen.getByRole('button', { name: '红炮' }))
+    fireEvent.click(screen.getByRole('button', { name: '黑车' }))
+    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('成功讲解播放失败'))
+    voiceMock.speakError = null
+
+    fireEvent.click(screen.getByRole('button', { name: '重新开始' }))
     fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住说走法/ })[0])
     await act(async () => Promise.resolve())
     act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text: '马三进四' }))
