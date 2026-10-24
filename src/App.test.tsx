@@ -257,6 +257,8 @@ describe('ZERO7', () => {
   })
 
   it('点击棋谱可以跳转并返回当前局面', async () => {
+    const scrollTo = vi.fn()
+    Object.defineProperty(HTMLElement.prototype, 'scrollTo', { configurable: true, value: scrollTo })
     vi.stubGlobal('fetch', vi.fn(async (input: string | URL | Request) => {
       if (String(input).includes('/status')) return new Response(JSON.stringify({ available: false }), { status: 200 })
       return new Response(JSON.stringify({ error: '不可用' }), { status: 503 })
@@ -274,6 +276,7 @@ describe('ZERO7', () => {
     fireEvent.click(currentHorse)
     expect(screen.queryByRole('button', { name: '返回当前局面' })).not.toBeInTheDocument()
     expect(currentHorse.querySelector('.chess-piece')).toHaveClass('selected')
+    expect(scrollTo).toHaveBeenCalled()
   })
 
   it('支持人机对战悔棋和重新开局', async () => {
