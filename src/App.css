@@ -14,7 +14,48 @@
 .streak { border-radius: 22px; background: #fff1df; color: #915f24; padding: 9px 15px; font-size: 13px; display: flex; align-items: center; gap: 6px; }
 .streak svg { width: 17px; color: #f08d36; fill: #f08d36; }
 .page-wrap { width: min(1180px, calc(100% - 48px)); margin: 0 auto; }
+.home-shell { height: 100dvh; min-height: 0; padding-bottom: 0; overflow: hidden; }
+.home-shell > main { height: 100dvh; min-height: 0; overflow: hidden; }
+.home-page { width: 100%; height: 100%; padding: 8px 10px; display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 10px; }
+.home-main { min-width: 0; min-height: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto auto; gap: 10px; overflow: hidden; }
+.home-sidebar { min-height: 0; display: flex; flex-direction: column; gap: 8px; }
+.home-side-card { padding: 15px; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); }
+.home-side-card strong { display: block; margin-top: 5px; color: var(--ink); }
+.home-side-card p { margin: 5px 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.home-progress { height: 6px; margin-top: 10px; overflow: hidden; border-radius: 10px; background: #e8e1d7; }
+.home-progress i { display: block; height: 100%; border-radius: inherit; background: var(--coral); }
+.home-tip { margin-top: auto; display: flex; align-items: center; gap: 10px; }
+.home-tip .coach-avatar { width: 36px; height: 36px; border-width: 3px; font-size: 16px; }
+.content-shell { height: 100dvh; min-height: 0; padding-bottom: 0; overflow: hidden; }
+.content-shell > main { height: 100dvh; min-height: 0; overflow: hidden; }
+.unified-page { width: 100%; height: 100%; padding: 8px 10px; display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 10px; }
+.unified-main { min-width: 0; min-height: 0; overflow: auto; }
+.unified-sidebar { min-height: 0; display: flex; flex-direction: column; gap: 8px; }
+.lesson-page .challenge-layout { display: block; max-width: none; height: calc(100% - 48px); }
+.lesson-page .board-panel { height: 100%; display: flex; flex-direction: column; align-items: center; overflow: hidden; }
+.lesson-page .board-wrap { width: min(540px, calc((100dvh - 210px) * .9), 100%); }
+.lesson-sidebar .coach-panel { position: static; min-height: 0; flex: 1; padding: 14px; overflow: hidden; }
+.lesson-sidebar .speech-bubble { padding: 12px; font-size: 12px; line-height: 1.5; }
+.lesson-sidebar .voice-button { min-height: 64px; padding: 10px; }
+.lesson-sidebar .hint-card { padding: 12px; }
+.simple-main { padding: clamp(24px, 6vh, 70px) clamp(24px, 6vw, 80px); }
+.unified-page .profile-card, .unified-page .settings-card { max-width: 760px; margin-left: 0; }
+.unified-side-nav .nav-button.active { color: var(--coral-dark); background: var(--coral-soft); border-radius: 7px; }
 .hero-card { margin-top: 34px; min-height: 390px; background: #ece8dd; border-radius: 30px; overflow: hidden; display: grid; grid-template-columns: 1.08fr .92fr; position: relative; box-shadow: inset 0 0 0 1px rgba(255,255,255,.65); }
+.home-main .hero-card { margin-top: 0; min-height: 0; }
+.home-main .hero-copy { padding: clamp(24px, 5vh, 58px) 20px clamp(22px, 4vh, 50px) clamp(28px, 5vw, 66px); }
+.home-main .hero-copy h1 { font-size: clamp(38px, 4.4vw, 62px); }
+.home-main .section-block { margin-top: 0; }
+.home-main .section-heading { margin-bottom: 8px; }
+.home-main .section-heading h2 { font-size: 26px; }
+.home-main .lesson-grid { gap: 10px; }
+.home-main .lesson-card { min-height: 150px; padding: 16px; }
+.home-main .lesson-title { margin-top: 10px; font-size: 17px; }
+.home-main .lesson-text { font-size: 12px; }
+.home-main .tag-row { margin-top: 8px; }
+.home-main .encourage-card { margin-top: 0; padding: 10px 16px; }
+.home-main .encourage-card .coach-avatar { width: 42px; height: 42px; border-width: 3px; font-size: 20px; }
+.home-main .encourage-card p { font-size: 17px; }
 .hero-card::before { content: ''; position: absolute; width: 280px; height: 280px; border: 1px solid rgba(66,101,112,.1); border-radius: 50%; left: -100px; top: -120px; }
 .hero-copy { padding: 58px 20px 50px 66px; z-index: 2; }
 .eyebrow { display: inline-flex; align-items: center; gap: 7px; color: var(--coral-dark); font-size: 12px; font-weight: 800; letter-spacing: .16em; }
@@ -223,6 +264,7 @@
 .toast { position: fixed; left: 50%; bottom: 30px; transform: translateX(-50%); border-radius: 13px; padding: 12px 18px; background: #26324a; color: white; z-index: 100; display: flex; gap: 8px; align-items: center; box-shadow: 0 10px 30px rgba(20,25,40,.25); font-size: 13px; } .toast svg { width: 17px; }
 
 @media (max-width: 900px) {
+  .home-page { grid-template-columns: minmax(0, 1fr) 200px; }
   .hero-card { grid-template-columns: 1fr; } .hero-art { min-height: 310px; } .hero-copy { padding: 45px; }
   .lesson-grid { grid-template-columns: 1fr; } .lesson-card { min-height: 190px; }
   .challenge-layout { grid-template-columns: 1fr; max-width: 650px; margin: 0 auto; } .coach-panel { position: static; }
@@ -241,6 +283,28 @@
 }
 @media (max-width: 640px) {
   .app-shell { padding-bottom: 86px; }
+  .home-shell, .content-shell { height: auto; min-height: 100dvh; padding-bottom: 78px; overflow: visible; }
+  .home-shell > main, .content-shell > main { height: auto; overflow: visible; }
+  .home-page { display: flex; flex-direction: column; height: auto; padding: 8px 12px 18px; }
+  .home-main { display: contents; }
+  .home-sidebar { order: -1; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .home-side-nav, .home-side-card { display: none; }
+  .home-sidebar .primary-button, .home-sidebar .secondary-button { padding: 10px 7px; font-size: 11px; }
+  .home-main .hero-card { order: 1; }
+  .home-main .section-block { order: 2; }
+  .home-main .encourage-card { order: 3; }
+  .unified-page { display: block; height: auto; padding: 12px 14px 24px; }
+  .unified-main { overflow: visible; }
+  .unified-sidebar { display: none; }
+  .lesson-page { display: flex; flex-direction: column; }
+  .lesson-page .unified-main { order: 1; }
+  .lesson-page .lesson-sidebar { order: 2; display: block; }
+  .lesson-page .lesson-sidebar .unified-side-nav { display: none; }
+  .lesson-page .coach-panel { overflow: visible; }
+  .lesson-page .challenge-layout { height: auto; }
+  .lesson-page .board-panel { height: auto; overflow: visible; }
+  .lesson-page .board-wrap { width: min(100%, 540px); }
+  .simple-main { padding: 18px 0; }
   .battle-shell { height: 100dvh; padding-bottom: 0; }
   .battle-shell > main { height: 100dvh; }
   .battle-shell .topbar { height: 44px; padding: 0 10px; }

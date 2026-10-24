@@ -165,6 +165,9 @@ describe('ZERO7', () => {
 
   it('支持首页卡片、成长页、个人页和品牌导航', () => {
     render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: '训练' }))
+    expect(screen.getByText(/黑车闯进中路/)).toBeInTheDocument()
+    fireEvent.click(screen.getByLabelText('返回首页'))
     fireEvent.click(screen.getByRole('button', { name: /一步解围/ }))
     expect(screen.getByText(/怎样挡住它/)).toBeInTheDocument()
     fireEvent.click(screen.getByLabelText('返回首页'))
@@ -172,6 +175,10 @@ describe('ZERO7', () => {
     expect(screen.getByText('我的象棋成长')).toBeInTheDocument()
     fireEvent.click(screen.getAllByRole('button', { name: /我的/ })[0])
     expect(screen.getByText('零七棋友')).toBeInTheDocument()
+    fireEvent.click(screen.getAllByRole('button', { name: /返回首页/ }).at(-1)!)
+    fireEvent.click(screen.getAllByRole('button', { name: /成长/ })[0])
+    fireEvent.click(screen.getByRole('button', { name: /继续训练/ }))
+    expect(screen.getByText(/黑车闯进中路/)).toBeInTheDocument()
     fireEvent.click(screen.getByLabelText('返回首页'))
     expect(screen.getByText('今日三小关')).toBeInTheDocument()
   })
