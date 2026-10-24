@@ -20,5 +20,5 @@ export async function getPikafishMove(fen: string, level: EngineLevel, analysis 
   })
   const result = await response.json()
   if (!response.ok) throw new Error(result.error || `Pikafish 请求失败（${response.status}）`)
-  return result as { move: string; score: { type: 'cp' | 'mate'; value: number } | null; engine: string; level: EngineLevel }
+  return result as { move: string | null; terminal?: boolean; score: { type: 'cp' | 'mate'; value: number } | null; engine: string; level: EngineLevel }
 }

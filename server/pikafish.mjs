@@ -44,9 +44,10 @@ export class PikafishEngine {
         if (analysis && currentLine.startsWith('info ') && currentLine.includes(' score ')) infoLines.push(currentLine)
       })
       const match = line.match(/^bestmove\s+([a-i][0-9][a-i][0-9])/i)
-      if (!match) throw new Error(`Pikafish 没有返回有效走法：${line}`)
+      const noMove = /^bestmove\s+(?:\(none\)|none|0000)/i.test(line)
+      if (!match && !noMove) throw new Error(`Pikafish 没有返回有效走法：${line}`)
       const score = parseAnalysisScore(infoLines.at(-1))
-      return { move: match[1].toLowerCase(), score, engine: this.name || 'Pikafish', level }
+      return { move: match?.[1].toLowerCase() ?? null, terminal: noMove, score, engine: this.name || 'Pikafish', level }
     })
     this.queue = task.catch(() => undefined)
     return task

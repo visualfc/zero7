@@ -14,6 +14,13 @@ export interface Level {
   id: string
   number: string
   category: string
+  difficulty: '入门' | '初级' | '中级'
+  sourceId: 'wukong-xiangqi'
+  sourcePuzzleId: string
+  fen: string
+  solution: { from: string; to: string }[]
+  verifiedBy: ('source' | 'xiangqi.js' | 'chessdb')[]
+  source: { id: string; name: string; url: string; license: string; role: string }
   title: string
   description: string
   instruction: string
@@ -27,76 +34,6 @@ export interface Level {
   reward: number
 }
 
-export const levels: Level[] = [
-  {
-    id: 'cannon-capture', number: '01', category: '观察力',
-    title: '黑车闯进中路，\n红炮怎样吃掉它？',
-    description: '炮要隔着一枚棋子才能吃子，找找它的炮架。',
-    instruction: '红方走棋 · 用红炮吃掉黑车', answer: '炮五进五',
-    answerAliases: ['炮5进5', '跑五进五', '砲五进五', '炮五近五', '炮五进伍'],
-    pieces: [
-      piece('black-general', '将', 'black', 'general', 0, 4),
-      piece('black-advisor-a', '士', 'black', 'advisor', 0, 3),
-      piece('black-advisor-b', '士', 'black', 'advisor', 0, 5),
-      piece('black-rook', '车', 'black', 'rook', 2, 4),
-      piece('black-pawn-a', '卒', 'black', 'pawn', 3, 2),
-      piece('black-pawn-b', '卒', 'black', 'pawn', 3, 6),
-      piece('red-pawn-screen', '兵', 'red', 'pawn', 5, 4),
-      piece('red-cannon', '炮', 'red', 'cannon', 7, 4),
-      piece('red-general', '帅', 'red', 'general', 9, 4),
-      piece('red-advisor-a', '仕', 'red', 'advisor', 9, 3),
-      piece('red-advisor-b', '仕', 'red', 'advisor', 9, 5),
-    ],
-    move: move('red-cannon', 7, 4, 2, 4, '炮五进五'),
-    hints: ['看看中路，红炮和黑车之间有什么？', '中间的红兵可以给炮当“炮架”。', '选中红炮，再点黑车：炮五进五。'],
-    successTitle: '隔山打牛！', successText: '红炮隔着红兵跳过去，成功吃掉了黑车。', reward: 10,
-  },
-  {
-    id: 'rook-block', number: '02', category: '救将',
-    title: '黑车正在将军，\n怎样挡住它？',
-    description: '把红车移到中路，挡住黑车的进攻路线。',
-    instruction: '红方走棋 · 用红车挡住将军', answer: '车一平五',
-    answerAliases: ['车1平5', '車一平五', '居一平五', '车衣平五'],
-    pieces: [
-      piece('black-general', '将', 'black', 'general', 0, 4),
-      piece('black-rook', '车', 'black', 'rook', 1, 4),
-      piece('red-rook', '车', 'red', 'rook', 8, 8),
-      piece('red-general', '帅', 'red', 'general', 9, 4),
-      piece('red-advisor-a', '仕', 'red', 'advisor', 9, 3),
-      piece('red-advisor-b', '仕', 'red', 'advisor', 9, 5),
-    ],
-    move: move('red-rook', 8, 8, 8, 4, '车一平五'),
-    hints: ['黑车沿着中路直攻红帅，要堵住这条线。', '右边的红车可以横着走到中路。', '选中红车，再走到红帅前面：车一平五。'],
-    successTitle: '成功解围！', successText: '红车挡在中路，黑车不能继续攻击红帅了。', reward: 10,
-  },
-  {
-    id: 'horse-check', number: '03', category: '进攻',
-    title: '找到一步漂亮的马将军！',
-    description: '观察黑将周围，红马能跳到哪个位置？',
-    instruction: '红方走棋 · 用红马将军', answer: '马三进四',
-    answerAliases: ['马3进4', '馬三進四', '马山进四', '马三近四'],
-    pieces: [
-      piece('black-general', '将', 'black', 'general', 0, 3),
-      piece('black-advisor-a', '士', 'black', 'advisor', 0, 5),
-      piece('black-advisor-b', '士', 'black', 'advisor', 2, 3),
-      piece('red-horse', '马', 'red', 'horse', 3, 6),
-      piece('red-general', '帅', 'red', 'general', 9, 4),
-      piece('red-advisor-a', '仕', 'red', 'advisor', 9, 3),
-      piece('red-advisor-b', '仕', 'red', 'advisor', 9, 5),
-    ],
-    move: move('red-horse', 3, 6, 1, 5, '马三进四'),
-    hints: ['马走“日”字，看看黑将右下方的位置。', '红马可以向前跳两格、向左跳一格。', '选中红马，再点黑将右下方：马三进四。'],
-    successTitle: '马到成功！', successText: '红马跳到将旁边，形成了一步漂亮的将军。', reward: 10,
-  },
-]
-
-function piece(id: string, text: string, side: Side, kind: PieceKind, row: number, col: number): Piece {
-  return { id, text, side, kind, row, col }
-}
-
-function move(pieceId: string, fromRow: number, fromCol: number, toRow: number, toCol: number, notation: string): Move {
-  return { pieceId, from: { row: fromRow, col: fromCol }, to: { row: toRow, col: toCol }, notation }
-}
 
 export function sameSquare(a: Square, b: Square) {
   return a.row === b.row && a.col === b.col
@@ -186,6 +123,7 @@ export function normalizeMoveText(text: string) {
     '砲': '炮', '跑': '炮', '車': '车', '居': '车', '馬': '马', '進': '进', '近': '进', '晋': '进',
     '退': '退', '平': '平', '坪': '平', '评': '平',
     '衣': '一', '壹': '一', '1': '一', '2': '二', '3': '三', '4': '四', '5': '五', '6': '六', '7': '七', '8': '八', '9': '九',
+    '１': '一', '２': '二', '３': '三', '４': '四', '５': '五', '６': '六', '７': '七', '８': '八', '９': '九',
     '伍': '五', '肆': '四', '两': '二', '兩': '二', '俩': '二', '倆': '二', '儿': '二', '山': '三', '叁': '三', '杉': '三', '散': '三',
   }
   return text.trim().replace(/[，。！？,.!?、\s]/g, '').split('').map((character) => replacements[character] ?? character).join('')
