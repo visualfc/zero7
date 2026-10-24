@@ -236,6 +236,8 @@ describe('ZERO7', () => {
       const moveVoiceLabel = moveVoiceButton.textContent
       fireEvent.click(screen.getByRole('button', { name: /语音讲解推荐/ }))
       expect(voiceMock.instances.at(-1)!.speakText).toHaveBeenCalled()
+      fireEvent.click(screen.getByRole('button', { name: /语音讲解推荐/ }))
+      expect(voiceMock.instances.at(-2)!.disconnect).toHaveBeenCalled()
       expect(moveVoiceButton.textContent).toBe(moveVoiceLabel)
       expect(moveVoiceButton).not.toHaveClass('listening')
     } else {
