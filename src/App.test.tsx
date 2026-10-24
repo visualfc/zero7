@@ -99,6 +99,8 @@ describe('ZERO7', () => {
     expect(screen.getByLabelText('最近一步走子路径')).toHaveClass('black')
     fireEvent.click(screen.getByRole('button', { name: '悔棋' }))
     expect(screen.queryByLabelText('最近一步走子路径')).not.toBeInTheDocument()
+    fireEvent.click(screen.getAllByRole('button', { name: '红马' }).at(-1)!)
+    fireEvent.click(screen.getAllByRole('button', { name: '红车' }).at(-1)!)
   })
 
   it('重新开局后忽略上一局延迟返回的 AI 走法', async () => {
@@ -191,6 +193,7 @@ describe('ZERO7', () => {
     expect(await screen.findByText(/基础 AI（Pikafish 暂不可用）/, {}, { timeout: 4000 })).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: '认输' }))
     expect(screen.getByText(/你已认输，本局由 零七 获胜/)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '语音复盘' }))
   })
 
   it('人机对战语音只消费一次识别结果并处理无效走法', async () => {
@@ -305,10 +308,123 @@ describe('ZERO7', () => {
       fireEvent.keyUp(window, { code: 'Space' })
       await Promise.resolve()
     })
-    expect(preventDefault).toHaveBeenCalledTimes(6)
+    expect(preventDefault).toHaveBeenCalledTimes(9)
     preventDefault.mockRestore()
     expect(voiceMock.instances.at(-1)?.start).toHaveBeenCalledTimes(1)
     expect(voiceMock.instances.at(-1)?.stop).toHaveBeenCalledTimes(1)
+  })
+
+  it('首页使用空格完成全局语音指令且不显示独立按钮', async () => {
+    render(<App />)
+    expect(screen.queryByRole('button', { name: /全局语音输入/ })).not.toBeInTheDocument()
+    await act(async () => {
+      fireEvent.keyDown(window, { code: 'Space', repeat: false })
+      await Promise.resolve()
+    })
+    expect(voiceMock.instances.at(-1)?.start).toHaveBeenCalledTimes(1)
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 400))
+      fireEvent.keyUp(window, { code: 'Space' })
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      await Promise.resolve()
+    })
+    expect(voiceMock.instances.at(-1)?.stop).toHaveBeenCalledTimes(1)
+  })
+
+  it('全局空格指令可以进入训练和人机对战', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ available: false }), { status: 200 })))
+    render(<App />)
+    await act(async () => {
+      fireEvent.keyDown(window, { code: 'Space' })
+      await Promise.resolve()
+    })
+    act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text: '开始训练' }))
+    expect(screen.getByText(/黑车闯进中路/)).toBeInTheDocument()
+    fireEvent.click(screen.getByLabelText('返回首页'))
+    await act(async () => {
+      fireEvent.keyDown(window, { code: 'Space' })
+      await Promise.resolve()
+    })
+    act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text: '开始人机对战' }))
+    expect(await screen.findByText('基础 AI（Pikafish 未安装）')).toBeInTheDocument()
+    fireEvent.click(screen.getByLabelText('返回首页'))
+    await act(async () => {
+      fireEvent.keyDown(window, { code: 'Space' })
+      await Promise.resolve()
+    })
+    act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text: '返回首页' }))
+    expect(screen.getByText('今日三小关')).toBeInTheDocument()
+  })
+
+  it('全局语音支持首页帮助以及成长页和个人页导航', async () => {
+    render(<App />)
+    const sayGlobal = async (text: string) => {
+      await act(async () => {
+        fireEvent.keyDown(window, { code: 'Space' })
+        await Promise.resolve()
+      })
+      act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text }))
+      fireEvent.keyUp(window, { code: 'Space' })
+    }
+    await sayGlobal('帮助')
+    expect(voiceMock.instances.at(-1)!.disconnect).toHaveBeenCalled()
+    fireEvent.click(screen.getAllByRole('button', { name: /成长/ })[0])
+    await sayGlobal('开始训练')
+    expect(screen.getByText(/黑车闯进中路/)).toBeInTheDocument()
+    fireEvent.click(screen.getByLabelText('返回首页'))
+    fireEvent.click(screen.getAllByRole('button', { name: /我的/ })[0])
+    await sayGlobal('开始人机对战')
+    expect(screen.getByText('人机对战')).toBeInTheDocument()
+  })
+
+  it('训练页语音支持帮助、提示、重开确认和下一关', async () => {
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: /进入训练/ }))
+    const button = screen.getByRole('button', { name: /按住说走法/ })
+    const say = async (text: string) => {
+      await act(async () => fireEvent.pointerDown(button))
+      act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text }))
+      fireEvent.pointerUp(button)
+      await waitFor(() => expect(voiceMock.instances.at(-1)?.disconnect).toHaveBeenCalled())
+    }
+    await say('帮助')
+    expect(screen.getByText(/你可以说棋步、提示/)).toBeInTheDocument()
+    await say('提示')
+    expect(screen.getAllByText('看看中路，红炮和黑车之间有什么？').length).toBeGreaterThan(0)
+    await say('重新训练')
+    expect(screen.getByText('请说确认或取消。')).toBeInTheDocument()
+    await say('取消')
+    expect(screen.getByText('已取消。')).toBeInTheDocument()
+    await say('重新训练')
+    await say('确认')
+    expect(screen.getByText(/黑车闯进中路/)).toBeInTheDocument()
+    act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text: '返回首页' }))
+    expect(screen.getByText('今日三小关')).toBeInTheDocument()
+  })
+
+  it('局面分析展开后零七走棋会重新请求分析并保留面板', async () => {
+    let analysisCalls = 0
+    vi.stubGlobal('fetch', vi.fn(async (input: string | URL | Request, options?: RequestInit) => {
+      if (String(input).includes('/status')) return new Response(JSON.stringify({ available: true, name: 'Pikafish Test' }), { status: 200 })
+      if (String(options?.body).includes('"analysis":true')) {
+        analysisCalls += 1
+        return new Response(JSON.stringify({ move: 'h0g2', score: { type: 'cp', value: analysisCalls * 100 }, engine: 'Pikafish Test', level: '初级' }), { status: 200 })
+      }
+      return new Response(JSON.stringify({ move: 'h9g7', engine: 'Pikafish Test', level: '初级' }), { status: 200 })
+    }))
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: /开始人机对战/ }))
+    expect(await screen.findByText('Pikafish Test')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '局面分析' }))
+    await waitFor(() => expect(screen.getByText(/推荐走法：/)).toBeInTheDocument())
+    fireEvent.click(screen.getAllByRole('button', { name: '红马' }).at(-1)!)
+    fireEvent.click(screen.getByRole('button', { name: '7-6' }))
+    await waitFor(() => expect(screen.getByText('马８进７')).toBeInTheDocument(), { timeout: 4000 })
+    await waitFor(() => expect(analysisCalls).toBe(2), { timeout: 4000 })
+    fireEvent.click(screen.getByRole('button', { name: /收起局面分析/ }))
+    fireEvent.click(screen.getByRole('button', { name: '局面分析' }))
+    expect(screen.getByRole('button', { name: /收起局面分析|正在分析/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /收起局面分析|正在分析/ })).toBeInTheDocument()
   })
 
   it('空格在输入控件中也会被全局拦截，并覆盖页面导航', () => {
@@ -330,7 +446,7 @@ describe('ZERO7', () => {
     input.dispatchEvent(keydown)
     input.dispatchEvent(keypress)
     input.dispatchEvent(keyup)
-    expect(preventDefault).toHaveBeenCalledTimes(3)
+    expect(preventDefault).toHaveBeenCalledTimes(5)
     expect(voiceMock.instances).toHaveLength(0)
     preventDefault.mockRestore()
     input.remove()
@@ -345,6 +461,69 @@ describe('ZERO7', () => {
     expect(screen.queryByText(/时间过得真快/)).not.toBeInTheDocument()
     act(() => voiceMock.instances.at(-1)!.emit({ type: 'reply', text: '这一步走得很好。' }))
     expect(screen.getByText('这一步走得很好。')).toBeInTheDocument()
+  })
+
+  it('支持全局语音控制指令和确认操作', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ available: false }), { status: 200 })))
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: /开始人机对战/ }))
+    await screen.findByText('基础 AI（Pikafish 未安装）')
+    const button = screen.getAllByRole('button', { name: /按住说走法/ })[0]
+    await act(async () => fireEvent.pointerDown(button))
+    act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text: '帮助' }))
+    await waitFor(() => expect(screen.getByText(/你可以说棋步、悔棋/)).toBeInTheDocument())
+    fireEvent.pointerUp(button)
+    await act(async () => fireEvent.pointerDown(button))
+    act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text: '悔棋' }))
+    await waitFor(() => expect(screen.getByText('请说确认或取消。')).toBeInTheDocument())
+    fireEvent.pointerUp(button)
+    await act(async () => fireEvent.pointerDown(button))
+    act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text: '取消' }))
+    await waitFor(() => expect(screen.getByText('已取消。')).toBeInTheDocument())
+    fireEvent.pointerUp(button)
+    await act(async () => fireEvent.pointerDown(button))
+    act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text: '重开一局' }))
+    fireEvent.pointerUp(button)
+    await act(async () => fireEvent.pointerDown(button))
+    act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text: '确认' }))
+    await waitFor(() => expect(screen.getByText('轮到红方走棋')).toBeInTheDocument())
+    const sayBattle = async (text: string) => {
+      await act(async () => fireEvent.pointerDown(button))
+      act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text }))
+      fireEvent.pointerUp(button)
+      await Promise.resolve()
+    }
+    await sayBattle('换成中级')
+    expect(screen.getByText('已切换为中级棋力。')).toBeInTheDocument()
+    await sayBattle('打开局面分析')
+    await sayBattle('关闭局面分析')
+    await sayBattle('推荐一步')
+    await sayBattle('认输')
+    expect(screen.getByText('请说确认或取消。')).toBeInTheDocument()
+    await sayBattle('确认')
+    expect(screen.getByText(/你已认输/)).toBeInTheDocument()
+  })
+
+  it('覆盖人机对战语音连接失败', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ available: false }), { status: 200 })))
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: /开始人机对战/ }))
+    await screen.findByText('基础 AI（Pikafish 未安装）')
+    voiceMock.startError = new Error('对战麦克风不可用')
+    await act(async () => fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住说走法/ })[0]))
+    await waitFor(() => expect(screen.getAllByText('对战麦克风不可用').length).toBeGreaterThan(0))
+  })
+
+  it('一分钟无动作后才语音提醒继续走棋', async () => {
+    vi.useFakeTimers()
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ available: false }), { status: 200 })))
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: /开始人机对战/ }))
+    await act(async () => Promise.resolve())
+    expect(screen.queryByText('轮到你继续走棋。')).not.toBeInTheDocument()
+    await act(async () => vi.advanceTimersByTimeAsync(60000))
+    expect(screen.getAllByText('轮到你继续走棋。').length).toBeGreaterThan(0)
+    vi.useRealTimers()
   })
 
   it('覆盖人机对战返回、语音松开和复盘入口', async () => {
