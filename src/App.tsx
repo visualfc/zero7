@@ -256,7 +256,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
     setLessonThinking(true)
     setVoiceText(candidateAnswer ? '正在验证对方是否还有解法…' : '这步可以走，零七正在应对…')
     try {
-      const mateDepth = level.mode === 'mateN' ? 20 : level.mode.match(/^mate(\d+)$/)?.[1]
+      const mateDepth = level.mode === 'mateN' ? 20 : level.mode.match(/^mate([2-9]\d*)$/)?.[1]
       const targetMateDepth = mateDepth ? Number(mateDepth) : undefined
       let result
       try {

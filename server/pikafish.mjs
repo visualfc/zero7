@@ -41,9 +41,15 @@ export class PikafishEngine {
       await this.command(`position fen ${fen}`, null)
       const infoLines = []
       const search = Number.isInteger(mateDepth) && mateDepth > 0 ? `go mate ${Math.min(mateDepth, 20)}` : `go movetime ${Math.max(100, Math.min(Number(moveTime) || options.moveTime, 5000))}`
-      const line = await this.command(search, /^bestmove\s+/i, 30000, (currentLine) => {
-        if ((analysis || mateDepth) && currentLine.startsWith('info ') && currentLine.includes(' score ')) infoLines.push(currentLine)
-      })
+      let line
+      try {
+        line = await this.command(search, /^bestmove\s+/i, 30000, (currentLine) => {
+          if ((analysis || mateDepth) && currentLine.startsWith('info ') && currentLine.includes(' score ')) infoLines.push(currentLine)
+        })
+      } catch (error) {
+        this.reset(error instanceof Error ? error : new Error('Pikafish 搜索失败'))
+        throw error
+      }
       const match = line.match(/^bestmove\s+([a-i][0-9][a-i][0-9])/i)
       const noMove = /^bestmove\s+(?:\(none\)|none|0000)/i.test(line)
       if (!match && !noMove) throw new Error(`Pikafish 没有返回有效走法：${line}`)
@@ -126,11 +132,18 @@ export class PikafishEngine {
     this.waiters = []
   }
 
-  close() {
-    if (this.process?.stdin.writable) this.process.stdin.write('quit\n')
-    this.process?.kill()
+  reset(error = new Error('Pikafish 进程已重置')) {
+    const process = this.process
     this.process = null
     this.ready = false
+    this.buffer = ''
+    this.rejectAll(error)
+    process?.kill()
+  }
+
+  close() {
+    if (this.process?.stdin.writable) this.process.stdin.write('quit\n')
+    this.reset(new Error('Pikafish 进程已关闭'))
   }
 }
 

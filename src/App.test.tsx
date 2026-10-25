@@ -132,11 +132,17 @@ describe('ZERO7', () => {
     expect(await screen.findByText('绝杀！')).toBeInTheDocument()
   })
 
-  it('按标准答案经引擎验证后完成 Wukong 一步将杀', async () => {
+  it('一步杀使用有时间上限的普通搜索完成验证', async () => {
+    const engine = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      expect(JSON.parse(String(init?.body))).not.toHaveProperty('mateDepth')
+      return new Response(JSON.stringify({ move: null, terminal: true, engine: 'Pikafish Test', level: '初级', score: null }), { status: 200 })
+    })
+    vi.stubGlobal('fetch', engine)
     render(<App initialLevels={testLevels} />)
     fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
     solveLevel(0)
     expect(await screen.findByText('绝杀！')).toBeInTheDocument()
+    expect(engine).toHaveBeenCalledTimes(1)
   })
 
   it('从 API 加载题库后不会在走棋时重置局面', async () => {

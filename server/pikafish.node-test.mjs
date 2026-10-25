@@ -54,6 +54,18 @@ test('Pikafish UCI 输出解析 bestmove', async () => {
 })
 
 
+test('Pikafish 搜索失败后重置进程以恢复后续请求', async () => {
+  const engine = new PikafishEngine({ binary: process.execPath, model: process.execPath })
+  const fakeProcess = new FakeProcess({})
+  engine.process = fakeProcess
+  engine.ready = true
+  await assert.rejects(engine.command('go mate 2', /^bestmove\s+/i, 1), /命令超时/)
+  engine.reset(new Error('搜索超时'))
+  assert.equal(fakeProcess.killed, true)
+  assert.equal(engine.process, null)
+  assert.equal(engine.ready, false)
+})
+
 test('Pikafish 将无合法应手解析为终局', async () => {
   const engine = new PikafishEngine({ binary: process.execPath, model: process.execPath })
   engine.process = new FakeProcess({
