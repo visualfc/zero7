@@ -141,6 +141,33 @@ describe('ZERO7', () => {
     expect(screen.getByRole('button', { name: /收起引擎讲解/ })).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: '语音讲解残局推荐' }))
     await waitFor(() => expect(voiceMock.instances.some((client) => client.speakText.mock.calls.some(([text]) => String(text).includes('推荐走法车二平五')))).toBe(true))
+    fireEvent.click(screen.getByRole('button', { name: /收起引擎讲解/ }))
+    expect(screen.queryByText(/推荐走法：车二平五/)).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /展开引擎讲解/ })).toBeInTheDocument()
+  })
+
+  it.each([
+    [{ type: 'mate', value: 3 }, '预计3步成杀'],
+    [{ type: 'mate', value: -2 }, '需要防守对方2步杀棋'],
+    [{ type: 'cp', value: 0 }, '局面接近均势'],
+    [{ type: 'cp', value: -180 }, '当前行棋方需要谨慎防守'],
+  ])('残局讲解显示不同引擎评分 %#', async (score, evaluation) => {
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => new Response(String(input).endsWith('/warmup') ? null : JSON.stringify({ move: null, engine: 'Pikafish Test', level: '中级', score }), { status: String(input).endsWith('/warmup') ? 204 : 200 })))
+    render(<App initialLevels={testLevels} />)
+    fireEvent.click(screen.getAllByRole('button', { name: '残局训练' })[0])
+    fireEvent.click(screen.getByRole('button', { name: /展开引擎讲解/ }))
+    expect(await screen.findByText(evaluation)).toBeInTheDocument()
+    expect(screen.getByText(/推荐走法：当前没有合法着法/)).toBeInTheDocument()
+  })
+
+  it('残局讲解失败时显示错误且可以收起', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => new Response(String(input).endsWith('/warmup') ? null : JSON.stringify({ error: '分析失败' }), { status: String(input).endsWith('/warmup') ? 204 : 503 })))
+    render(<App initialLevels={testLevels} />)
+    fireEvent.click(screen.getAllByRole('button', { name: '残局训练' })[0])
+    fireEvent.click(screen.getByRole('button', { name: /展开引擎讲解/ }))
+    expect(await screen.findByRole('status')).toHaveTextContent('分析失败')
+    fireEvent.click(screen.getByRole('button', { name: /收起引擎讲解/ }))
+    expect(screen.getByRole('button', { name: /展开引擎讲解/ })).toBeInTheDocument()
   })
 
   it('残局引擎讲解展开后在黑棋应手后自动更新', async () => {
