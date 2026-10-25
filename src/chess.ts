@@ -15,11 +15,16 @@ export interface Level {
   number: string
   category: string
   difficulty: '入门' | '初级' | '中级'
-  sourceId: 'wukong-xiangqi'
+  sourceId: 'wukong-xiangqi' | 'xiangqi-pwa-offline'
   sourcePuzzleId: string
+  mode: 'mate1' | 'endgame'
   fen: string
   solution: { from: string; to: string }[]
   verifiedBy: ('source' | 'xiangqi.js' | 'chessdb')[]
+  sourceBestMove?: string
+  sourceResult?: string
+  sourceType?: string
+  chessdb?: { status: string; score?: number; bestMove?: string }
   source: { id: string; name: string; url: string; license: string; role: string }
   title: string
   description: string

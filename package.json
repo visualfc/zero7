@@ -8,6 +8,7 @@
     "dev:cert": "node scripts/create-dev-cert.mjs",
     "build": "tsc -b && vite build",
     "puzzles:import": "node scripts/import-puzzles.mjs",
+    "puzzles:import:chessdb": "node scripts/import-chessdb-verifications.mjs",
     "lint": "oxlint",
     "preview": "vite preview",
     "test": "vitest run && node --test server/*.node-test.mjs",

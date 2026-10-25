@@ -7,14 +7,20 @@ ZERO7 的练习题统一保存来源、原始题号、许可证、完整 FEN、�
 | 来源 | 用途 | 许可证 | 地址 |
 | --- | --- | --- | --- |
 | Wukong Xiangqi | 经过搜索验证的将杀局面 | MIT | <https://github.com/maksimKorzh/wukong-xiangqi> |
+| 棋弈江湖 | 7,346 道残局关键着 | MIT | <https://github.com/dffge552/xiangqi-pwa-offline> |
+| ChessDB | 离线复核答案、评分和主变化 | Unlicense / 公共领域数据库快照 | <https://github.com/noobpwnftw/chessdb> |
 
 题库数据遵循 Wukong Xiangqi 的 MIT 许可证。项目的 Apache-2.0 许可证覆盖 ZERO7 自有代码和中文训练提示。已导入内容的完整许可证文本保存在 [`THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md)。
 
 ## 当前题量
 
-当前共有 969 道题，全部来自 Wukong Xiangqi，并且都有唯一的一步将杀答案。
+当前共有 8,315 道题：969 道来自 Wukong Xiangqi，7,346 道来自棋弈江湖。Wukong 题目是唯一的一步将杀题，棋弈江湖题目是带原始 `bestMove` 的残局关键着题。
 
 Wukong 数据来自 `puzzle_generator/puzzles_verified_sorted.json`。导入过程从其中 1,061 个“一步杀”候选局面中，使用 `@weshell/xiangqi.js` 重新加载局面并枚举合法着，筛出 969 个只有一个将死着的局面。每道题保留原始 ID、FEN 和唯一答案。当前记录中的 `verifiedBy` 为 `source` 和 `xiangqi.js`。
+
+棋弈江湖数据来自 `endgames_all.json`，导入 7,346 道带 `bestMove` 的残局局面，并保留原始残局类型、结果和推荐着法。当前记录中的 `verifiedBy` 为 `source` 和 `xiangqi.js`。仓库中只有局面名称、没有完整主变化的杀法题暂不导入为多步训练题。
+
+ChessDB 使用独立的 `chessdb-verifications.json` 离线报告。运行 `npm run puzzles:import:chessdb -- report.json` 后，导入器会校验报告中的题目 ID 和 FEN，并将状态、评分和最佳着保存到 SQLite。没有报告记录的题目不会伪造 `chessdb` 校验标记。
 
 ## 存储方式
 

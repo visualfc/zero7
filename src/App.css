@@ -35,23 +35,24 @@
 .unified-sidebar { min-height: 0; align-self: start; display: flex; flex-direction: column; gap: 8px; }
 .lesson-page .unified-main { height: calc(100dvh - 16px); overflow: hidden; }
 .lesson-page .challenge-layout { display: block; max-width: none; height: 100%; }
-.lesson-page .board-panel { height: 100%; padding: 8px 14px 28px; display: flex; flex-direction: column; align-items: center; overflow: hidden; }
+.lesson-page .board-panel { position: relative; height: 100%; padding: 8px 14px 28px; display: flex; flex-direction: column; align-items: center; overflow: hidden; }
+.lesson-move-rail { position: absolute; top: 8px; bottom: 18px; left: 10px; width: 150px; padding: 2px; display: flex; flex-direction: column; align-items: stretch; gap: 4px; overflow-y: auto; scrollbar-width: thin; color: var(--muted); font-size: 10px; }
+.lesson-move-rail > span { margin-top: 8px; text-align: center; }
+.lesson-move-rail .lesson-move { min-height: 24px; padding: 4px 3px; border: 1px solid var(--border); border-radius: 6px; background: rgba(255,253,248,.8); color: var(--ink); font-size: 10px; text-align: center; }
+.lesson-move-rail .battle-move-turn > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2em; }
 .lesson-first-player { margin-top: 2px; color: #a53c2e; font-size: 11px; line-height: 1.4; font-weight: 700; }
 .lesson-first-player.black { color: #303946; }
-.lesson-page .board-wrap { width: min(620px, 100%, calc((100dvh - 55px) * .9)); margin: 8px auto 0; }
+.lesson-page .board-wrap { width: min(620px, calc(100% - 180px), calc((100dvh - 55px) * .9)); margin: 8px auto 0; }
 .lesson-sidebar { height: calc(100dvh - 16px); overflow: hidden; }
 .lesson-sidebar .coach-panel { position: static; min-height: 0; flex: 1; padding: 8px 10px; display: flex; flex-direction: column; gap: 5px; overflow: visible; }
 .lesson-side-description { padding-bottom: 5px; border-bottom: 1px solid var(--line); }
 .lesson-side-description h1 { margin: 4px 0 1px; color: var(--ink); font-family: 'Ma Shan Zheng', cursive; font-size: clamp(18px, 2.5dvh, 23px); line-height: 1.08; font-weight: 400; }
+.lesson-picker { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 6px; margin-bottom: 6px; color: #847968; font-size: 10px; }
+.lesson-picker select { min-width: 0; width: 100%; padding: 5px 7px; border: 1px solid var(--line); border-radius: 7px; color: var(--ink); background: #fffdf8; font: inherit; }
 .lesson-badges { display: flex; gap: 5px; align-items: center; }
 .difficulty-badge { color: #8b6421; background: #fff2cf; }
-.puzzle-title-tooltip { position: relative; width: fit-content; max-width: 100%; border-radius: 5px; outline: none; cursor: help; }
-.puzzle-title-tooltip:focus-visible { box-shadow: 0 0 0 2px color-mix(in srgb, var(--coral) 40%, transparent); }
-.puzzle-tooltip { position: absolute; z-index: 20; top: calc(100% + 5px); left: 0; width: min(250px, calc(100vw - 40px)); padding: 8px 10px; border: 1px solid var(--line); border-radius: 9px; color: var(--muted); background: #fffdf8; box-shadow: 0 8px 22px #4939211f; font: 10px/1.45 system-ui, sans-serif; opacity: 0; visibility: hidden; transform: translateY(-3px); transition: opacity .15s ease, transform .15s ease, visibility .15s; }
-.puzzle-tooltip span, .puzzle-tooltip a { display: block; }
-.puzzle-tooltip a { margin-top: 4px; color: var(--coral-dark); text-decoration: none; }
-.puzzle-tooltip a:hover { text-decoration: underline; }
-.puzzle-title-tooltip:hover .puzzle-tooltip, .puzzle-title-tooltip:focus-within .puzzle-tooltip { opacity: 1; visibility: visible; transform: translateY(0); }
+.source-badge { color: #49665f; background: #e9f2ee; }
+.puzzle-title { width: fit-content; max-width: 100%; }
 .lesson-status { padding: 6px 8px; border-radius: 8px; color: #52606c; background: #edf3f2; font-size: 10px; line-height: 1.35; }
 .lesson-sidebar .voice-button { min-height: 42px; padding: 5px 7px; grid-template-columns: 32px 1fr; }
 .lesson-sidebar .voice-button > span { width: 30px; height: 30px; }
@@ -344,6 +345,7 @@
   .lesson-page .challenge-layout { height: auto; }
   .lesson-page .board-panel { height: auto; overflow: visible; }
   .lesson-page .board-panel { padding: 4px 2px 21px; }
+  .lesson-move-rail { display: none; }
   .lesson-page .board-wrap { width: min(calc(100vw - 10px), calc((100dvh - 101px) * .9)); margin-top: 15px; }
   .simple-main { padding: 18px 0; }
   .battle-shell { height: 100dvh; padding-bottom: 0; }

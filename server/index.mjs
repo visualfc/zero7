@@ -32,7 +32,7 @@ app.get('/api/linxi/status', (_request, response) => {
 
 app.get('/api/puzzles', (request, response) => {
   const offset = Math.max(0, Number.parseInt(String(request.query.offset ?? '0'), 10) || 0)
-  const limit = Math.min(1000, Math.max(1, Number.parseInt(String(request.query.limit ?? '50'), 10) || 50))
+  const limit = Math.min(10000, Math.max(1, Number.parseInt(String(request.query.limit ?? '50'), 10) || 50))
   response.json(puzzles.list({
     offset,
     limit,
