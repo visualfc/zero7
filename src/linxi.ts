@@ -37,7 +37,7 @@ export class LinxiVoiceClient {
       this.resolvePlaybackDone?.()
       this.resolvePlaybackDone = null
       this.playbackDone = null
-      if (this.state === 'speaking') this.disconnect()
+      if (this.state === 'speaking') this.setState('ready')
     })
   }
 

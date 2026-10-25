@@ -108,7 +108,7 @@ describe('灵矽语音客户端', () => {
     expect(events).toContainEqual({ type: 'transcript', text: '炮二平五' })
     expect(events).toContainEqual({ type: 'reply', text: '好棋' })
     expect(events.some((event) => event.state === 'speaking')).toBe(true)
-    expect(events.at(-1)).toEqual({ type: 'state', state: 'idle' })
+    expect(events.at(-1)).toEqual({ type: 'state', state: 'ready' })
   })
 
   it('发送朗读请求并处理被打断的播放', async () => {

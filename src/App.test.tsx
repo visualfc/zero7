@@ -606,8 +606,7 @@ describe('ZERO7', () => {
     await waitFor(() => {
       const speechClients = voiceMock.instances.filter((client) => client.speakText.mock.calls.length > 0)
       expect(speechClients).toHaveLength(1)
-      expect(speechClients[0].speakText).toHaveBeenNthCalledWith(1, '你走马二进三。')
-      expect(speechClients[0].speakText).toHaveBeenNthCalledWith(2, '零七应对马８进７。')
+      expect(speechClients[0].speakText).toHaveBeenCalledWith('你走马二进三。零七应对马８进７。')
     })
   })
 
@@ -1098,6 +1097,7 @@ describe('ZERO7', () => {
     await act(async () => Promise.resolve())
     act(() => voiceMock.instances.at(-1)!.emit({ type: 'reply', text: '时间过得真快，期待和你下次对弈。' }))
     expect(screen.queryByText(/时间过得真快/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/转眼间/)).not.toBeInTheDocument()
     act(() => voiceMock.instances.at(-1)!.emit({ type: 'reply', text: '这一步走得很好。' }))
     expect(screen.getByText('这一步走得很好。')).toBeInTheDocument()
   })
@@ -1166,7 +1166,7 @@ describe('ZERO7', () => {
     await act(async () => vi.advanceTimersByTimeAsync(2400))
     await act(async () => vi.advanceTimersByTimeAsync(60000))
     expect(screen.queryByText('轮到你继续走棋。')).not.toBeInTheDocument()
-    expect(voiceMock.instances.some((client) => client.speakText.mock.calls.some(([text]) => text === '轮到你继续走棋。'))).toBe(true)
+    expect(voiceMock.instances.every((client) => !client.speakText.mock.calls.some(([text]) => text === '轮到你继续走棋。'))).toBe(true)
     vi.useRealTimers()
   })
 

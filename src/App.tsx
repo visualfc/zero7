@@ -25,7 +25,7 @@ import { parseVoiceMove, sameSquare, type Level, type Piece, type Square } from 
 import { endgameCategories, fetchPuzzleLibrary, getEndgameCategory } from './puzzles'
 import { battlePieces, battleStatus, buildBattleReview, chooseAiMove, createBattle, findVoiceMove, isChessMoveTranscript, legalTargets as battleLegalTargets, squareToPoint, makeBattleMove, terminalType as getTerminalType, VoiceMoveAuthorization, type TerminalType } from './battle'
 import { Chess, type Move } from '@weshell/xiangqi.js'
-import { BATTLE_RULES, describeAiResponse, describePlayerMove } from './battle-rules'
+import { BATTLE_RULES, describeBattleTurn } from './battle-rules'
 import { commandHelp, parseVoiceCommand, type VoiceCommand, type VoicePage } from './voice-command'
 import { getPikafishMove, getPikafishStatus, warmupPikafish, type EngineLevel } from './pikafish'
 
@@ -220,26 +220,29 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
     loadLevel(candidates[(current + 1) % candidates.length]?.index ?? levelIndex)
   }
 
+  const prepareLessonSpeech = () => {
+    if (!lessonMoveVoiceClient.current) lessonMoveVoiceClient.current = new LinxiVoiceClient(() => {})
+    void lessonMoveVoiceClient.current.prepareAudio().catch(() => undefined)
+  }
+
   const queueLessonSpeech = (text: string) => {
     const speechId = lessonSpeechId.current
     lessonMoveSpeech.current = lessonMoveSpeech.current.then(async () => {
       if (speechId !== lessonSpeechId.current) return
-      const client = new LinxiVoiceClient(() => {})
+      const client = lessonMoveVoiceClient.current ?? new LinxiVoiceClient(() => {})
       lessonMoveVoiceClient.current = client
       try {
         await client.speakText(text)
         await client.waitForPlayback()
       } catch (error) {
         if (speechId === lessonSpeechId.current) setToast(error instanceof Error ? error.message : '走棋语音播放失败')
-      } finally {
-        client.disconnect()
-        if (lessonMoveVoiceClient.current === client) lessonMoveVoiceClient.current = null
       }
     })
   }
 
   const speakLessonSuccess = async (notation = level.answer, terminal = '绝杀') => {
     lessonSuccessVoiceClient.current?.disconnect()
+    prepareLessonSpeech()
     const client = new LinxiVoiceClient(() => {})
     lessonSuccessVoiceClient.current = client
     try {
@@ -379,6 +382,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
   }, [levelIndex, page, endgameAnalysisVisible])
 
   const playLessonMove = (from: Square, to: Square) => {
+    prepareLessonSpeech()
     const game = lessonGame.current
     const move = game && makeBattleMove(game, from, to)
     if (!game || !move) {
@@ -394,6 +398,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
   }
 
   const handleSquare = (square: Square) => {
+    prepareLessonSpeech()
     if (completed || lessonThinking) return
     const game = lessonGame.current
     const piece = pieces.find((item) => sameSquare(item, square))
@@ -504,6 +509,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
       return
     }
 
+    prepareLessonSpeech()
     voiceClient.current?.disconnect()
     const client = createVoiceClient()
     setVoiceText('正在连接零七教练…')
@@ -945,10 +951,9 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
     ignoreBattleReplies.current = false
     const requestId = ++aiRequestId.current
     if (game.current.isGameOver()) {
-      void speakBattleText(describePlayerMove(playerMove))
+      void speakBattleText(describeBattleTurn(playerMove))
       return
     }
-    void speakBattleText(describePlayerMove(playerMove))
     await new Promise((resolve) => window.setTimeout(resolve, BATTLE_RULES.aiThinkDelayMs))
     if (requestId !== aiRequestId.current || ignoreBattleReplies.current) return
     if (turnReminderTimer.current !== null) window.clearTimeout(turnReminderTimer.current)
@@ -988,7 +993,9 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
         if (aiMove) refresh(aiMove)
         setThinking(false)
         if (analysisVisible && aiMove) void analyzePosition()
-        if (!ignoreBattleReplies.current && aiMove) void speakBattleText(describeAiResponse(aiMove))
+        if (!ignoreBattleReplies.current && aiMove) {
+          void speakBattleText(describeBattleTurn(playerMove, aiMove))
+        }
       }
     }
   }
@@ -1488,7 +1495,7 @@ function isTextInput(target: EventTarget | null) {
 }
 
 function isRepeatedClosingReply(text: string) {
-  return /时间过得真快|期待和你下次对弈|期待和你下次再对弈/.test(text)
+  return /时间过得真快|转眼间|期待和你下次对弈|期待和你下次再对弈/.test(text)
 }
 
 function lessonVoicePrompt(game: Chess) {
