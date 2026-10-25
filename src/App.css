@@ -216,7 +216,7 @@
 .speech-bubble strong { color: var(--coral-dark); font-size: 17px; }
 .voice-button { width: 100%; border: 0; border-radius: 14px; background: var(--coral); color: white; padding: 11px 12px; display: grid; grid-template-columns: 38px 1fr; grid-template-rows: 1fr 1fr; column-gap: 6px; text-align: left; cursor: pointer; box-shadow: 0 4px 0 #c9533e; }
 .voice-button > span { grid-row: 1/3; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.2); }
-.voice-button svg { width: 19px; } .voice-button strong { align-self: end; } .voice-button small { opacity: .72; font-size: 9px; line-height: 1.2; align-self: start; }
+.voice-button svg { width: 19px; } .voice-button strong, .voice-button small { text-align: center; } .voice-button strong { align-self: end; } .voice-button small { opacity: .72; font-size: 9px; line-height: 1.2; align-self: start; }
 .voice-button.listening { animation: pulse 1s infinite; }
 .voice-button:disabled { opacity: .68; cursor: wait; }
 @keyframes pulse { 50% { box-shadow: 0 0 0 8px rgba(238,116,92,.18); } }
