@@ -299,8 +299,9 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
         setPieces(battlePieces(game))
         setLessonHistory((game.history({ verbose: true }) as Move[]).map((move) => move.zh))
         showLessonPath(response)
-        queueLessonSpeech(response.zh)
-        setVoiceText(`零七走了${response.zh}。`)
+        const responseText = response.isCheckmate ? `${response.zh}，绝杀！` : response.isCheck ? `${response.zh}，叫杀。` : response.zh
+        queueLessonSpeech(responseText)
+        setVoiceText(response.isCheckmate ? `${response.zh}，绝杀！` : response.isCheck ? `${response.zh}，叫杀。` : `零七走了${response.zh}。`)
         setLessonThinking(false)
         return
       }
@@ -309,8 +310,9 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
       setPieces(battlePieces(game))
       setLessonHistory((game.history({ verbose: true }) as Move[]).map((move) => move.zh))
       showLessonPath(response)
-      queueLessonSpeech(response.zh)
-      setVoiceText(`零七走了${response.zh}。`)
+      const responseText = response.isCheckmate ? `${response.zh}，绝杀！` : response.isCheck ? `${response.zh}，叫杀。` : response.zh
+      queueLessonSpeech(responseText)
+      setVoiceText(response.isCheckmate ? `${response.zh}，绝杀！` : response.isCheck ? `${response.zh}，叫杀。` : `零七走了${response.zh}。`)
     } catch (error) {
       if (requestId !== lessonRequestId.current) return
       if (playerNotation) queueLessonSpeech(playerNotation)

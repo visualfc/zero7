@@ -14,6 +14,8 @@ const qiyiSource = { id: 'xiangqi-pwa-offline', name: '棋弈江湖', url: 'http
 const testLevels = [...testRecords, { ...qiyiRecords[0], source: qiyiSource }].map((record, index) => puzzleToLevel(record as PuzzleRecord, index))
 const defendedCandidateLevel = puzzleToLevel({ ...testRecords[0], id: 'defended-candidate', solution: [{ from: 'c0', to: 'e2' }] }, 0)
 const alternateVoiceMoveLevel = puzzleToLevel({ ...wukongRecords[11], source: wukongSource } as PuzzleRecord, 0)
+const checkingResponseLevel = puzzleToLevel({ ...wukongMultiRecords[1], source: wukongSource } as PuzzleRecord, 0)
+const matingResponseLevel = puzzleToLevel({ ...wukongMultiRecords[7], source: wukongSource } as PuzzleRecord, 0)
 const puzzleMock = vi.hoisted(() => ({ fetch: vi.fn() }))
 
 vi.mock('./puzzles', async (importOriginal) => ({ ...await importOriginal<typeof import('./puzzles')>(), fetchPuzzleLibrary: puzzleMock.fetch }))
@@ -196,11 +198,11 @@ describe('ZERO7', () => {
     expect(screen.getByLabelText('最近一步走子路径')).toHaveClass('red')
     expect(screen.queryByText(/零七走了车７进１/)).not.toBeInTheDocument()
     await act(async () => new Promise((resolve) => setTimeout(resolve, BATTLE_RULES.aiThinkDelayMs + 50)))
-    expect(screen.getByText(/零七走了车７进１/)).toBeInTheDocument()
+    expect(screen.getByText(/车７进１[。，]/)).toBeInTheDocument()
     expect(screen.getByLabelText('最近一步走子路径')).toHaveClass('black')
     await waitFor(() => {
       expect(voiceMock.instances.some((client) => client.speakText.mock.calls.some(([text]) => text === '相七进五'))).toBe(true)
-      expect(voiceMock.instances.some((client) => client.speakText.mock.calls.some(([text]) => text === '车７进１'))).toBe(true)
+      expect(voiceMock.instances.some((client) => client.speakText.mock.calls.some(([text]) => String(text).startsWith('车７进１')))).toBe(true)
     })
     expect(screen.getByRole('button', { name: '跳过这题' })).toBeEnabled()
   })
@@ -265,6 +267,29 @@ describe('ZERO7', () => {
     await act(async () => new Promise((resolve) => setTimeout(resolve, BATTLE_RULES.aiThinkDelayMs + 50)))
     expect(engine.mock.calls.filter(([input]) => String(input) === '/api/pikafish/bestmove')).toHaveLength(2)
     expect(screen.getByLabelText('残局棋谱')).toHaveTextContent('象３退１')
+  })
+
+  it('黑棋应手将军时播报叫杀', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => new Response(String(input).endsWith('/warmup') ? null : JSON.stringify({ move: 'd0f0', terminal: false, engine: 'Pikafish Test', level: '初级', score: null }), { status: String(input).endsWith('/warmup') ? 204 : 200 })))
+    render(<App initialLevels={[checkingResponseLevel]} />)
+    fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
+    clickBoardSquare(checkingResponseLevel.move.from.row, checkingResponseLevel.move.from.col)
+    clickBoardSquare(checkingResponseLevel.move.to.row, checkingResponseLevel.move.to.col)
+    await act(async () => new Promise((resolve) => setTimeout(resolve, BATTLE_RULES.aiThinkDelayMs + 50)))
+    expect(screen.getByText('车４平６，叫杀。')).toBeInTheDocument()
+    await waitFor(() => expect(voiceMock.instances.some((client) => client.speakText.mock.calls.some(([text]) => text === '车４平６，叫杀。'))).toBe(true))
+  })
+
+  it('黑棋应手将死时直接播报绝杀', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => new Response(String(input).endsWith('/warmup') ? null : JSON.stringify({ move: 'h2h8', terminal: false, engine: 'Pikafish Test', level: '初级', score: null }), { status: String(input).endsWith('/warmup') ? 204 : 200 })))
+    render(<App initialLevels={[matingResponseLevel]} />)
+    fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
+    clickBoardSquare(matingResponseLevel.move.from.row, matingResponseLevel.move.from.col)
+    clickBoardSquare(matingResponseLevel.move.to.row, matingResponseLevel.move.to.col)
+    await act(async () => new Promise((resolve) => setTimeout(resolve, BATTLE_RULES.aiThinkDelayMs + 50)))
+    expect(screen.getByText('车二进六，绝杀！')).toBeInTheDocument()
+    expect(screen.queryByText(/叫杀/)).not.toBeInTheDocument()
+    await waitFor(() => expect(voiceMock.instances.some((client) => client.speakText.mock.calls.some(([text]) => text === '车二进六，绝杀！'))).toBe(true))
   })
 
   it('N步杀使用二十步搜索上限', async () => {
