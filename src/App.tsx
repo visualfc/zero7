@@ -257,8 +257,19 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
     setVoiceText(candidateAnswer ? '正在验证对方是否还有解法…' : '这步可以走，零七正在应对…')
     try {
       const mateDepth = level.mode === 'mateN' ? 20 : level.mode.match(/^mate(\d+)$/)?.[1]
-      const result = await getPikafishMove(fen, '初级', false, mateDepth ? Number(mateDepth) : undefined)
+      const targetMateDepth = mateDepth ? Number(mateDepth) : undefined
+      let result
+      try {
+        result = await getPikafishMove(fen, '初级', false, targetMateDepth)
+      } catch (error) {
+        if (!targetMateDepth) throw error
+        result = await getPikafishMove(fen, '初级')
+      }
       if (requestId !== lessonRequestId.current || lessonGame.current !== game || game.fen() !== fen) return
+      if (!result.move && game.moves().length > 0 && targetMateDepth) {
+        result = await getPikafishMove(fen, '初级')
+        if (requestId !== lessonRequestId.current || lessonGame.current !== game || game.fen() !== fen) return
+      }
       const forcedMate = result.score?.type === 'mate' && result.score.value < 0
       if (!result.move) {
         if (result.terminal && game.moves().length === 0) {
@@ -297,8 +308,8 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
     } catch (error) {
       if (requestId !== lessonRequestId.current) return
       if (playerNotation) queueLessonSpeech(playerNotation)
-      setVoiceText('这步已经保留，零七暂时无法应对。可以重新练习或继续下一题。')
-      setToast(error instanceof Error ? error.message : 'Pikafish 暂时无法应对')
+      setVoiceText('引擎连接失败，请重试。')
+      setToast(error instanceof Error ? error.message : '引擎连接失败，请重试')
     } finally {
       if (requestId === lessonRequestId.current) setLessonThinking(false)
     }

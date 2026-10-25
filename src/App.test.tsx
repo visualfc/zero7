@@ -201,6 +201,46 @@ describe('ZERO7', () => {
     })
   })
 
+  it('多步杀无杀棋应手时回退普通搜索并由黑棋应对', async () => {
+    const engine = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      const request = JSON.parse(String(init?.body))
+      return new Response(JSON.stringify(request.mateDepth
+        ? { move: null, terminal: true, engine: 'Pikafish Test', level: '初级', score: null }
+        : { move: 'c5a7', terminal: false, engine: 'Pikafish Test', level: '初级', score: null }), { status: 200 })
+    })
+    vi.stubGlobal('fetch', engine)
+    render(<App initialLevels={testLevels} />)
+    fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
+    fireEvent.change(screen.getByLabelText('杀棋类型'), { target: { value: 'mate2' } })
+    const level = testLevels.find((item) => item.mode === 'mate2')!
+    clickBoardSquare(level.move.from.row, level.move.from.col)
+    clickBoardSquare(level.move.to.row, level.move.to.col)
+    await act(async () => new Promise((resolve) => setTimeout(resolve, BATTLE_RULES.aiThinkDelayMs + 50)))
+    expect(engine).toHaveBeenCalledTimes(2)
+    expect(JSON.parse(String(engine.mock.calls[0][1]?.body))).toMatchObject({ mateDepth: 2 })
+    expect(JSON.parse(String(engine.mock.calls[1][1]?.body))).not.toHaveProperty('mateDepth')
+    expect(screen.getByLabelText('残局棋谱')).toHaveTextContent('象３退１')
+    expect(screen.getByLabelText('最近一步走子路径')).toHaveClass('black')
+  })
+
+  it('多步杀搜索失败时回退普通搜索', async () => {
+    const engine = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      const request = JSON.parse(String(init?.body))
+      if (request.mateDepth) return new Response(JSON.stringify({ error: '未找到杀棋路线' }), { status: 503 })
+      return new Response(JSON.stringify({ move: 'c5a7', terminal: false, engine: 'Pikafish Test', level: '初级', score: null }), { status: 200 })
+    })
+    vi.stubGlobal('fetch', engine)
+    render(<App initialLevels={testLevels} />)
+    fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
+    fireEvent.change(screen.getByLabelText('杀棋类型'), { target: { value: 'mate2' } })
+    const level = testLevels.find((item) => item.mode === 'mate2')!
+    clickBoardSquare(level.move.from.row, level.move.from.col)
+    clickBoardSquare(level.move.to.row, level.move.to.col)
+    await act(async () => new Promise((resolve) => setTimeout(resolve, BATTLE_RULES.aiThinkDelayMs + 50)))
+    expect(engine).toHaveBeenCalledTimes(2)
+    expect(screen.getByLabelText('残局棋谱')).toHaveTextContent('象３退１')
+  })
+
   it('N步杀使用二十步搜索上限', async () => {
     const engine = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
       expect(JSON.parse(String(init?.body))).toMatchObject({ mateDepth: 20 })
@@ -275,12 +315,12 @@ describe('ZERO7', () => {
     render(<App initialLevels={testLevels} />)
     fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
     solveLevel(0)
-    expect(await screen.findByText('这步已经保留，零七暂时无法应对。可以重新练习或继续下一题。')).toBeInTheDocument()
-    expect(screen.queryByText(/标准着法/)).not.toBeInTheDocument()
+    expect(await screen.findByText('引擎连接失败，请重试。')).toBeInTheDocument()
+    expect(screen.queryByText(/标准着法|继续下一题/)).not.toBeInTheDocument()
     expect(screen.queryByText('绝杀！')).not.toBeInTheDocument()
   })
 
-  it('Pikafish 应对失败时保留走法并允许重练或跳过', async () => {
+  it('Pikafish 应对失败时提示重试并保留棋局', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ error: '引擎超时' }), { status: 503 })))
     render(<App initialLevels={testLevels} />)
     fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
