@@ -709,6 +709,7 @@ function LessonPage(props: {
       <aside className="unified-sidebar lesson-sidebar">
         <SideNavigation active={props.page} onNavigate={props.onNavigate} />
         <div className={`coach-panel ${props.completed ? 'lesson-completed' : ''}`}>
+          <div className="lesson-card lesson-overview-card">
           <div className="lesson-picker">
             {props.page === 'endgame' ? (
               <>
@@ -750,15 +751,18 @@ function LessonPage(props: {
             </select>
           </div>
           <div className="lesson-side-description"><div className="lesson-badges"><span className="mini-badge">{props.level.category}</span><span className="mini-badge difficulty-badge">{props.level.difficulty}</span><span className={`mini-badge source-badge ${props.level.fen.split(' ')[1] === 'b' ? 'black' : 'red'}`}>{props.level.fen.split(' ')[1] === 'b' ? '黑方先行' : '红方先行'}</span></div><div className="puzzle-title"><h1>{props.level.title.replace(/\\\\n/g, '\n').replace(/\\n/g, '\n').split(/\r?\n/).map((line, index) => <Fragment key={`${props.level.id}-${index}`}>{index > 0 && <br />}{line}</Fragment>)}</h1></div></div>
+          </div>
           {!props.completed && props.voiceText && <div className="lesson-status" aria-live="polite">{props.voiceText}</div>}
 
           {!props.completed && (
             <>
+              <div className="lesson-card lesson-voice-card">
               <button className={props.voiceHeld ? 'voice-button listening' : 'voice-button'} onPointerDown={(event) => { event.currentTarget.setPointerCapture?.(event.pointerId); props.onVoiceStart() }} onPointerUp={props.onVoiceStop} onPointerCancel={props.onVoiceStop} onPointerLeave={(event) => { if (event.currentTarget.hasPointerCapture(event.pointerId)) props.onVoiceStop() }} disabled={props.thinking || props.voiceState === 'connecting' || props.voiceState === 'thinking'}>
                 <span><Mic /></span><strong>{props.voiceHeld ? '松开完成' : '按住语音输入'}</strong><small>（按住按钮/空格，说完后松开）</small>
               </button>
+              </div>
               {props.page === 'endgame' ? (
-                <div className="hint-card endgame-analysis-card">
+                <div className="lesson-card hint-card endgame-analysis-card">
                   <button className="secondary-button compact-action" onClick={props.onToggleEndgameAnalysis}><Target /> {props.endgameAnalysisVisible ? '收起引擎讲解' : '展开引擎讲解'}</button>
                   {props.endgameAnalysisVisible && (props.endgameAnalysisLoading || props.endgameAnalysis) && (
                     <div className="analysis-result">
@@ -766,18 +770,18 @@ function LessonPage(props: {
                     </div>
                   )}
                 </div>
-              ) : <div className="hint-card"><div><Lightbulb /><strong>分级提示</strong><span>{props.hintLevel}/3</span></div><p>{props.hint}</p><button className="secondary-button compact-action" onClick={props.onHint} disabled={props.hintLevel >= 3}>{props.hintLevel >= 3 ? '已显示完整提示' : '再给我一点提示'}</button></div>}
+              ) : <div className="lesson-card hint-card"><div><Lightbulb /><strong>分级提示</strong><span>{props.hintLevel}/3</span></div><p>{props.hint}</p><button className="secondary-button compact-action" onClick={props.onHint} disabled={props.hintLevel >= 3}>{props.hintLevel >= 3 ? '已显示完整提示' : '再给我一点提示'}</button></div>}
             </>
           )}
 
           {props.completed && (
-            <div className="success-card">
+            <div className="lesson-card success-card">
               <div className="stars"><Star /><Star /><Star /></div>
               <h2>{props.terminalType}！</h2><p>{props.level.answer}</p>
               <div className="reward"><Sparkles /> 获得 {props.level.reward} 颗智慧星</div>
             </div>
           )}
-          <div className="lesson-actions"><button className="secondary-button lesson-reset-button" onClick={props.onReset}><RotateCcw /> 重新练习</button><button className="primary-button lesson-next-button" onClick={props.onContinue}>{props.completed ? (props.levelIndex < 2 ? '挑战下一关' : '继续下一题') : '跳过这题'} <ChevronRight /></button></div>
+          <div className="lesson-card lesson-actions"><button className="secondary-button lesson-reset-button" onClick={props.onReset}><RotateCcw /> 重新练习</button><button className="primary-button lesson-next-button" onClick={props.onContinue}>{props.completed ? (props.levelIndex < 2 ? '挑战下一关' : '继续下一题') : '跳过这题'} <ChevronRight /></button></div>
         </div>
       </aside>
     </div>
@@ -804,6 +808,7 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const [lastPath, setLastPath] = useState<{ from: Square; to: Square; side: 'red' | 'black' } | null>(null)
   const pathTimer = useRef<number | null>(null)
   const turnReminderTimer = useRef<number | null>(null)
+  const lastTurnReminderKey = useRef<string | null>(null)
   const moveRailRef = useRef<HTMLDivElement | null>(null)
   const [replayStep, setReplayStep] = useState<number | null>(null)
   const [reviewOpen, setReviewOpen] = useState(false)
@@ -907,13 +912,15 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
     if (turnReminderTimer.current !== null) window.clearTimeout(turnReminderTimer.current)
     turnReminderTimer.current = null
     const moves = game.current.history({ verbose: true }) as Move[]
-    if (reviewOpen || game.current.isGameOver() || game.current.turn() !== 'w' || moves.at(-1)?.color !== 'b' || replayStep !== null || thinking || resigned) return
+    const reminderKey = moves.map((move) => move.lan).join('|')
+    if (reviewOpen || game.current.isGameOver() || game.current.turn() !== 'w' || moves.at(-1)?.color !== 'b' || replayStep !== null || thinking || resigned || lastTurnReminderKey.current === reminderKey) return
     turnReminderTimer.current = window.setTimeout(() => {
       turnReminderTimer.current = null
       const currentMoves = game.current.history({ verbose: true }) as Move[]
       if (reviewOpen || game.current.isGameOver() || game.current.turn() !== 'w' || currentMoves.at(-1)?.color !== 'b' || replayStep !== null || thinking || resigned) return
       const inCheck = game.current.isCheck()
       const reminder = inCheck ? '将军，请先应将。' : '轮到你继续走棋。'
+      lastTurnReminderKey.current = reminderKey
       void speakBattleText(reminder, inCheck)
     }, BATTLE_RULES.turnReminderDelayMs)
   }
