@@ -30,7 +30,7 @@ export class PikafishEngine {
     }
   }
 
-  async bestMove({ fen, level = '初级', moveTime, analysis = false }) {
+  async bestMove({ fen, level = '初级', moveTime, mateDepth, analysis = false }) {
     const task = this.queue.then(async () => {
       await this.start()
       const options = levelOptions(level)
@@ -40,8 +40,9 @@ export class PikafishEngine {
       await this.command('isready', /^readyok$/)
       await this.command(`position fen ${fen}`, null)
       const infoLines = []
-      const line = await this.command(`go movetime ${Math.max(100, Math.min(Number(moveTime) || options.moveTime, 5000))}`, /^bestmove\s+/i, 10000, (currentLine) => {
-        if (analysis && currentLine.startsWith('info ') && currentLine.includes(' score ')) infoLines.push(currentLine)
+      const search = Number.isInteger(mateDepth) && mateDepth > 0 ? `go mate ${Math.min(mateDepth, 20)}` : `go movetime ${Math.max(100, Math.min(Number(moveTime) || options.moveTime, 5000))}`
+      const line = await this.command(search, /^bestmove\s+/i, 30000, (currentLine) => {
+        if ((analysis || mateDepth) && currentLine.startsWith('info ') && currentLine.includes(' score ')) infoLines.push(currentLine)
       })
       const match = line.match(/^bestmove\s+([a-i][0-9][a-i][0-9])/i)
       const noMove = /^bestmove\s+(?:\(none\)|none|0000)/i.test(line)

@@ -4,10 +4,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
 import { puzzleToLevel, type PuzzleRecord } from './puzzles'
 import wukongRecords from '../data/puzzles/wukong.json'
+import wukongMultiRecords from '../data/puzzles/wukong-multi.json'
 import qiyiRecords from '../data/puzzles/xiangqi-pwa-offline.json'
 
 const wukongSource = { id: 'wukong-xiangqi', name: 'Wukong Xiangqi', url: 'https://github.com/maksimKorzh/wukong-xiangqi', license: 'MIT', role: '经过搜索验证的将杀局面' } as const
-const testRecords = wukongRecords.slice(0, 4).map((record) => ({ ...record, source: wukongSource })) as PuzzleRecord[]
+const testRecords = [...wukongRecords.slice(0, 4), ...['mate2', 'mate3', 'mate4', 'mateN'].map((mode) => wukongMultiRecords.find((record) => record.mode === mode)!)].map((record) => ({ ...record, source: wukongSource })) as PuzzleRecord[]
 const qiyiSource = { id: 'xiangqi-pwa-offline', name: '棋弈江湖', url: 'https://github.com/dffge552/xiangqi-pwa-offline', license: 'MIT', role: '残局、杀法与古谱题源' } as const
 const testLevels = [...testRecords, { ...qiyiRecords[0], source: qiyiSource }].map((record, index) => puzzleToLevel(record as PuzzleRecord, index))
 const defendedCandidateLevel = puzzleToLevel({ ...testRecords[0], id: 'defended-candidate', solution: [{ from: 'c0', to: 'e2' }] }, 0)
@@ -75,11 +76,14 @@ describe('ZERO7', () => {
     fireEvent.click(screen.getAllByRole('button', { name: '残局训练' })[0])
     expect(screen.getByLabelText('选择题目')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: '返回首页' }))
-    fireEvent.click(screen.getByRole('button', { name: /进入训练/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
     expect(screen.getByLabelText('选择题目')).toBeInTheDocument()
-    expect(screen.getByLabelText('选择题目').querySelector('option')).toHaveTextContent('001')
-    fireEvent.change(screen.getByLabelText('选择题目'), { target: { value: '1' } })
-    expect(screen.getByRole('heading', { name: /炮怎样完成最后一击/ })).toBeInTheDocument()
+    const modeSelect = screen.getByLabelText('杀棋类型')
+    expect([...modeSelect.querySelectorAll('option')].map((option) => option.textContent)).toEqual(['一步杀', '二步杀', '三步杀', '四步杀', 'N步杀'])
+    expect([...screen.getByLabelText('选择题目').querySelectorAll('option')].map((option) => option.textContent)).toEqual(['1001', '1002', '1003', '1004'])
+    fireEvent.change(modeSelect, { target: { value: 'mate2' } })
+    expect([...screen.getByLabelText('选择题目').querySelectorAll('option')].map((option) => option.textContent)).toEqual(['2001'])
+    expect(screen.getByRole('heading', { name: /二步杀.*寻找引擎认可的制胜路线/ })).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: '返回首页' }))
     fireEvent.click(screen.getAllByRole('button', { name: '残局' })[0])
     expect(screen.getByLabelText('选择题目')).toBeInTheDocument()
@@ -88,12 +92,12 @@ describe('ZERO7', () => {
 
   it('从首页进入第一关', () => {
     render(<App initialLevels={testLevels} />)
-    fireEvent.click(screen.getByRole('button', { name: /进入训练/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
     expect(screen.getByText(/车怎样完成最后一击/)).toBeInTheDocument()
     expect(screen.getAllByRole('button', { name: '红车' })[0]).toBeInTheDocument()
   })
 
-  it('残局页面在棋盘左侧显示走棋记录', () => {
+  it('残局页面记录并朗读每一步棋', async () => {
     render(<App initialLevels={testLevels} />)
     fireEvent.click(screen.getAllByRole('button', { name: '残局训练' })[0])
     expect(screen.getByLabelText('残局棋谱')).toBeEmptyDOMElement()
@@ -101,11 +105,12 @@ describe('ZERO7', () => {
     clickBoardSquare(level.move.from.row, level.move.from.col)
     clickBoardSquare(level.move.to.row, level.move.to.col)
     expect(screen.getByLabelText('残局棋谱')).toHaveTextContent(level.answer)
+    await waitFor(() => expect(voiceMock.instances.some((client) => client.speakText.mock.calls.some(([text]) => text === level.answer))).toBe(true))
   })
 
   it('训练题标题不显示 Tooltip', () => {
     render(<App initialLevels={testLevels} />)
-    fireEvent.click(screen.getByRole('button', { name: /进入训练/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
     expect(screen.getByRole('heading', { name: /车怎样完成最后一击/ })).toBeInTheDocument()
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /车怎样完成最后一击/ }).querySelectorAll('br')).toHaveLength(1)
@@ -114,7 +119,7 @@ describe('ZERO7', () => {
 
   it('明确显示红方先行和黑方先行，并允许对应一方完成题目', async () => {
     const { unmount } = render(<App initialLevels={testLevels} />)
-    fireEvent.click(screen.getByRole('button', { name: /进入训练/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
     expect(screen.getByText('红方先行')).toBeInTheDocument()
     unmount()
 
@@ -127,7 +132,7 @@ describe('ZERO7', () => {
 
   it('按标准答案经引擎验证后完成 Wukong 一步将杀', async () => {
     render(<App initialLevels={testLevels} />)
-    fireEvent.click(screen.getByRole('button', { name: /进入训练/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
     solveLevel(0)
     expect(await screen.findByText('绝杀！')).toBeInTheDocument()
   })
@@ -137,7 +142,7 @@ describe('ZERO7', () => {
     expect(screen.getByText('正在加载练习题库…')).toBeInTheDocument()
     await screen.findByText('今日三小关')
     expect(puzzleMock.fetch).toHaveBeenCalledTimes(1)
-    fireEvent.click(screen.getByRole('button', { name: /进入训练/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
     solveLevel(0)
     expect(await screen.findByText('绝杀！')).toBeInTheDocument()
     await act(async () => new Promise((resolve) => setTimeout(resolve, 20)))
@@ -147,7 +152,7 @@ describe('ZERO7', () => {
 
   it('未完成时可以跳过，重新练习可以恢复初始局面', () => {
     render(<App initialLevels={testLevels} />)
-    fireEvent.click(screen.getByRole('button', { name: /进入训练/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
     fireEvent.click(screen.getByRole('button', { name: '跳过这题' }))
     expect(screen.getByText(/炮怎样完成最后一击/)).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: '重新练习' }))
@@ -158,18 +163,22 @@ describe('ZERO7', () => {
   it('其他合法着会保留并调用 Pikafish 应对', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ move: 'g2g1', engine: 'Pikafish Test', level: '初级' }), { status: 200 })))
     render(<App initialLevels={testLevels} />)
-    fireEvent.click(screen.getByRole('button', { name: /进入训练/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
     clickBoardSquare(9, 2)
     clickBoardSquare(7, 4)
-    expect(screen.getByText('这步可以走，零七正在应对…')).toBeInTheDocument()
+    expect(screen.getByText(/零七正在应对|正在验证/)).toBeInTheDocument()
     expect(await screen.findByText(/零七走了车７进１/)).toBeInTheDocument()
+    await waitFor(() => {
+      expect(voiceMock.instances.some((client) => client.speakText.mock.calls.some(([text]) => text === '相七进五'))).toBe(true)
+      expect(voiceMock.instances.some((client) => client.speakText.mock.calls.some(([text]) => text === '车７进１'))).toBe(true)
+    })
     expect(screen.getByRole('button', { name: '跳过这题' })).toBeEnabled()
   })
 
   it('候选答案有合法应手时让引擎应对并继续棋局', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ move: 'g2g1', terminal: false, engine: 'Pikafish Test', level: '初级', score: null }), { status: 200 })))
     render(<App initialLevels={[defendedCandidateLevel, ...testLevels.slice(1)]} />)
-    fireEvent.click(screen.getByRole('button', { name: /进入训练/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
     clickBoardSquare(9, 2)
     clickBoardSquare(7, 4)
     await waitFor(() => {
@@ -183,7 +192,7 @@ describe('ZERO7', () => {
   it('引擎返回无应手但局面未将死时不会判定绝杀', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ move: null, terminal: true, engine: 'Pikafish Test', level: '初级', score: null }), { status: 200 })))
     render(<App initialLevels={[defendedCandidateLevel, ...testLevels.slice(1)]} />)
-    fireEvent.click(screen.getByRole('button', { name: /进入训练/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
     clickBoardSquare(9, 2)
     clickBoardSquare(7, 4)
     expect(await screen.findByText(/对方没有合法应手，但当前没有形成将死/)).toBeInTheDocument()
@@ -193,7 +202,7 @@ describe('ZERO7', () => {
   it('Pikafish 返回非法应手时保留局面并显示失败', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ move: 'a0a9', terminal: false, engine: 'Pikafish Test', level: '初级', score: null }), { status: 200 })))
     render(<App initialLevels={[defendedCandidateLevel, ...testLevels.slice(1)]} />)
-    fireEvent.click(screen.getByRole('button', { name: /进入训练/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
     clickBoardSquare(9, 2)
     clickBoardSquare(7, 4)
     await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Invalid move: a0a9'))
@@ -210,7 +219,7 @@ describe('ZERO7', () => {
   it('候选答案验证失败时不会直接判定成功', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ error: '验证超时' }), { status: 503 })))
     render(<App initialLevels={testLevels} />)
-    fireEvent.click(screen.getByRole('button', { name: /进入训练/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
     solveLevel(0)
     expect(await screen.findByText('标准着法已走出，但引擎尚未完成验证。可以重新练习或继续下一题。')).toBeInTheDocument()
     expect(screen.queryByText('绝杀！')).not.toBeInTheDocument()
@@ -219,10 +228,11 @@ describe('ZERO7', () => {
   it('Pikafish 应对失败时保留走法并允许重练或跳过', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ error: '引擎超时' }), { status: 503 })))
     render(<App initialLevels={testLevels} />)
-    fireEvent.click(screen.getByRole('button', { name: /进入训练/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
     clickBoardSquare(9, 2)
     clickBoardSquare(7, 4)
-    expect(await screen.findByText('这步已经保留，可以重新练习或继续下一题。')).toBeInTheDocument()
+    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('引擎超时'))
+    expect(screen.queryByText('绝杀！')).not.toBeInTheDocument()
     expect(screen.getByRole('status')).toHaveTextContent('引擎超时')
     fireEvent.click(screen.getByRole('button', { name: '重新练习' }))
     expect(screen.getByRole('button', { name: '跳过这题' })).toBeEnabled()
@@ -230,7 +240,7 @@ describe('ZERO7', () => {
 
   it('分级提示会逐步朗读，但完整提示不会自动完成题目', async () => {
     render(<App initialLevels={testLevels} />)
-    fireEvent.click(screen.getByRole('button', { name: /进入训练/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
     for (const hint of testLevels[0].hints) {
       await act(async () => fireEvent.click(screen.getByRole('button', { name: '再给我一点提示' })))
       expect(voiceMock.instances.at(-1)!.speakText).toHaveBeenCalledWith(hint)
@@ -246,7 +256,7 @@ describe('ZERO7', () => {
 
   it('完成每日三题后仍可继续下一道 Wukong 题', async () => {
     render(<App initialLevels={testLevels} />)
-    fireEvent.click(screen.getByRole('button', { name: /进入训练/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
     solveLevel(0)
     await screen.findByText('绝杀！')
     fireEvent.click(screen.getByRole('button', { name: /挑战下一关/ }))
@@ -274,7 +284,7 @@ describe('ZERO7', () => {
     expect(screen.getByRole('button', { name: '重开一局' })).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: '中级' }))
     fireEvent.click(screen.getByRole('button', { name: '重开一局' }))
-    expect(screen.getByText('暂无走法')).toBeInTheDocument()
+    expect(screen.getByLabelText('对局棋谱')).toBeEmptyDOMElement()
   })
 
   it('进入人机对战并完成红方走棋和 Pikafish 应手', async () => {
@@ -313,14 +323,14 @@ describe('ZERO7', () => {
     fireEvent.click(screen.getByRole('button', { name: '7-6' }))
     fireEvent.click(screen.getByRole('button', { name: '重开一局' }))
     await act(async () => { resolveMove(new Response(JSON.stringify({ move: 'h9g7', engine: 'Pikafish Test', level: '初级' }), { status: 200 })); await new Promise((resolve) => setTimeout(resolve, 1600)) })
-    expect(screen.getByText('暂无走法')).toBeInTheDocument()
+    expect(screen.getByLabelText('对局棋谱')).toBeEmptyDOMElement()
     expect(screen.queryByText('轮到红方走棋')).not.toBeInTheDocument()
   })
 
   it('支持训练语音识别、失败提示和分级提示朗读', async () => {
     vi.useFakeTimers()
     render(<App initialLevels={testLevels} />)
-    fireEvent.click(screen.getByRole('button', { name: /进入训练/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
     fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住说走法/ })[0])
     await act(async () => Promise.resolve())
     act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text: '车五进一' }))
@@ -348,7 +358,7 @@ describe('ZERO7', () => {
   it('展示语音连接和提示播放错误', async () => {
     voiceMock.startError = new Error('麦克风不可用')
     render(<App initialLevels={testLevels} />)
-    fireEvent.click(screen.getByRole('button', { name: /进入训练/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
     await act(async () => fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住说走法/ })[0]))
     expect(screen.getByRole('status')).toHaveTextContent('麦克风不可用')
 
@@ -360,7 +370,7 @@ describe('ZERO7', () => {
   it('在非安全上下文中提示使用 HTTPS 进行语音输入', async () => {
     vi.stubGlobal('isSecureContext', false)
     render(<App initialLevels={testLevels} />)
-    fireEvent.click(screen.getByRole('button', { name: /进入训练/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
     await act(async () => fireEvent.pointerDown(screen.getByRole('button', { name: /按住说走法/ })))
     expect(screen.getByText('手机语音输入需要使用 HTTPS，请访问终端显示的 https:// 地址。')).toBeInTheDocument()
     fireEvent.click(screen.getByLabelText('返回首页'))
@@ -375,7 +385,7 @@ describe('ZERO7', () => {
     expect(screen.getByText(/车怎样完成最后一击/)).toBeInTheDocument()
     fireEvent.click(screen.getByLabelText('返回首页'))
     fireEvent.click(screen.getAllByRole('button', { name: '对战' })[0])
-    expect(screen.getByText('暂无走法')).toBeInTheDocument()
+    expect(screen.getByLabelText('对局棋谱')).toBeEmptyDOMElement()
     fireEvent.click(screen.getAllByRole('button', { name: '训练' })[0])
     expect(screen.getByText(/车怎样完成最后一击/)).toBeInTheDocument()
     fireEvent.click(screen.getAllByRole('button', { name: '首页' }).at(-1)!)
@@ -399,7 +409,7 @@ describe('ZERO7', () => {
     navigate('训练')
     expect(screen.getByText(/车怎样完成最后一击/)).toBeInTheDocument()
     navigate('对战')
-    expect(screen.getByText('暂无走法')).toBeInTheDocument()
+    expect(screen.getByLabelText('对局棋谱')).toBeEmptyDOMElement()
     navigate('成长')
     expect(screen.getByText('我的象棋成长')).toBeInTheDocument()
     expect(screen.getByText('零七棋友')).toBeInTheDocument()
@@ -413,7 +423,7 @@ describe('ZERO7', () => {
     fireEvent.click(mobileNavigation.getByRole('button', { name: '训练' }))
     expect(screen.getByText(/车怎样完成最后一击/)).toBeInTheDocument()
     fireEvent.click(mobileNavigation.getByRole('button', { name: '对战' }))
-    expect(screen.getByText('暂无走法')).toBeInTheDocument()
+    expect(screen.getByLabelText('对局棋谱')).toBeEmptyDOMElement()
   })
 
   it('人机对战处理引擎失败、难度切换、非法点击和认输', async () => {
@@ -427,7 +437,7 @@ describe('ZERO7', () => {
     expect(await screen.findByText('Pikafish Test')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: '中级' }))
     fireEvent.click(screen.getAllByRole('button', { name: '黑卒' })[0])
-    expect(screen.getByText('暂无走法')).toBeInTheDocument()
+    expect(screen.getByLabelText('对局棋谱')).toBeEmptyDOMElement()
     fireEvent.click(screen.getAllByRole('button', { name: '红马' }).at(-1)!)
     fireEvent.click(screen.getByRole('button', { name: '7-6' }))
     expect(await screen.findByText(/基础 AI（Pikafish 暂不可用）/, {}, { timeout: 4000 })).toBeInTheDocument()
@@ -531,14 +541,14 @@ describe('ZERO7', () => {
     fireEvent.click(screen.getByRole('button', { name: '7-6' }))
     await act(async () => { await new Promise((resolve) => setTimeout(resolve, 3600)) })
     fireEvent.click(screen.getByRole('button', { name: '悔棋' }))
-    expect(screen.getByText('暂无走法')).toBeInTheDocument()
+    expect(screen.getByLabelText('对局棋谱')).toBeEmptyDOMElement()
     fireEvent.click(screen.getByRole('button', { name: '重开一局' }))
     expect(screen.queryByText('轮到红方走棋')).not.toBeInTheDocument()
   })
 
   it('按住和松开训练语音按钮，并处理空格快捷键', async () => {
     render(<App initialLevels={testLevels} />)
-    fireEvent.click(screen.getByRole('button', { name: /进入训练/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
     const lessonVoice = screen.getByRole('button', { name: /按住说走法/ })
     fireEvent.pointerDown(lessonVoice)
     await act(async () => Promise.resolve())
@@ -645,7 +655,7 @@ describe('ZERO7', () => {
 
   it('训练页语音支持帮助、提示、重开确认和下一关', async () => {
     render(<App initialLevels={testLevels} />)
-    fireEvent.click(screen.getByRole('button', { name: /进入训练/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
     const button = screen.getByRole('button', { name: /按住说走法/ })
     const say = async (text: string) => {
       await act(async () => fireEvent.pointerDown(button))
@@ -720,7 +730,7 @@ describe('ZERO7', () => {
 
   it('过滤重复结束语，保留正常语音回复', async () => {
     render(<App initialLevels={testLevels} />)
-    fireEvent.click(screen.getByRole('button', { name: /进入训练/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
     fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住说走法/ })[0])
     await act(async () => Promise.resolve())
     act(() => voiceMock.instances.at(-1)!.emit({ type: 'reply', text: '时间过得真快，期待和你下次对弈。' }))
