@@ -4,6 +4,26 @@ import type { Level, Move, Piece, PieceKind, Side } from './chess'
 export type PuzzleSourceId = 'wukong-xiangqi' | 'xiangqi-pwa-offline'
 export type PuzzleVerification = 'source' | 'xiangqi.js' | 'chessdb'
 export type PuzzleMode = 'mate1' | 'mate2' | 'mate3' | 'mate4' | 'mateN' | 'endgame'
+export type EndgameCategory = '车类残局' | '马炮残局' | '炮类残局' | '马类残局' | '兵类残局' | '仕相残局'
+
+export const endgameCategories = [
+  { id: 'rook', label: '车类残局', numberStart: 10001 },
+  { id: 'horse-cannon', label: '马炮残局', numberStart: 20001 },
+  { id: 'cannon', label: '炮类残局', numberStart: 30001 },
+  { id: 'horse', label: '马类残局', numberStart: 40001 },
+  { id: 'pawn', label: '兵类残局', numberStart: 50001 },
+  { id: 'advisor-elephant', label: '仕相残局', numberStart: 60001 },
+] as const satisfies readonly { id: string; label: EndgameCategory; numberStart: number }[]
+
+export function getEndgameCategory(sourceType?: string): EndgameCategory {
+  const attackingMaterial = (sourceType?.split(/\s+vs\s+/i)[0] ?? '').replaceAll('車', '车').replaceAll('馬', '马').replaceAll('砲', '炮')
+  if (attackingMaterial.includes('车')) return '车类残局'
+  if (attackingMaterial.includes('马') && attackingMaterial.includes('炮')) return '马炮残局'
+  if (attackingMaterial.includes('炮')) return '炮类残局'
+  if (attackingMaterial.includes('马')) return '马类残局'
+  if (attackingMaterial.includes('兵')) return '兵类残局'
+  return '仕相残局'
+}
 
 export interface PuzzleSource {
   id: PuzzleSourceId
