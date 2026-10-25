@@ -531,6 +531,15 @@ describe('ZERO7', () => {
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
   })
 
+  it('损坏的人机与复盘会话状态会安全恢复', () => {
+    sessionStorage.setItem('zero7-battle-moves', '{bad')
+    sessionStorage.setItem('zero7-review-analysis', '{bad')
+    render(<App initialLevels={testLevels} />)
+    fireEvent.click(screen.getAllByRole('button', { name: /人机对战/ })[0])
+    expect(screen.getByLabelText('对局棋谱')).toBeEmptyDOMElement()
+    expect(sessionStorage.getItem('zero7-battle-moves')).toBeNull()
+  })
+
   it('进入人机对战后直接开局并提供重开一局按钮', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ available: false }), { status: 200 })))
     render(<App initialLevels={testLevels} />)
@@ -783,6 +792,18 @@ describe('ZERO7', () => {
     await waitFor(() => expect(screen.getByText('当前无法获取胜负概率，请确认 Pikafish 可用。')).toBeInTheDocument())
     fireEvent.click(screen.getAllByRole('button', { name: '红车' }).at(-1)!)
     fireEvent.click(screen.getByRole('button', { name: '1-1' }))
+  })
+
+  it('经典对局加载失败时显示错误状态', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (input: string | URL | Request) => {
+      if (String(input).includes('/api/classic-games/classic-1')) throw new Error('network')
+      if (String(input).includes('/api/classic-games')) return new Response(JSON.stringify({ items: [{ id: 'classic-1', event: '经典赛事', red: '刘殿中', redOriginal: 'LIU DianZhong', black: '柳大华', blackOriginal: 'LIU DaHua', source: 'Wukong Xiangqi master games database' }] }), { status: 200 })
+      return new Response(JSON.stringify({ move: null, terminal: true }), { status: 200 })
+    }))
+    render(<App initialLevels={testLevels} />)
+    fireEvent.click(screen.getAllByRole('button', { name: /人机对战/ })[0])
+    fireEvent.click(screen.getByRole('button', { name: /AI复盘/ }))
+    await waitFor(() => expect(fetch).toHaveBeenCalledWith('/api/classic-games/classic-1'))
   })
 
   it('经典对局可以选择并逐步回放完整棋谱', async () => {
