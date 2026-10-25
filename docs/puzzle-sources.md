@@ -18,7 +18,7 @@ ZERO7 的练习题统一保存来源、原始题号、许可证、完整 FEN、�
 
 Wukong 数据来自 `puzzle_generator/puzzles_verified_sorted.json`。导入过程从其中 1,061 个“一步杀”候选局面中，使用 `@weshell/xiangqi.js` 重新加载局面并枚举合法着，筛出 969 个只有一个将死着的局面。每道题保留原始 ID、FEN 和唯一答案。当前记录中的 `verifiedBy` 为 `source` 和 `xiangqi.js`。
 
-棋弈江湖数据来自 `endgames_all.json`，导入 7,346 道带 `bestMove` 的残局局面，并保留原始残局类型、结果和推荐着法。当前记录中的 `verifiedBy` 为 `source` 和 `xiangqi.js`。仓库中只有局面名称、没有完整主变化的杀法题暂不导入为多步训练题。
+棋弈江湖数据来自 `endgames_all.json`，导入 7,346 道带 `bestMove` 的残局局面，并保留原始残局类型、结果和推荐着法。残局页按进攻方主要子力归类为车类 1,806 道、马炮 480 道、炮类 1,170 道、马类 1,446 道、兵类 479 道和仕相 1,965 道。分类采用车、马炮、炮、马、兵、仕相的优先级，六类分别从 `10001`、`20001`、`30001`、`40001`、`50001` 和 `60001` 开始编号，原始 `sourceType` 继续作为精确子力对型显示。当前记录中的 `verifiedBy` 为 `source` 和 `xiangqi.js`。仓库中只有局面名称、没有完整主变化的杀法题暂不导入为多步训练题。
 
 ChessDB 使用独立的 `chessdb-verifications.json` 离线报告。运行 `npm run puzzles:import:chessdb -- report.json` 后，导入器会校验报告中的题目 ID 和 FEN，并将状态、评分和最佳着保存到 SQLite。没有报告记录的题目不会伪造 `chessdb` 校验标记。
 

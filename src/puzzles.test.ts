@@ -4,7 +4,7 @@ import wukongRecords from '../data/puzzles/wukong.json'
 import wukongMultiRecords from '../data/puzzles/wukong-multi.json'
 import qiyiRecords from '../data/puzzles/xiangqi-pwa-offline.json'
 import sources from '../data/puzzles/sources.json'
-import { fetchPuzzleLibrary, puzzleToLevel, validatePuzzleRecord, type PuzzleRecord, type PuzzleSource } from './puzzles'
+import { endgameCategories, fetchPuzzleLibrary, getEndgameCategory, puzzleToLevel, validatePuzzleRecord, type PuzzleRecord, type PuzzleSource } from './puzzles'
 
 const sourceMap = Object.fromEntries(sources.map((source) => [source.id, source])) as Record<string, PuzzleSource>
 const records = [...wukongRecords.slice(0, 20), ...qiyiRecords.slice(0, 20)].map((record) => ({ ...record, source: sourceMap[record.sourceId] })) as PuzzleRecord[]
@@ -22,6 +22,24 @@ describe('练习题库', () => {
       expect(puzzle.verifiedBy).toContain('xiangqi.js')
       expect(validatePuzzleRecord(records.find((record) => record.id === puzzle.id)!)).toEqual({ ok: true })
     }
+  })
+
+  it('棋弈江湖残局按进攻方子力归入六类', () => {
+    const totals = new Map(endgameCategories.map((category) => [category.label, 0]))
+    for (const record of qiyiRecords) {
+      const category = getEndgameCategory(record.sourceType)
+      totals.set(category, totals.get(category)! + 1)
+    }
+    expect(Object.fromEntries(totals)).toEqual({
+      '车类残局': 1806,
+      '马炮残局': 480,
+      '炮类残局': 1170,
+      '马类残局': 1446,
+      '兵类残局': 479,
+      '仕相残局': 1965,
+    })
+    expect([...totals.values()].reduce((sum, count) => sum + count, 0)).toBe(7346)
+    expect(getEndgameCategory()).toBe('仕相残局')
   })
 
   it('棋弈江湖残局标题使用真正的换行而非字面量转义', () => {

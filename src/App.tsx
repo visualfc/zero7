@@ -17,7 +17,7 @@ import {
 import './App.css'
 import { LinxiVoiceClient, type LinxiState } from './linxi'
 import { parseVoiceMove, sameSquare, type Level, type Piece, type Square } from './chess'
-import { fetchPuzzleLibrary } from './puzzles'
+import { endgameCategories, fetchPuzzleLibrary, getEndgameCategory } from './puzzles'
 import { battlePieces, battleStatus, buildBattleReview, chooseAiMove, createBattle, findVoiceMove, isChessMoveTranscript, legalTargets as battleLegalTargets, squareToPoint, makeBattleMove, terminalType as getTerminalType, VoiceMoveAuthorization, type TerminalType } from './battle'
 import { Chess, type Move } from '@weshell/xiangqi.js'
 import { BATTLE_RULES, describeAiResponse, describePlayerMove } from './battle-rules'
@@ -46,6 +46,10 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
   const [completed, setCompleted] = useState(false)
   const [terminalType, setTerminalType] = useState<TerminalType>('绝杀')
   const [lessonThinking, setLessonThinking] = useState(false)
+  const [endgameAnalysis, setEndgameAnalysis] = useState<{ move: string; evaluation: string; explanation: string } | null>(null)
+  const [endgameAnalysisVisible, setEndgameAnalysisVisible] = useState(false)
+  const [endgameAnalysisLoading, setEndgameAnalysisLoading] = useState(false)
+  const endgameAnalysisRequestId = useRef(0)
   const lessonGame = useRef<Chess | null>(initialLevels[0] ? new Chess(initialLevels[0].fen) : null)
   const lessonRequestId = useRef(0)
   const lessonWarmup = useRef<AbortController | null>(null)
@@ -176,6 +180,9 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
     setVoiceText('')
     setCompleted(false)
     setTerminalType('绝杀')
+    setEndgameAnalysis(null)
+    setEndgameAnalysisLoading(false)
+    endgameAnalysisRequestId.current += 1
     updateVoiceState('idle')
   }
 
@@ -299,6 +306,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
         setPieces(battlePieces(game))
         setLessonHistory((game.history({ verbose: true }) as Move[]).map((move) => move.zh))
         showLessonPath(response)
+        if (endgameAnalysisVisible && level.mode === 'endgame') void analyzeEndgame()
         const responseTerminal = response.isCheckmate ? getTerminalType(game) : null
         const responseText = responseTerminal ? `${response.zh}，${responseTerminal}！` : response.isCheck ? `${response.zh}，将军。` : response.zh
         queueLessonSpeech(responseText)
@@ -311,6 +319,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
       setPieces(battlePieces(game))
       setLessonHistory((game.history({ verbose: true }) as Move[]).map((move) => move.zh))
       showLessonPath(response)
+      if (endgameAnalysisVisible && level.mode === 'endgame') void analyzeEndgame()
       const responseTerminal = response.isCheckmate ? getTerminalType(game) : null
       const responseText = responseTerminal ? `${response.zh}，${responseTerminal}！` : response.isCheck ? `${response.zh}，将军。` : response.zh
       queueLessonSpeech(responseText)
@@ -325,6 +334,44 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
     }
   }
 
+  const analyzeEndgame = async () => {
+    const game = lessonGame.current
+    if (!game || level.mode !== 'endgame') return
+    const requestId = ++endgameAnalysisRequestId.current
+    const fen = game.fen()
+    setEndgameAnalysisLoading(true)
+    try {
+      const result = await getPikafishMove(fen, '中级', true)
+      if (requestId !== endgameAnalysisRequestId.current || lessonGame.current !== game || game.fen() !== fen) return
+      const analysisGame = new Chess(fen)
+      const recommended = result.move ? analysisGame.move(result.move) : null
+      const move = recommended?.zh ?? '当前没有合法着法'
+      const evaluation = result.score?.type === 'mate'
+        ? result.score.value > 0 ? `预计${result.score.value}步成杀` : `需要防守对方${Math.abs(result.score.value)}步杀棋`
+        : Math.abs(result.score?.value ?? 0) < 50 ? '局面接近均势' : (result.score?.value ?? 0) > 0 ? '当前行棋方占优' : '当前行棋方需要谨慎防守'
+      const explanation = `推荐走法${move}。${evaluation}。优先改善子力位置，同时注意对方的将军和兑子手段。`
+      setEndgameAnalysis({ move, evaluation, explanation })
+    } catch (error) {
+      setToast(error instanceof Error ? error.message : '残局讲解暂不可用')
+    } finally {
+      if (requestId === endgameAnalysisRequestId.current) setEndgameAnalysisLoading(false)
+    }
+  }
+
+  const toggleEndgameAnalysis = () => {
+    if (endgameAnalysisVisible) {
+      endgameAnalysisRequestId.current += 1
+      setEndgameAnalysisVisible(false)
+      setEndgameAnalysisLoading(false)
+      return
+    }
+    setEndgameAnalysisVisible(true)
+  }
+
+  useEffect(() => {
+    if (page === 'endgame' && endgameAnalysisVisible) void analyzeEndgame()
+  }, [levelIndex, page, endgameAnalysisVisible])
+
   const playLessonMove = (from: Square, to: Square) => {
     const game = lessonGame.current
     const move = game && makeBattleMove(game, from, to)
@@ -333,6 +380,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
       return
     }
     setPieces(battlePieces(game))
+    if (level.mode === 'endgame') setEndgameAnalysis(null)
     setLessonHistory((game.history({ verbose: true }) as Move[]).map((historyMove) => historyMove.zh))
     showLessonPath(move, true)
     setSelectedId(null)
@@ -513,6 +561,11 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
             voiceText={voiceText}
             hint={hint}
             hintLevel={hintLevel}
+            endgameAnalysis={endgameAnalysis}
+            endgameAnalysisVisible={endgameAnalysisVisible}
+            endgameAnalysisLoading={endgameAnalysisLoading}
+            onToggleEndgameAnalysis={toggleEndgameAnalysis}
+            onSpeakEndgameAnalysis={() => { if (endgameAnalysis) queueLessonSpeech(endgameAnalysis.explanation) }}
             onSquare={handleSquare}
             onBack={() => setPage('home')}
             onVoiceStart={() => { voicePressStartedAt.current = Date.now(); setVoiceHeld(true); void startVoice() }} onVoiceStop={() => { setVoiceHeld(false); void stopVoice() }}
@@ -613,7 +666,7 @@ function LessonCard({ number, color, icon, title, text, tags, onClick }: { numbe
 
 function LessonPage(props: {
   pieces: Piece[]; selectedId: string | null; legalTargets: Square[]; lessonHistory: string[]; lastPath: { from: Square; to: Square; side: 'red' | 'black' } | null; level: Level; levelIndex: number; page: Page; levels: Level[]; completed: boolean; terminalType: TerminalType; thinking: boolean; voiceState: LinxiState; voiceHeld: boolean;
-  voiceText: string; hint: string; hintLevel: number; onSquare: (square: Square) => void; onBack: () => void;
+  voiceText: string; hint: string; hintLevel: number; endgameAnalysis: { move: string; evaluation: string; explanation: string } | null; endgameAnalysisVisible: boolean; endgameAnalysisLoading: boolean; onToggleEndgameAnalysis: () => void; onSpeakEndgameAnalysis: () => void; onSquare: (square: Square) => void; onBack: () => void;
   onVoiceStart: () => void; onVoiceStop: () => void; onHint: () => void; onReset: () => void; onContinue: () => void; onSelectLevel: (index: number) => void; onNavigate: (page: Page) => void
 }) {
   const trainingGroups = [
@@ -623,9 +676,12 @@ function LessonPage(props: {
     { mode: 'mate4', label: '四步杀', numberPrefix: '4' },
     { mode: 'mateN', label: 'N步杀', numberPrefix: '9' },
   ] as const
+  const currentEndgameCategory = getEndgameCategory(props.level.sourceType)
   const selectableLevels = props.levels
     .map((item, index) => ({ item, index }))
-    .filter(({ item }) => props.page === 'endgame' ? item.mode === 'endgame' : item.mode === props.level.mode)
+    .filter(({ item }) => props.page === 'endgame'
+      ? item.mode === 'endgame' && getEndgameCategory(item.sourceType) === currentEndgameCategory
+      : item.mode === props.level.mode)
 
   return (
     <div className={`lesson-page unified-page ${props.page === 'endgame' ? 'endgame-page' : ''}`}>
@@ -642,7 +698,21 @@ function LessonPage(props: {
         <SideNavigation active={props.page} onNavigate={props.onNavigate} />
         <div className={`coach-panel ${props.completed ? 'lesson-completed' : ''}`}>
           <div className="lesson-picker">
-            {props.page !== 'endgame' && (
+            {props.page === 'endgame' ? (
+              <>
+                <label htmlFor="lesson-mode-select">残局类型</label>
+                <select
+                  id="lesson-mode-select"
+                  value={currentEndgameCategory}
+                  onChange={(event) => {
+                    const index = props.levels.findIndex((item) => item.mode === 'endgame' && getEndgameCategory(item.sourceType) === event.target.value)
+                    if (index >= 0) props.onSelectLevel(index)
+                  }}
+                >
+                  {endgameCategories.map((group) => props.levels.some((item) => item.mode === 'endgame' && getEndgameCategory(item.sourceType) === group.label) && <option key={group.id} value={group.label}>{group.label}</option>)}
+                </select>
+              </>
+            ) : (
               <>
                 <label htmlFor="lesson-mode-select">杀棋类型</label>
                 <select
@@ -660,8 +730,10 @@ function LessonPage(props: {
             <label htmlFor="lesson-picker-select">选择题目</label>
             <select id="lesson-picker-select" value={props.levelIndex} onChange={(event) => props.onSelectLevel(Number(event.target.value))}>
               {selectableLevels.map(({ item, index }, itemIndex) => {
-                const prefix = trainingGroups.find((group) => group.mode === item.mode)?.numberPrefix ?? ''
-                return <option key={item.id} value={index}>{prefix}{String(itemIndex + 1).padStart(3, '0')}</option>
+                const trainingPrefix = trainingGroups.find((group) => group.mode === item.mode)?.numberPrefix
+                const endgameStart = endgameCategories.find((group) => group.label === currentEndgameCategory)?.numberStart
+                const number = item.mode === 'endgame' && endgameStart ? String(endgameStart + itemIndex) : `${trainingPrefix ?? ''}${String(itemIndex + 1).padStart(3, '0')}`
+                return <option key={item.id} value={index}>{number}</option>
               })}
             </select>
           </div>
@@ -673,7 +745,16 @@ function LessonPage(props: {
               <button className={props.voiceHeld ? 'voice-button listening' : 'voice-button'} onPointerDown={(event) => { event.currentTarget.setPointerCapture?.(event.pointerId); props.onVoiceStart() }} onPointerUp={props.onVoiceStop} onPointerCancel={props.onVoiceStop} onPointerLeave={(event) => { if (event.currentTarget.hasPointerCapture(event.pointerId)) props.onVoiceStop() }} disabled={props.thinking || props.voiceState === 'connecting' || props.voiceState === 'thinking'}>
                 <span><Mic /></span><strong>{props.voiceHeld ? '松开完成' : '按住说走法'}</strong><small>按住按钮，说完后松开</small>
               </button>
-              <div className="hint-card"><div><Lightbulb /><strong>分级提示</strong><span>{props.hintLevel}/3</span></div><p>{props.hint}</p><button className="secondary-button compact-action" onClick={props.onHint} disabled={props.hintLevel >= 3}>{props.hintLevel >= 3 ? '已显示完整提示' : '再给我一点提示'}</button></div>
+              {props.page === 'endgame' ? (
+                <div className="hint-card endgame-analysis-card">
+                  <button className="secondary-button compact-action" onClick={props.onToggleEndgameAnalysis}><Target /> {props.endgameAnalysisVisible ? '收起引擎讲解' : '展开引擎讲解'}</button>
+                  {props.endgameAnalysisVisible && (props.endgameAnalysisLoading || props.endgameAnalysis) && (
+                    <div className="analysis-result">
+                      {props.endgameAnalysis ? <><div className="analysis-recommendation"><strong>推荐走法：{props.endgameAnalysis.move}</strong><button className="analysis-speak-button" onClick={props.onSpeakEndgameAnalysis} aria-label="语音讲解残局推荐" title="语音讲解残局推荐"><Volume2 /></button></div><p>{props.endgameAnalysis.evaluation}</p><p>{props.endgameAnalysis.explanation}</p></> : <p>正在分析当前残局…</p>}
+                    </div>
+                  )}
+                </div>
+              ) : <div className="hint-card"><div><Lightbulb /><strong>分级提示</strong><span>{props.hintLevel}/3</span></div><p>{props.hint}</p><button className="secondary-button compact-action" onClick={props.onHint} disabled={props.hintLevel >= 3}>{props.hintLevel >= 3 ? '已显示完整提示' : '再给我一点提示'}</button></div>}
             </>
           )}
 
