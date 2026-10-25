@@ -307,7 +307,7 @@
 .battle-board-panel { position: relative; min-height: 0; height: fit-content; width: 100%; padding: 8px 14px 18px; display: flex; flex-direction: column; align-items: center; overflow: hidden; }
 .battle-board-panel .board-wrap { width: min(620px, 100%, calc((100dvh - 55px) * .9)); min-width: 0; margin: 8px auto 0; }
 .battle-board-panel .board-tip { margin-top: 28px; }
-.mobile-battle-voice { display: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: none; }
+.mobile-battle-voice, .mobile-battle-moves { display: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: none; }
 .battle-status { width: min(520px,100%); margin: 0 auto 16px; padding: 11px 16px; border-radius: 12px; background: #edf3f2; color: #52606c; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; }
 .thinking-dot { width: 8px; height: 8px; border-radius: 50%; background: #5aa987; } .thinking-dot.active { background: var(--gold); animation: dot-pulse 1s infinite; }
 .battle-sidebar { min-height: 0; align-self: start; display: flex; flex-direction: column; gap: 5px; overflow: visible; }
@@ -411,6 +411,11 @@
   .battle-board-panel { width: 100%; padding: 4px 2px 21px; }
   .battle-board-panel .board-wrap { width: min(calc(100vw - 10px), calc((100dvh - 101px) * .9)); margin-top: 15px; transform: none; }
   .mobile-battle-voice { position: static; width: 100%; margin-top: 4px; }
+  .mobile-battle-moves { display: block; width: 100%; height: clamp(48px, 18dvh, 96px); max-height: 96px; margin-top: 3px; padding: 3px 4px; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; scrollbar-width: thin; }
+  .mobile-battle-turn { display: flex; align-items: center; gap: 2px; min-height: 24px; }
+  .mobile-battle-turn > span:first-child { flex: 0 0 auto; width: 20px; color: var(--muted); font-size: 10px; }
+  .mobile-move-pair { display: inline-flex; flex: 1 1 0; min-width: 0; gap: 2px; }
+  .mobile-move-pair .move-replay { min-width: 0; flex: 1 1 0; overflow: hidden; padding: 3px 2px; border: 1px solid var(--line); background: rgba(255,253,248,.9); font-size: 10px; white-space: nowrap; text-overflow: ellipsis; }
   .battle-review-panel { padding: 8px; gap: 6px; }
   .battle-review-rail { max-height: none; margin: 4px auto; }
   .review-navigation { flex-wrap: nowrap; }

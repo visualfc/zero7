@@ -817,6 +817,7 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const pathRequestId = useRef(0)
   const turnReminderTimer = useRef<number | null>(null)
   const moveRailRef = useRef<HTMLDivElement | null>(null)
+  const mobileMoveRailRef = useRef<HTMLDivElement | null>(null)
   const [replayStep, setReplayStep] = useState<number | null>(null)
   const [reviewOpen, setReviewOpen] = useState(false)
   const reviewMode = 'classic' as const
@@ -908,10 +909,14 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
 
   useEffect(() => {
     if (replayStep !== null) return
-    const rail = moveRailRef.current
-    if (!rail) return
-    if (typeof rail.scrollTo === 'function') rail.scrollTo({ top: rail.scrollHeight, behavior: history.length > 2 ? 'smooth' : 'auto' })
-    else rail.scrollTop = rail.scrollHeight
+    const rails = [moveRailRef.current, mobileMoveRailRef.current].filter(Boolean) as HTMLDivElement[]
+    rails.forEach((rail) => {
+      if (rail === mobileMoveRailRef.current) {
+        if (typeof rail.scrollTo === 'function') rail.scrollTo({ top: rail.scrollHeight, behavior: history.length > 2 ? 'smooth' : 'auto' })
+        else rail.scrollTop = rail.scrollHeight
+      } else if (typeof rail.scrollTo === 'function') rail.scrollTo({ top: rail.scrollHeight, behavior: history.length > 2 ? 'smooth' : 'auto' })
+      else rail.scrollTop = rail.scrollHeight
+    })
   }, [history, replayStep])
 
   const refresh = (lastMove?: Move) => {
@@ -1457,6 +1462,7 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
             {reviewOpen && globalAnalysis.length > 0 && <div className="battle-key-rail" aria-label="全局分析关键步"><strong>关键步</strong>{globalAnalysis.map((item) => <button key={item.step} className="global-analysis-item" onClick={() => showReviewStep(item.step)}><span>第{item.step}步 · {item.move}</span><small>{item.judgment} · 红方 {item.redBefore}% → {item.redAfter}%</small></button>)}</div>}
           </div>
           <button className={`mobile-battle-voice ${voiceHeld ? 'listening' : ''}`} onPointerDown={(event) => { event.currentTarget.setPointerCapture?.(event.pointerId); voicePressStartedAt.current = Date.now(); setVoiceHeld(true); void startBattleVoice() }} onPointerUp={() => void stopBattleVoice()} onPointerCancel={() => void stopBattleVoice()} onContextMenu={(event) => event.preventDefault()} aria-label={voiceHeld ? '松开完成' : '按住语音输入'} disabled={reviewOpen || replayStep !== null || thinking || voiceState === 'connecting' || voiceState === 'thinking' || game.current.turn() !== 'w'}><Mic /><span><strong>{voiceHeld ? '松开完成' : '按住语音输入'}</strong><small>（按住按钮/空格，说完后松开）</small></span></button>
+          <div className="mobile-battle-moves" ref={mobileMoveRailRef} aria-label="手机对局棋谱">{Array.from({ length: Math.ceil((reviewOpen ? reviewHistory.length : history.length) / 6) }, (_, index) => <div className="mobile-battle-turn" key={index}><span>{index * 3 + 1}.</span>{[0, 1, 2].map((offset) => { const step = index * 6 + offset * 2; const moves = reviewOpen ? reviewHistory : history; return <span className="mobile-move-pair" key={step}>{moves[step] && <button className={replayStep === step + 1 ? 'move-replay active' : 'move-replay'} onClick={() => reviewOpen ? showReviewStep(step + 1) : replayMove(step + 1)}>{moves[step]}</button>}{moves[step + 1] && <button className={replayStep === step + 2 ? 'move-replay active' : 'move-replay'} onClick={() => reviewOpen ? showReviewStep(step + 2) : replayMove(step + 2)}>{moves[step + 1]}</button>}</span>})}</div>)}</div>
         </div>
         <aside className="battle-sidebar">
           <SideNavigation active="battle" onNavigate={onNavigate} />
