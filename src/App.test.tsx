@@ -149,7 +149,7 @@ describe('ZERO7', () => {
     fireEvent.click(screen.getAllByRole('button', { name: /炮怎样完成最后一击/ })[1])
     expect(screen.getByText('黑方先行')).toBeInTheDocument()
     solveLevel(2)
-    expect(await screen.findByText('绝杀！')).toBeInTheDocument()
+    expect(await screen.findByText(/(?:闷杀|绝杀)！/)).toBeInTheDocument()
   })
 
   it('一步杀使用有时间上限的普通搜索完成验证', async () => {
@@ -161,7 +161,7 @@ describe('ZERO7', () => {
     render(<App initialLevels={testLevels} />)
     fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
     solveLevel(0)
-    expect(await screen.findByText('绝杀！')).toBeInTheDocument()
+    expect(await screen.findByText(/(?:闷杀|绝杀)！/)).toBeInTheDocument()
     expect(engine.mock.calls.filter(([input]) => String(input) === '/api/pikafish/bestmove')).toHaveLength(1)
   })
 
@@ -172,9 +172,9 @@ describe('ZERO7', () => {
     expect(puzzleMock.fetch).toHaveBeenCalledTimes(1)
     fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
     solveLevel(0)
-    expect(await screen.findByText('绝杀！')).toBeInTheDocument()
+    expect(await screen.findByText(/(?:闷杀|绝杀)！/)).toBeInTheDocument()
     await act(async () => new Promise((resolve) => setTimeout(resolve, 20)))
-    expect(await screen.findByText('绝杀！')).toBeInTheDocument()
+    expect(await screen.findByText(/(?:闷杀|绝杀)！/)).toBeInTheDocument()
     expect(puzzleMock.fetch).toHaveBeenCalledTimes(1)
   })
 
@@ -277,8 +277,8 @@ describe('ZERO7', () => {
     clickBoardSquare(checkingResponseLevel.move.from.row, checkingResponseLevel.move.from.col)
     clickBoardSquare(checkingResponseLevel.move.to.row, checkingResponseLevel.move.to.col)
     await act(async () => new Promise((resolve) => setTimeout(resolve, BATTLE_RULES.aiThinkDelayMs + 50)))
-    expect(screen.getByText('车４平６，叫杀。')).toBeInTheDocument()
-    await waitFor(() => expect(voiceMock.instances.some((client) => client.speakText.mock.calls.some(([text]) => text === '车４平６，叫杀。'))).toBe(true))
+    expect(screen.getByText('车４平６，将军。')).toBeInTheDocument()
+    await waitFor(() => expect(voiceMock.instances.some((client) => client.speakText.mock.calls.some(([text]) => text === '车４平６，将军。'))).toBe(true))
   })
 
   it('黑棋应手将死时直接播报绝杀', async () => {
@@ -289,7 +289,7 @@ describe('ZERO7', () => {
     clickBoardSquare(matingResponseLevel.move.to.row, matingResponseLevel.move.to.col)
     await act(async () => new Promise((resolve) => setTimeout(resolve, BATTLE_RULES.aiThinkDelayMs + 50)))
     expect(screen.getByText('车二进六，绝杀！')).toBeInTheDocument()
-    expect(screen.queryByText(/叫杀/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/将军/)).not.toBeInTheDocument()
     await waitFor(() => expect(voiceMock.instances.some((client) => client.speakText.mock.calls.some(([text]) => text === '车二进六，绝杀！'))).toBe(true))
   })
 
@@ -398,22 +398,22 @@ describe('ZERO7', () => {
     expect(screen.getByRole('button', { name: '已显示完整提示' })).toBeDisabled()
     expect(screen.getByRole('button', { name: '跳过这题' })).toBeEnabled()
     solveLevel(0)
-    expect(await screen.findByText('绝杀！')).toBeInTheDocument()
+    expect(await screen.findByText(/(?:闷杀|绝杀)！/)).toBeInTheDocument()
   })
 
   it('完成每日三题后仍可继续下一道 Wukong 题', async () => {
     render(<App initialLevels={testLevels} />)
     fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
     solveLevel(0)
-    await screen.findByText('绝杀！')
+    await screen.findByText(/(?:闷杀|绝杀)！/)
     fireEvent.click(screen.getByRole('button', { name: /挑战下一关/ }))
     expect(screen.getByText(/炮怎样完成最后一击/)).toBeInTheDocument()
     solveLevel(1)
-    await screen.findByText('绝杀！')
+    await screen.findByText(/(?:闷杀|绝杀)！/)
     fireEvent.click(screen.getByRole('button', { name: /挑战下一关/ }))
     expect(screen.getByText(/炮怎样完成最后一击/)).toBeInTheDocument()
     solveLevel(2)
-    await screen.findByText('绝杀！')
+    await screen.findByText(/(?:闷杀|绝杀)！/)
     fireEvent.click(screen.getByRole('button', { name: /继续下一题/ }))
     expect(screen.getByText(/马怎样完成最后一击/)).toBeInTheDocument()
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()

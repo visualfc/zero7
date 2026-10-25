@@ -18,7 +18,7 @@ import './App.css'
 import { LinxiVoiceClient, type LinxiState } from './linxi'
 import { parseVoiceMove, sameSquare, type Level, type Piece, type Square } from './chess'
 import { fetchPuzzleLibrary } from './puzzles'
-import { battlePieces, battleStatus, buildBattleReview, chooseAiMove, createBattle, findVoiceMove, isChessMoveTranscript, legalTargets as battleLegalTargets, squareToPoint, makeBattleMove, VoiceMoveAuthorization } from './battle'
+import { battlePieces, battleStatus, buildBattleReview, chooseAiMove, createBattle, findVoiceMove, isChessMoveTranscript, legalTargets as battleLegalTargets, squareToPoint, makeBattleMove, terminalType as getTerminalType, VoiceMoveAuthorization, type TerminalType } from './battle'
 import { Chess, type Move } from '@weshell/xiangqi.js'
 import { BATTLE_RULES, describeAiResponse, describePlayerMove } from './battle-rules'
 import { commandHelp, parseVoiceCommand, type VoiceCommand } from './voice-command'
@@ -44,7 +44,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
   const [voiceText, setVoiceText] = useState('')
   const voicePressStartedAt = useRef<number | null>(null)
   const [completed, setCompleted] = useState(false)
-  const [terminalType, setTerminalType] = useState<'绝杀' | '困毙杀'>('绝杀')
+  const [terminalType, setTerminalType] = useState<TerminalType>('绝杀')
   const [lessonThinking, setLessonThinking] = useState(false)
   const lessonGame = useRef<Chess | null>(initialLevels[0] ? new Chess(initialLevels[0].fen) : null)
   const lessonRequestId = useRef(0)
@@ -240,7 +240,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
     }
   }
 
-  const completeLesson = (notation = level.answer, terminal: '绝杀' | '困毙杀' = '绝杀') => {
+  const completeLesson = (notation = level.answer, terminal: TerminalType = '绝杀') => {
     setTerminalType(terminal)
     setSelectedId(null)
     setCompleted(true)
@@ -282,7 +282,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
       if (!result.move) {
         if (result.terminal && game.moves().length === 0) {
           const lastMove = game.history({ verbose: true }).at(-1)
-          completeLesson(lastMove?.zh ?? level.answer, locallyCheckmated ? '绝杀' : '困毙杀')
+          completeLesson(lastMove?.zh ?? level.answer, locallyCheckmated ? getTerminalType(game) : '困毙杀')
           return
         }
         if (playerNotation) queueLessonSpeech(playerNotation)
@@ -299,9 +299,10 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
         setPieces(battlePieces(game))
         setLessonHistory((game.history({ verbose: true }) as Move[]).map((move) => move.zh))
         showLessonPath(response)
-        const responseText = response.isCheckmate ? `${response.zh}，绝杀！` : response.isCheck ? `${response.zh}，叫杀。` : response.zh
+        const responseTerminal = response.isCheckmate ? getTerminalType(game) : null
+        const responseText = responseTerminal ? `${response.zh}，${responseTerminal}！` : response.isCheck ? `${response.zh}，将军。` : response.zh
         queueLessonSpeech(responseText)
-        setVoiceText(response.isCheckmate ? `${response.zh}，绝杀！` : response.isCheck ? `${response.zh}，叫杀。` : `零七走了${response.zh}。`)
+        setVoiceText(responseTerminal ? `${response.zh}，${responseTerminal}！` : response.isCheck ? `${response.zh}，将军。` : `零七走了${response.zh}。`)
         setLessonThinking(false)
         return
       }
@@ -310,9 +311,10 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
       setPieces(battlePieces(game))
       setLessonHistory((game.history({ verbose: true }) as Move[]).map((move) => move.zh))
       showLessonPath(response)
-      const responseText = response.isCheckmate ? `${response.zh}，绝杀！` : response.isCheck ? `${response.zh}，叫杀。` : response.zh
+      const responseTerminal = response.isCheckmate ? getTerminalType(game) : null
+      const responseText = responseTerminal ? `${response.zh}，${responseTerminal}！` : response.isCheck ? `${response.zh}，将军。` : response.zh
       queueLessonSpeech(responseText)
-      setVoiceText(response.isCheckmate ? `${response.zh}，绝杀！` : response.isCheck ? `${response.zh}，叫杀。` : `零七走了${response.zh}。`)
+      setVoiceText(responseTerminal ? `${response.zh}，${responseTerminal}！` : response.isCheck ? `${response.zh}，将军。` : `零七走了${response.zh}。`)
     } catch (error) {
       if (requestId !== lessonRequestId.current) return
       if (playerNotation) queueLessonSpeech(playerNotation)
@@ -610,7 +612,7 @@ function LessonCard({ number, color, icon, title, text, tags, onClick }: { numbe
 }
 
 function LessonPage(props: {
-  pieces: Piece[]; selectedId: string | null; legalTargets: Square[]; lessonHistory: string[]; lastPath: { from: Square; to: Square; side: 'red' | 'black' } | null; level: Level; levelIndex: number; page: Page; levels: Level[]; completed: boolean; terminalType: '绝杀' | '困毙杀'; thinking: boolean; voiceState: LinxiState; voiceHeld: boolean;
+  pieces: Piece[]; selectedId: string | null; legalTargets: Square[]; lessonHistory: string[]; lastPath: { from: Square; to: Square; side: 'red' | 'black' } | null; level: Level; levelIndex: number; page: Page; levels: Level[]; completed: boolean; terminalType: TerminalType; thinking: boolean; voiceState: LinxiState; voiceHeld: boolean;
   voiceText: string; hint: string; hintLevel: number; onSquare: (square: Square) => void; onBack: () => void;
   onVoiceStart: () => void; onVoiceStop: () => void; onHint: () => void; onReset: () => void; onContinue: () => void; onSelectLevel: (index: number) => void; onNavigate: (page: Page) => void
 }) {
