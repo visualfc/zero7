@@ -106,6 +106,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
       if (event.code !== 'Space') return
       event.preventDefault()
       if (event.repeat || page === 'battle' || isTextInput(event.target) || voicePressStartedAt.current !== null) return
+      if (document.activeElement instanceof HTMLButtonElement) document.activeElement.blur()
       voicePressStartedAt.current = Date.now()
       setVoiceHeld(true)
       void startVoice()
@@ -117,17 +118,17 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
       setVoiceHeld(false)
       void stopVoice()
     }
-    window.addEventListener('keydown', blockSpace)
-    window.addEventListener('keyup', blockSpace)
-    window.addEventListener('keypress', blockSpace)
-    window.addEventListener('keydown', handleSpaceDown)
-    window.addEventListener('keyup', handleSpaceUp)
+    window.addEventListener('keydown', blockSpace, true)
+    window.addEventListener('keyup', blockSpace, true)
+    window.addEventListener('keypress', blockSpace, true)
+    window.addEventListener('keydown', handleSpaceDown, true)
+    window.addEventListener('keyup', handleSpaceUp, true)
     return () => {
-      window.removeEventListener('keydown', blockSpace)
-      window.removeEventListener('keyup', blockSpace)
-      window.removeEventListener('keypress', blockSpace)
-      window.removeEventListener('keydown', handleSpaceDown)
-      window.removeEventListener('keyup', handleSpaceUp)
+      window.removeEventListener('keydown', blockSpace, true)
+      window.removeEventListener('keyup', blockSpace, true)
+      window.removeEventListener('keypress', blockSpace, true)
+      window.removeEventListener('keydown', handleSpaceDown, true)
+      window.removeEventListener('keyup', handleSpaceUp, true)
       if (page !== 'battle') voiceClient.current?.disconnect()
     }
   }, [page])

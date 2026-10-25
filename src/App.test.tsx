@@ -172,6 +172,23 @@ describe('ZERO7', () => {
     expect(screen.getByRole('button', { name: /展开引擎讲解/ })).toBeInTheDocument()
   })
 
+  it('残局讲解按钮保持焦点时按空格语音不会收起讲解', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => new Response(String(input).endsWith('/warmup') ? null : JSON.stringify({ move: 'h0e0', engine: 'Pikafish Test', level: '中级', score: { type: 'cp', value: 80 } }), { status: String(input).endsWith('/warmup') ? 204 : 200 })))
+    render(<App initialLevels={testLevels} />)
+    fireEvent.click(screen.getAllByRole('button', { name: '残局训练' })[0])
+    const toggle = screen.getByRole('button', { name: /展开引擎讲解/ })
+    fireEvent.click(toggle)
+    await screen.findByText(/推荐走法：车二平五/)
+    const collapse = screen.getByRole('button', { name: /收起引擎讲解/ })
+    collapse.focus()
+    fireEvent.keyDown(collapse, { code: 'Space', key: ' ' })
+    expect(screen.getByRole('button', { name: /收起引擎讲解/ })).toBeInTheDocument()
+    expect(document.activeElement).not.toBe(collapse)
+    expect(screen.getAllByRole('button', { name: /松开完成/ })[0]).toBeInTheDocument()
+    fireEvent.keyUp(window, { code: 'Space', key: ' ' })
+    expect(screen.getByRole('button', { name: /收起引擎讲解/ })).toBeInTheDocument()
+  })
+
   it('残局 TTS 播放卡住时黑棋仍按时应对', async () => {
     voiceMock.playbackHangs = true
     vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
