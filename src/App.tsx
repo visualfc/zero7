@@ -35,6 +35,8 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
   const level = levels[levelIndex]
   const [pieces, setPieces] = useState<Piece[]>(() => initialLevels[0]?.pieces.map((piece) => ({ ...piece })) ?? [])
   const [lessonHistory, setLessonHistory] = useState<string[]>([])
+  const [lessonLastPath, setLessonLastPath] = useState<{ from: Square; to: Square; side: 'red' | 'black' } | null>(null)
+  const lessonPathTimer = useRef<number | null>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [hintLevel, setHintLevel] = useState(0)
   const [voiceState, setVoiceState] = useState<LinxiState>('idle')
@@ -87,6 +89,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
     lessonSuccessVoiceClient.current?.disconnect()
     lessonMoveVoiceClient.current?.disconnect()
     lessonHintVoiceClient.current?.disconnect()
+    if (lessonPathTimer.current !== null) window.clearTimeout(lessonPathTimer.current)
   }, [])
 
   useEffect(() => {
@@ -157,6 +160,9 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
     setLevelIndex(index)
     setPieces(battlePieces(lessonGame.current))
     setLessonHistory([])
+    setLessonLastPath(null)
+    if (lessonPathTimer.current !== null) window.clearTimeout(lessonPathTimer.current)
+    lessonPathTimer.current = null
     setSelectedId(null)
     setHintLevel(0)
     setVoiceText('')
@@ -234,6 +240,15 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
     void speakLessonSuccess(notation, terminal)
   }
 
+  const showLessonPath = (move: Move, untilResponse = false) => {
+    setLessonLastPath({ from: squareToPoint(move.from), to: squareToPoint(move.to), side: move.color === 'w' ? 'red' : 'black' })
+    if (lessonPathTimer.current !== null) window.clearTimeout(lessonPathTimer.current)
+    lessonPathTimer.current = untilResponse ? null : window.setTimeout(() => {
+      setLessonLastPath(null)
+      lessonPathTimer.current = null
+    }, BATTLE_RULES.movePathDisplayMs)
+  }
+
   const respondToLessonMove = async (game: Chess, candidateAnswer = false, playerNotation?: string) => {
     const requestId = ++lessonRequestId.current
     const fen = game.fen()
@@ -255,12 +270,16 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
         setVoiceText('对方没有合法应手，但当前没有形成将死。可以重新练习或继续下一题。')
         return
       }
+      if (playerNotation) queueLessonSpeech(playerNotation)
+      await lessonMoveSpeech.current
+      await new Promise((resolve) => window.setTimeout(resolve, BATTLE_RULES.aiThinkDelayMs))
+      if (requestId !== lessonRequestId.current || lessonGame.current !== game || game.fen() !== fen) return
       if (candidateAnswer && forcedMate && level.mode !== 'mate1') {
         const response = game.move(result.move)
         if (!response) throw new Error('Pikafish 返回了无效应手')
         setPieces(battlePieces(game))
         setLessonHistory((game.history({ verbose: true }) as Move[]).map((move) => move.zh))
-        if (playerNotation) queueLessonSpeech(playerNotation)
+        showLessonPath(response)
         queueLessonSpeech(response.zh)
         setVoiceText(`零七走了${response.zh}，继续完成${level.category}。`)
         setLessonThinking(false)
@@ -270,7 +289,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
       if (!response) throw new Error('Pikafish 返回了无效应手')
       setPieces(battlePieces(game))
       setLessonHistory((game.history({ verbose: true }) as Move[]).map((move) => move.zh))
-      if (playerNotation) queueLessonSpeech(playerNotation)
+      showLessonPath(response)
       queueLessonSpeech(response.zh)
       setVoiceText(candidateAnswer
         ? `这步仍有解法。零七走了${response.zh}，请继续尝试或重新练习。`
@@ -278,7 +297,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
     } catch (error) {
       if (requestId !== lessonRequestId.current) return
       if (playerNotation) queueLessonSpeech(playerNotation)
-      setVoiceText(candidateAnswer ? '标准着法已走出，但引擎尚未完成验证。可以重新练习或继续下一题。' : '这步已经保留，可以重新练习或继续下一题。')
+      setVoiceText('这步已经保留，零七暂时无法应对。可以重新练习或继续下一题。')
       setToast(error instanceof Error ? error.message : 'Pikafish 暂时无法应对')
     } finally {
       if (requestId === lessonRequestId.current) setLessonThinking(false)
@@ -294,6 +313,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
     }
     setPieces(battlePieces(game))
     setLessonHistory((game.history({ verbose: true }) as Move[]).map((historyMove) => historyMove.zh))
+    showLessonPath(move, true)
     setSelectedId(null)
     void respondToLessonMove(game, level.mode !== 'endgame' ? true : game.isCheckmate(), move.zh)
   }
@@ -309,7 +329,8 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
       const move = makeBattleMove(game, from, square)
       if (!move) return
       setPieces(battlePieces(game))
-      setLessonHistory((game.history({ verbose: true }) as Move[]).map((move) => move.zh))
+      setLessonHistory((game.history({ verbose: true }) as Move[]).map((historyMove) => historyMove.zh))
+      showLessonPath(move, true)
       setSelectedId(null)
       void respondToLessonMove(game, level.mode !== 'endgame' ? true : game.isCheckmate(), move.zh)
       return
@@ -461,6 +482,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
             level={level}
             levelIndex={levelIndex}
             lessonHistory={lessonHistory}
+            lastPath={lessonLastPath}
             page={page}
             completed={completed}
             terminalType={terminalType}
@@ -569,7 +591,7 @@ function LessonCard({ number, color, icon, title, text, tags, onClick }: { numbe
 }
 
 function LessonPage(props: {
-  pieces: Piece[]; selectedId: string | null; legalTargets: Square[]; lessonHistory: string[]; level: Level; levelIndex: number; page: Page; levels: Level[]; completed: boolean; terminalType: '绝杀' | '困毙杀'; thinking: boolean; voiceState: LinxiState; voiceHeld: boolean;
+  pieces: Piece[]; selectedId: string | null; legalTargets: Square[]; lessonHistory: string[]; lastPath: { from: Square; to: Square; side: 'red' | 'black' } | null; level: Level; levelIndex: number; page: Page; levels: Level[]; completed: boolean; terminalType: '绝杀' | '困毙杀'; thinking: boolean; voiceState: LinxiState; voiceHeld: boolean;
   voiceText: string; hint: string; hintLevel: number; onSquare: (square: Square) => void; onBack: () => void;
   onVoiceStart: () => void; onVoiceStop: () => void; onHint: () => void; onReset: () => void; onContinue: () => void; onSelectLevel: (index: number) => void; onNavigate: (page: Page) => void
 }) {
@@ -590,7 +612,7 @@ function LessonPage(props: {
       <section className="challenge-layout">
         <div className="board-panel">
           <div className="lesson-move-rail" aria-label="残局棋谱">{Array.from({ length: Math.ceil(props.lessonHistory.length / 2) }, (_, index) => <div className="battle-move-turn" key={index}><span>{index + 1}.</span><div><span className="lesson-move">{props.lessonHistory[index * 2]}</span>{props.lessonHistory[index * 2 + 1] && <span className="lesson-move">{props.lessonHistory[index * 2 + 1]}</span>}</div></div>)}</div>
-          <ChessBoard pieces={props.pieces} selectedId={props.selectedId} legalTargets={props.legalTargets} instruction={props.level.instruction} onSquare={props.onSquare} />
+          <ChessBoard pieces={props.pieces} selectedId={props.selectedId} legalTargets={props.legalTargets} lastPath={props.lastPath} instruction={props.level.instruction} onSquare={props.onSquare} />
         </div>
       </section>
       </div>

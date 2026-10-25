@@ -3,6 +3,7 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
 import { puzzleToLevel, type PuzzleRecord } from './puzzles'
+import { BATTLE_RULES } from './battle-rules'
 import wukongRecords from '../data/puzzles/wukong.json'
 import wukongMultiRecords from '../data/puzzles/wukong-multi.json'
 import qiyiRecords from '../data/puzzles/xiangqi-pwa-offline.json'
@@ -161,14 +162,18 @@ describe('ZERO7', () => {
     expect(screen.getByRole('button', { name: '跳过这题' })).toBeEnabled()
   })
 
-  it('其他合法着会保留并调用 Pikafish 应对', async () => {
+  it('其他合法着显示红方路径，延迟后显示黑方应手路径', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ move: 'g2g1', engine: 'Pikafish Test', level: '初级' }), { status: 200 })))
     render(<App initialLevels={testLevels} />)
     fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
     clickBoardSquare(9, 2)
     clickBoardSquare(7, 4)
     expect(screen.getByText(/零七正在应对|正在验证/)).toBeInTheDocument()
-    expect(await screen.findByText(/零七走了车７进１/)).toBeInTheDocument()
+    expect(screen.getByLabelText('最近一步走子路径')).toHaveClass('red')
+    expect(screen.queryByText(/零七走了车７进１/)).not.toBeInTheDocument()
+    await act(async () => new Promise((resolve) => setTimeout(resolve, BATTLE_RULES.aiThinkDelayMs + 50)))
+    expect(screen.getByText(/零七走了车７进１/)).toBeInTheDocument()
+    expect(screen.getByLabelText('最近一步走子路径')).toHaveClass('black')
     await waitFor(() => {
       expect(voiceMock.instances.some((client) => client.speakText.mock.calls.some(([text]) => text === '相七进五'))).toBe(true)
       expect(voiceMock.instances.some((client) => client.speakText.mock.calls.some(([text]) => text === '车７进１'))).toBe(true)
@@ -188,7 +193,8 @@ describe('ZERO7', () => {
     const level = testLevels.find((item) => item.mode === 'mate2')!
     clickBoardSquare(level.move.from.row, level.move.from.col)
     clickBoardSquare(level.move.to.row, level.move.to.col)
-    expect(await screen.findByText(/零七走了象３退１，继续完成二步杀/)).toBeInTheDocument()
+    await act(async () => new Promise((resolve) => setTimeout(resolve, BATTLE_RULES.aiThinkDelayMs + 50)))
+    expect(screen.getByText(/零七走了象３退１，继续完成二步杀/)).toBeInTheDocument()
     await waitFor(() => {
       expect(voiceMock.instances.some((client) => client.speakText.mock.calls.some(([text]) => text === level.answer))).toBe(true)
       expect(voiceMock.instances.some((client) => client.speakText.mock.calls.some(([text]) => text === '象３退１'))).toBe(true)
@@ -227,6 +233,7 @@ describe('ZERO7', () => {
     fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
     clickBoardSquare(9, 2)
     clickBoardSquare(7, 4)
+    await act(async () => new Promise((resolve) => setTimeout(resolve, BATTLE_RULES.aiThinkDelayMs + 50)))
     await waitFor(() => {
       const responseSquare = [...document.querySelectorAll<HTMLButtonElement>('.board-square')].find((button) => button.style.getPropertyValue('--board-row') === '8' && button.style.getPropertyValue('--board-col') === '6')
       expect(responseSquare).toHaveAccessibleName('黑车')
@@ -251,6 +258,7 @@ describe('ZERO7', () => {
     fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
     clickBoardSquare(9, 2)
     clickBoardSquare(7, 4)
+    await act(async () => new Promise((resolve) => setTimeout(resolve, BATTLE_RULES.aiThinkDelayMs + 50)))
     await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Invalid move: a0a9'))
     expect(screen.queryByText('绝杀！')).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: '重新练习' })).toBeEnabled()
@@ -267,7 +275,8 @@ describe('ZERO7', () => {
     render(<App initialLevels={testLevels} />)
     fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
     solveLevel(0)
-    expect(await screen.findByText('标准着法已走出，但引擎尚未完成验证。可以重新练习或继续下一题。')).toBeInTheDocument()
+    expect(await screen.findByText('这步已经保留，零七暂时无法应对。可以重新练习或继续下一题。')).toBeInTheDocument()
+    expect(screen.queryByText(/标准着法/)).not.toBeInTheDocument()
     expect(screen.queryByText('绝杀！')).not.toBeInTheDocument()
   })
 
