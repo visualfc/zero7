@@ -59,6 +59,7 @@ export function importPuzzleDatabase({ dataDirectory = puzzleDataDirectory, data
       CREATE TABLE puzzles (position INTEGER PRIMARY KEY, id TEXT UNIQUE NOT NULL, source_id TEXT NOT NULL REFERENCES sources(id), source_puzzle_id TEXT NOT NULL, mode TEXT NOT NULL, difficulty TEXT NOT NULL, category TEXT NOT NULL, fen TEXT NOT NULL, solution TEXT NOT NULL, title TEXT NOT NULL, description TEXT NOT NULL, instruction TEXT NOT NULL, hints TEXT NOT NULL, success_title TEXT NOT NULL, success_text TEXT NOT NULL, reward INTEGER NOT NULL, verified_by TEXT NOT NULL, source_best_move TEXT, source_result TEXT, source_type TEXT, chessdb_status TEXT, chessdb_score REAL, chessdb_move TEXT);
       CREATE INDEX puzzles_source_index ON puzzles(source_id);
       CREATE INDEX puzzles_difficulty_index ON puzzles(difficulty);
+      CREATE INDEX puzzles_source_difficulty_index ON puzzles(source_id, difficulty);
     `)
     const insertSource = database.prepare('INSERT INTO sources VALUES (?, ?, ?, ?, ?)')
     for (const source of sources) insertSource.run(source.id, source.name, source.url, source.license, source.role)
@@ -76,6 +77,9 @@ export function ensurePuzzleDatabase(options = {}) {
   const inputs = ['sources.json', 'chessdb-verifications.json', ...sourceFiles].map((file) => path.join(options.dataDirectory || puzzleDataDirectory, file))
   const newestInput = Math.max(...inputs.map((file) => fs.statSync(file).mtimeMs))
   if (!fs.existsSync(databasePath) || fs.statSync(databasePath).mtimeMs < newestInput) return importPuzzleDatabase(options)
+  const database = new DatabaseSync(databasePath)
+  database.exec('CREATE INDEX IF NOT EXISTS puzzles_source_difficulty_index ON puzzles(source_id, difficulty)')
+  database.close()
   return { databasePath }
 }
 

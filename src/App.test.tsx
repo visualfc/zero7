@@ -42,6 +42,7 @@ vi.mock('./linxi', () => ({
 }))
 
 beforeEach(() => {
+  sessionStorage.clear()
   vi.stubGlobal('isSecureContext', true)
   voiceMock.instances = []
   voiceMock.startError = null
@@ -70,11 +71,11 @@ function solveLevel(index: number) {
 }
 
 describe('ZERO7', () => {
-  it('导航顺序为首页、对战、训练、残局、成长', () => {
+  it('导航顺序为首页、对战、训练、残局', () => {
     render(<App initialLevels={testLevels} />)
     const navigation = screen.getAllByRole('navigation', { name: '主导航' })[0]
     const labels = navigation.querySelectorAll('.nav-button span')
-    expect([...labels].map((label) => label.textContent)).toEqual(['对战', '训练', '残局', '成长'])
+    expect([...labels].map((label) => label.textContent)).toEqual(['对战', '训练', '残局'])
     expect(navigation.querySelector('.battle-side-brand')).toHaveAttribute('aria-label', '返回首页')
   })
 
@@ -256,7 +257,8 @@ describe('ZERO7', () => {
     unmount()
 
     render(<App initialLevels={testLevels} />)
-    fireEvent.click(screen.getAllByRole('button', { name: /炮怎样完成最后一击/ })[1])
+    fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
+    fireEvent.change(screen.getByLabelText('选择题目'), { target: { value: '2' } })
     expect(screen.getByText('黑方先行')).toBeInTheDocument()
     solveLevel(2)
     expect(await screen.findByText(/(?:闷杀|绝杀)！/)).toBeInTheDocument()
@@ -529,10 +531,19 @@ describe('ZERO7', () => {
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
   })
 
+  it('损坏的人机与复盘会话状态会安全恢复', () => {
+    sessionStorage.setItem('zero7-battle-moves', '{bad')
+    sessionStorage.setItem('zero7-review-analysis', '{bad')
+    render(<App initialLevels={testLevels} />)
+    fireEvent.click(screen.getAllByRole('button', { name: /人机对战/ })[0])
+    expect(screen.getByLabelText('对局棋谱')).toBeEmptyDOMElement()
+    expect(sessionStorage.getItem('zero7-battle-moves')).toBeNull()
+  })
+
   it('进入人机对战后直接开局并提供重开一局按钮', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ available: false }), { status: 200 })))
     render(<App initialLevels={testLevels} />)
-    fireEvent.click(screen.getByRole('button', { name: /人机对战/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /人机对战/ })[0])
     expect(await screen.findByText('基础 AI（Pikafish 未安装）')).toBeInTheDocument()
     expect(screen.queryByText('轮到红方走棋')).not.toBeInTheDocument()
     expect(screen.getByText(/按住语音按钮，说出“/)).toBeInTheDocument()
@@ -551,7 +562,7 @@ describe('ZERO7', () => {
       return new Response(JSON.stringify({ move: 'h9g7', engine: 'Pikafish Test', level: '初级' }), { status: 200 })
     }))
     render(<App initialLevels={testLevels} />)
-    fireEvent.click(screen.getByRole('button', { name: /人机对战/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /人机对战/ })[0])
     expect(await screen.findByText('Pikafish Test')).toBeInTheDocument()
     fireEvent.click(screen.getAllByRole('button', { name: '红马' }).at(-1)!)
     fireEvent.click(screen.getByRole('button', { name: '7-6' }))
@@ -572,7 +583,7 @@ describe('ZERO7', () => {
       ? new Response(JSON.stringify({ available: true, name: 'Pikafish Test' }), { status: 200 })
       : new Response(JSON.stringify({ move: 'h9g7', engine: 'Pikafish Test', level: '初级' }), { status: 200 })))
     render(<App initialLevels={testLevels} />)
-    fireEvent.click(screen.getByRole('button', { name: /人机对战/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /人机对战/ })[0])
     await screen.findByText('Pikafish Test')
     fireEvent.click(screen.getAllByRole('button', { name: '红马' }).at(-1)!)
     fireEvent.click(screen.getByRole('button', { name: '7-6' }))
@@ -588,7 +599,7 @@ describe('ZERO7', () => {
       return moveResponse
     }))
     render(<App initialLevels={testLevels} />)
-    fireEvent.click(screen.getByRole('button', { name: /人机对战/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /人机对战/ })[0])
     expect(await screen.findByText('Pikafish Test')).toBeInTheDocument()
     fireEvent.click(screen.getAllByRole('button', { name: '红马' }).at(-1)!)
     fireEvent.click(screen.getByRole('button', { name: '7-6' }))
@@ -669,12 +680,12 @@ describe('ZERO7', () => {
     await act(async () => fireEvent.pointerDown(screen.getByRole('button', { name: /按住说走法/ })))
     expect(screen.getByText('手机语音输入需要使用 HTTPS，请访问终端显示的 https:// 地址。')).toBeInTheDocument()
     fireEvent.click(screen.getByLabelText('返回首页'))
-    fireEvent.click(screen.getByRole('button', { name: /人机对战/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /人机对战/ })[0])
     await act(async () => fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住说走法/ })[0]))
     expect(screen.getByText('手机语音输入需要使用 HTTPS，请访问终端显示的 https:// 地址。')).toBeInTheDocument()
   })
 
-  it('支持首页卡片、成长页、个人页和品牌导航', () => {
+  it('支持首页卡片和品牌导航', () => {
     render(<App initialLevels={testLevels} />)
     fireEvent.click(screen.getAllByRole('button', { name: '训练' })[0])
     expect(screen.getByText(/车怎样完成最后一击/)).toBeInTheDocument()
@@ -684,16 +695,10 @@ describe('ZERO7', () => {
     fireEvent.click(screen.getAllByRole('button', { name: '训练' })[0])
     expect(screen.getByText(/车怎样完成最后一击/)).toBeInTheDocument()
     fireEvent.click(screen.getAllByRole('button', { name: '首页' }).at(-1)!)
-    fireEvent.click(screen.getAllByRole('button', { name: /炮怎样完成最后一击/ })[0])
-    expect(screen.getByText(/炮怎样完成最后一击/)).toBeInTheDocument()
-    fireEvent.click(screen.getByLabelText('返回首页'))
-    fireEvent.click(screen.getAllByRole('button', { name: /成长/ })[0])
-    expect(screen.getByText('我的象棋成长')).toBeInTheDocument()
-    expect(screen.getByText('零七棋友')).toBeInTheDocument()
-    fireEvent.click(screen.getByLabelText('返回首页'))
-    fireEvent.click(screen.getAllByRole('button', { name: /成长/ })[0])
-    fireEvent.click(screen.getByRole('button', { name: /继续训练/ }))
-    expect(screen.getByText(/车怎样完成最后一击/)).toBeInTheDocument()
+    const dailyChallenge = screen.getAllByRole('button').find((button) => button.textContent?.includes('将杀') || button.textContent?.includes('杀：'))
+    expect(dailyChallenge).toBeTruthy()
+    fireEvent.click(dailyChallenge!)
+    expect(screen.getByLabelText('选择题目')).toBeInTheDocument()
     fireEvent.click(screen.getByLabelText('返回首页'))
     expect(screen.getByText('今日三小关')).toBeInTheDocument()
   })
@@ -705,9 +710,6 @@ describe('ZERO7', () => {
     expect(screen.getByText(/车怎样完成最后一击/)).toBeInTheDocument()
     navigate('对战')
     expect(screen.getByLabelText('对局棋谱')).toBeEmptyDOMElement()
-    navigate('成长')
-    expect(screen.getByText('我的象棋成长')).toBeInTheDocument()
-    expect(screen.getByText('零七棋友')).toBeInTheDocument()
     fireEvent.click(screen.getByLabelText('返回首页'))
     expect(screen.getByText('今日三小关')).toBeInTheDocument()
   })
@@ -728,7 +730,7 @@ describe('ZERO7', () => {
     }))
     vi.spyOn(Math, 'random').mockReturnValue(0)
     render(<App initialLevels={testLevels} />)
-    fireEvent.click(screen.getByRole('button', { name: /人机对战/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /人机对战/ })[0])
     expect(await screen.findByText('Pikafish Test')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: '中级' }))
     fireEvent.click(screen.getAllByRole('button', { name: '黑卒' })[0])
@@ -738,7 +740,7 @@ describe('ZERO7', () => {
     expect(await screen.findByText(/基础 AI（Pikafish 暂不可用）/, {}, { timeout: 4000 })).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: '认输' }))
     expect(screen.getByText(/你已认输，本局由 零七 获胜/)).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: '语音复盘' }))
+    fireEvent.click(screen.getByRole('button', { name: '语音总结' }))
   })
 
   it('人机对战语音只消费一次识别结果并处理无效走法', async () => {
@@ -747,7 +749,7 @@ describe('ZERO7', () => {
       return new Response(JSON.stringify({ error: '不可用' }), { status: 503 })
     }))
     render(<App initialLevels={testLevels} />)
-    fireEvent.click(screen.getByRole('button', { name: /人机对战/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /人机对战/ })[0])
     await act(async () => fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住说走法/ })[0]))
     act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text: '去2借5' }))
     expect(screen.getAllByText(/没听明白，请重新说/).length).toBeGreaterThan(0)
@@ -767,7 +769,7 @@ describe('ZERO7', () => {
       return new Response(JSON.stringify({ move: 'h0g2', score: { type: 'cp', value: 180 }, engine: 'Pikafish Test', level: '初级' }), { status: 200 })
     }))
     render(<App initialLevels={testLevels} />)
-    fireEvent.click(screen.getByRole('button', { name: /人机对战/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /人机对战/ })[0])
     expect(await screen.findByText('Pikafish Test')).toBeInTheDocument()
     expect(screen.queryByText(/红方 .*%/)).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: '局面分析' }))
@@ -776,18 +778,9 @@ describe('ZERO7', () => {
     const probability = screen.queryByText(/红方 \d+%/)
     const unavailable = screen.queryByText('当前无法获取胜负概率，请确认 Pikafish 可用。')
     expect(probability || unavailable).toBeTruthy()
-    if (screen.queryByRole('button', { name: /语音讲解推荐/ })) {
-      const moveVoiceButton = screen.getAllByRole('button', { name: /按住说走法/ })[0]
-      const moveVoiceLabel = moveVoiceButton.textContent
-      fireEvent.click(screen.getByRole('button', { name: /语音讲解推荐/ }))
-      expect(voiceMock.instances.at(-1)!.speakText).toHaveBeenCalled()
-      fireEvent.click(screen.getByRole('button', { name: /语音讲解推荐/ }))
-      expect(voiceMock.instances.at(-2)!.disconnect).toHaveBeenCalled()
-      expect(moveVoiceButton.textContent).toBe(moveVoiceLabel)
-      expect(moveVoiceButton).not.toHaveClass('listening')
-    } else {
-      expect(screen.getByText('当前无法获取胜负概率，请确认 Pikafish 可用。')).toBeInTheDocument()
-    }
+    if (probability) expect(screen.getByText(/这步的目的：/)).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /语音讲解推荐/ })).not.toBeInTheDocument()
+    if (!probability) expect(screen.getByText('当前无法获取胜负概率，请确认 Pikafish 可用。')).toBeInTheDocument()
     const collapse = screen.queryByRole('button', { name: '收起局面分析' })
     if (collapse) {
       fireEvent.click(collapse)
@@ -801,6 +794,71 @@ describe('ZERO7', () => {
     fireEvent.click(screen.getByRole('button', { name: '1-1' }))
   })
 
+  it('经典对局加载失败时显示错误状态', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (input: string | URL | Request) => {
+      if (String(input).includes('/api/classic-games/classic-1')) throw new Error('network')
+      if (String(input).includes('/api/classic-games')) return new Response(JSON.stringify({ items: [{ id: 'classic-1', event: '经典赛事', red: '刘殿中', redOriginal: 'LIU DianZhong', black: '柳大华', blackOriginal: 'LIU DaHua', source: 'Wukong Xiangqi master games database' }] }), { status: 200 })
+      return new Response(JSON.stringify({ move: null, terminal: true }), { status: 200 })
+    }))
+    render(<App initialLevels={testLevels} />)
+    fireEvent.click(screen.getAllByRole('button', { name: /人机对战/ })[0])
+    fireEvent.click(screen.getByRole('button', { name: /AI复盘/ }))
+    await waitFor(() => expect(fetch).toHaveBeenCalledWith('/api/classic-games/classic-1'))
+  })
+
+  it('经典对局可以选择并逐步回放完整棋谱', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (input: string | URL | Request) => {
+      if (String(input).includes('/api/classic-games/classic-1')) return new Response(JSON.stringify({ id: 'classic-1', event: 'Jiafun Cup National Champion 1997', red: '刘殿中', redOriginal: 'LIU DianZhong', black: '柳大华', blackOriginal: 'LIU DaHua', moves: ['h2e2', 'b9c7', 'h0g2', 'h7f7', 'g3g4', 'h9g7', 'b2c2', 'i9h9', 'b0a2', 'a9b9', 'a0b0', 'b7b3', 'c3c4', 'h9h5', 'i0h0', 'h5d5', 'c2c6', 'c9e7', 'e2f2', 'd5d6', 'c4c5', 'b3b2', 'h0h8', 'b2g2', 'b0b9', 'c7b9', 'h8b8', 'g2a2', 'c0a2', 'b9d8', 'c6c9', 'd9e8', 'c9a9', 'd6d7', 'b8b9', 'e8d9', 'b9b8', 'd9e8', 'f2d2', 'd7a7', 'b8b9', 'e8d9', 'b9d9', 'e9e8', 'c5d5', 'd8b7', 'a9f9', 'g6g5', 'd2g2', 'f7f8', 'g4g5', 'g7f9', 'd9f9', 'a7a9', 'f9a9', 'b7a9', 'g5g6', 'a9c8', 'g2e2', 'e8e9', 'e2e6', 'f8e8', 'e6e8', 'e9e8', 'i3i4', 'e7c9', 'g6h6', 'c8e7', 'd5e5', 'e7c6', 'e5e6', 'c6b4', 'a2c4'], source: 'Wukong Xiangqi master games database' }), { status: 200 })
+      if (String(input).includes('/api/classic-games')) return new Response(JSON.stringify({ items: [{ id: 'classic-1', event: 'Jiafun Cup National Champion 1997', red: '刘殿中', redOriginal: 'LIU DianZhong', black: '柳大华', blackOriginal: 'LIU DaHua', source: 'Wukong Xiangqi master games database' }] }), { status: 200 })
+      return new Response(JSON.stringify({ move: null, terminal: true }), { status: 200 })
+    }))
+    render(<App initialLevels={testLevels} />)
+    fireEvent.click(screen.getAllByRole('button', { name: /人机对战/ })[0]); fireEvent.click(screen.getByRole('button', { name: /AI复盘/ }))
+    await screen.findByLabelText('选择经典对局')
+    expect(screen.getByRole('button', { name: '分析关键步' })).toBeInTheDocument()
+    await waitFor(() => expect(screen.getByLabelText('复盘控制')).toHaveTextContent('0 / 73'))
+    fireEvent.click(screen.getByRole('button', { name: '分析关键步' }))
+    await waitFor(() => expect(screen.getByRole('button', { name: /快速扫描|深度复核关键步/ })).toBeDisabled())
+    await waitFor(() => expect(screen.getByRole('button', { name: '分析关键步' })).toBeEnabled(), { timeout: 30000 })
+    const keyMoves = await screen.findByLabelText('全局分析关键步')
+    const firstKeyMove = keyMoves.querySelector('button') as HTMLButtonElement
+    fireEvent.click(firstKeyMove)
+    expect(screen.getByLabelText('复盘控制')).toHaveTextContent(/\/ 73/)
+    expect(screen.getByLabelText('选择经典对局')).toHaveTextContent('刘殿中 vs 柳大华')
+    vi.useFakeTimers()
+    fireEvent.click(screen.getByRole('button', { name: '自动播放' }))
+    await act(async () => { await vi.advanceTimersByTimeAsync(5000) })
+    expect(screen.getByLabelText('复盘控制')).toHaveTextContent('2 / 73')
+    fireEvent.click(screen.getByRole('button', { name: '停止自动播放' }))
+    vi.useRealTimers()
+    fireEvent.click(screen.getByRole('button', { name: '开局' }))
+    expect(screen.getByLabelText('复盘控制')).toHaveTextContent('0 / 73')
+    fireEvent.click(screen.getByRole('button', { name: '自动播放' }))
+    expect(screen.getByRole('button', { name: '停止自动播放' })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '停止自动播放' }))
+    fireEvent.click(screen.getByRole('button', { name: '下一步' }))
+    expect(screen.getByLabelText('复盘控制')).toHaveTextContent('1 / 73')
+    fireEvent.click(screen.getByRole('button', { name: '终局' }))
+    expect(screen.getByLabelText('复盘控制')).toHaveTextContent('73 / 73')
+    fireEvent.click(screen.getByRole('button', { name: '开局' }))
+    expect(screen.getByLabelText('复盘控制')).toHaveTextContent('0 / 73')
+    fireEvent.click(screen.getByRole('button', { name: '下一步' }))
+    await waitFor(() => expect(screen.getByLabelText('对局棋谱')).toHaveTextContent('炮二平五'))
+    fireEvent.click(screen.getAllByRole('button', { name: /.+/ }).filter((button) => button.className.includes('move-replay')).at(-1)!)
+    fireEvent.click(screen.getByRole('button', { name: '展开局面分析' }))
+    expect(await screen.findByText(/实战着：/)).toBeInTheDocument()
+    expect(screen.getByText(/实战目的：/)).toBeInTheDocument()
+    expect(screen.getByText(/推荐目的：/)).toBeInTheDocument()
+    expect(screen.queryByText(/实战着与引擎首选/)).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '上一步' }))
+    expect(screen.getByLabelText('复盘控制')).toHaveTextContent('72 / 73')
+    fireEvent.click(screen.getByRole('button', { name: '上一步' }))
+    expect(screen.getByLabelText('复盘控制')).toHaveTextContent('71 / 73')
+    fireEvent.click(screen.getByRole('button', { name: '返回对战' }))
+    expect(screen.queryByLabelText('复盘控制')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /AI复盘/ })).toBeInTheDocument()
+  }, 30000)
+
   it('点击棋谱可以跳转并返回当前局面', async () => {
     const scrollTo = vi.fn()
     Object.defineProperty(HTMLElement.prototype, 'scrollTo', { configurable: true, value: scrollTo })
@@ -809,7 +867,7 @@ describe('ZERO7', () => {
       return new Response(JSON.stringify({ error: '不可用' }), { status: 503 })
     }))
     render(<App initialLevels={testLevels} />)
-    fireEvent.click(screen.getByRole('button', { name: /人机对战/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /人机对战/ })[0])
     fireEvent.click(screen.getAllByRole('button', { name: '红马' }).at(-1)!)
     fireEvent.click(screen.getByRole('button', { name: '7-6' }))
     await act(async () => { await new Promise((resolve) => setTimeout(resolve, 3600)) })
@@ -831,7 +889,7 @@ describe('ZERO7', () => {
     }))
     vi.spyOn(Math, 'random').mockReturnValue(0)
     render(<App initialLevels={testLevels} />)
-    fireEvent.click(screen.getByRole('button', { name: /人机对战/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /人机对战/ })[0])
     fireEvent.click(screen.getAllByRole('button', { name: '红马' }).at(-1)!)
     fireEvent.click(screen.getByRole('button', { name: '7-6' }))
     await act(async () => { await new Promise((resolve) => setTimeout(resolve, 3600)) })
@@ -869,7 +927,7 @@ describe('ZERO7', () => {
 
     fireEvent.click(screen.getByLabelText('返回首页'))
     vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ available: false }), { status: 200 })))
-    fireEvent.click(screen.getByRole('button', { name: /人机对战/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /人机对战/ })[0])
     await screen.findByText('基础 AI（Pikafish 未安装）')
     const preventDefault = vi.spyOn(Event.prototype, 'preventDefault')
     await act(async () => {
@@ -927,7 +985,7 @@ describe('ZERO7', () => {
     expect(screen.getByText('今日三小关')).toBeInTheDocument()
   })
 
-  it('全局语音支持首页帮助以及成长页和个人页导航', async () => {
+  it('全局语音支持首页帮助以及训练和对战导航', async () => {
     render(<App initialLevels={testLevels} />)
     const sayGlobal = async (text: string) => {
       await act(async () => {
@@ -939,11 +997,9 @@ describe('ZERO7', () => {
     }
     await sayGlobal('帮助')
     expect(voiceMock.instances.at(-1)!.disconnect).toHaveBeenCalled()
-    fireEvent.click(screen.getAllByRole('button', { name: /成长/ })[0])
     await sayGlobal('开始训练')
     expect(screen.getByText(/车怎样完成最后一击/)).toBeInTheDocument()
     fireEvent.click(screen.getByLabelText('返回首页'))
-    fireEvent.click(screen.getAllByRole('button', { name: /成长/ })[0])
     await sayGlobal('开始人机对战')
     expect(screen.queryByText('轮到红方走棋')).not.toBeInTheDocument()
   })
@@ -984,7 +1040,7 @@ describe('ZERO7', () => {
       return new Response(JSON.stringify({ move: 'h9g7', engine: 'Pikafish Test', level: '初级' }), { status: 200 })
     }))
     render(<App initialLevels={testLevels} />)
-    fireEvent.click(screen.getByRole('button', { name: /人机对战/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /人机对战/ })[0])
     expect(await screen.findByText('Pikafish Test')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: '局面分析' }))
     await waitFor(() => expect(screen.getByText(/推荐走法：/)).toBeInTheDocument())
@@ -1000,14 +1056,6 @@ describe('ZERO7', () => {
 
   it('空格在输入控件中也会被全局拦截，并覆盖页面导航', () => {
     render(<App initialLevels={testLevels} />)
-    fireEvent.click(screen.getAllByRole('button', { name: /成长/ })[0])
-    expect(screen.getByText('我的象棋成长')).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: '继续今日挑战' }))
-    expect(screen.getByText(/车怎样完成最后一击/)).toBeInTheDocument()
-    fireEvent.click(screen.getByLabelText('返回首页'))
-    fireEvent.click(screen.getAllByRole('button', { name: /成长/ })[0])
-    expect(screen.getByText('零七棋友')).toBeInTheDocument()
-    fireEvent.click(screen.getByLabelText('返回首页'))
     const input = document.createElement('input')
     document.body.append(input)
     const keydown = new KeyboardEvent('keydown', { code: 'Space', bubbles: true })
@@ -1037,7 +1085,7 @@ describe('ZERO7', () => {
   it('支持全局语音控制指令和确认操作', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ available: false }), { status: 200 })))
     render(<App initialLevels={testLevels} />)
-    fireEvent.click(screen.getByRole('button', { name: /人机对战/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /人机对战/ })[0])
     await screen.findByText('基础 AI（Pikafish 未安装）')
     const button = screen.getAllByRole('button', { name: /按住说走法/ })[0]
     await act(async () => fireEvent.pointerDown(button))
@@ -1078,7 +1126,7 @@ describe('ZERO7', () => {
   it('覆盖人机对战语音连接失败', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ available: false }), { status: 200 })))
     render(<App initialLevels={testLevels} />)
-    fireEvent.click(screen.getByRole('button', { name: /人机对战/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /人机对战/ })[0])
     await screen.findByText('基础 AI（Pikafish 未安装）')
     voiceMock.startError = new Error('对战麦克风不可用')
     await act(async () => fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住说走法/ })[0]))
@@ -1089,7 +1137,7 @@ describe('ZERO7', () => {
     vi.useFakeTimers()
     vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ available: false }), { status: 200 })))
     render(<App initialLevels={testLevels} />)
-    fireEvent.click(screen.getByRole('button', { name: /人机对战/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /人机对战/ })[0])
     await act(async () => Promise.resolve())
     await act(async () => vi.advanceTimersByTimeAsync(60000))
     expect(voiceMock.instances.every((client) => !client.speakText.mock.calls.some(([text]) => text === '轮到你继续走棋。'))).toBe(true)
@@ -1105,7 +1153,7 @@ describe('ZERO7', () => {
   it('覆盖人机对战返回、语音松开和复盘入口', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ available: false }), { status: 200 })))
     render(<App initialLevels={testLevels} />)
-    fireEvent.click(screen.getByRole('button', { name: /人机对战/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /人机对战/ })[0])
     await screen.findByText('基础 AI（Pikafish 未安装）')
     const voiceButton = screen.getAllByRole('button', { name: /按住说走法/ })[0]
     fireEvent.pointerDown(voiceButton)
@@ -1113,7 +1161,7 @@ describe('ZERO7', () => {
     fireEvent.pointerUp(voiceButton)
     fireEvent.pointerCancel(voiceButton)
     fireEvent.click(screen.getByRole('button', { name: '认输' }))
-    fireEvent.click(screen.getByRole('button', { name: '语音复盘' }))
+    fireEvent.click(screen.getByRole('button', { name: '语音总结' }))
     fireEvent.click(screen.getAllByRole('button', { name: '返回首页' })[0])
     expect(screen.getByText('今日三小关')).toBeInTheDocument()
   })

@@ -2,10 +2,10 @@
 
 ## Wukong Xiangqi
 
-ZERO7 includes selected puzzle positions from Wukong Xiangqi:
+ZERO7 includes selected puzzle positions and complete master-game scores from Wukong Xiangqi:
 
 - Source: <https://github.com/maksimKorzh/wukong-xiangqi>
-- Files used: `puzzle_generator/puzzles_verified_sorted.json`
+- Files used: `puzzle_generator/puzzles_verified_sorted.json`, `xqdb/xqdb/xqdb_masters_40711_UCI_games.pgn.zip` (2,000 selected complete games)
 - Copyright (c) 2021 Maksym Korzh
 - License: MIT
 
