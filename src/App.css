@@ -46,6 +46,7 @@
 .lesson-sidebar { height: calc(100dvh - 16px); overflow: hidden; }
 .lesson-sidebar .coach-panel { position: static; min-height: 0; flex: 1; padding: 0; display: flex; flex-direction: column; gap: 5px; overflow: visible; background: transparent; border: 0; }
 .lesson-sidebar .lesson-card { min-height: 0; padding: 10px; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); text-align: left; cursor: default; position: static; overflow: visible; transition: none; }
+.lesson-sidebar .lesson-card::after { display: none; }
 .lesson-sidebar .lesson-overview-card { flex: 0 0 auto; }
 .lesson-voice-card { padding: 10px; }
 .lesson-sidebar .lesson-card .hint-card { border: 0; padding: 0; background: transparent; }
