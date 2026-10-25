@@ -1266,7 +1266,7 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
         const pieceNames: Record<string, string> = { k: '将', a: '士', b: '象', n: '马', r: '车', c: '炮', p: '兵' }
         if (line.isCheckmate()) return '形成绝杀，立即结束对局。'
         if (line.isCheck()) return '直接将军，迫使对方应将。'
-        if (move.captured) return `吃掉对方${pieceNames[move.captured] ?? '棋子'}，取得子力收益。`
+        if (move.captured) return `吃掉对方${pieceNames[move.captured.toLowerCase()] ?? '棋子'}，取得子力收益。`
         if (/^[a-i][09]$/.test(move.from)) return '调动底线子力，使棋子更快参与进攻和防守。'
         if (['d', 'e', 'f'].includes(move.to[0])) return '加强中路控制，限制对方子力活动。'
         return '调整子力位置，同时改善进攻和防守的协调。'
