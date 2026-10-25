@@ -262,7 +262,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
     const fen = game.fen()
     const locallyCheckmated = game.isCheckmate()
     setLessonThinking(true)
-    setVoiceText(candidateAnswer ? '正在验证对方是否还有解法…' : '这步可以走，零七正在应对…')
+    setVoiceText(candidateAnswer ? '正在验证对方是否还有解法…' : '零七正在应对…')
     try {
       const mateDepth = level.mode === 'mateN' ? 20 : level.mode.match(/^mate([2-9]\d*)$/)?.[1]
       const targetMateDepth = mateDepth ? Number(mateDepth) : undefined

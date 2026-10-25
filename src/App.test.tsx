@@ -195,6 +195,7 @@ describe('ZERO7', () => {
     clickBoardSquare(9, 2)
     clickBoardSquare(7, 4)
     expect(screen.getByText(/零七正在应对|正在验证/)).toBeInTheDocument()
+    expect(screen.queryByText(/这步可以走/)).not.toBeInTheDocument()
     expect(screen.getByLabelText('最近一步走子路径')).toHaveClass('red')
     expect(screen.queryByText(/零七走了车７进１/)).not.toBeInTheDocument()
     await act(async () => new Promise((resolve) => setTimeout(resolve, BATTLE_RULES.aiThinkDelayMs + 50)))
