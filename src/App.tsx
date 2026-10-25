@@ -930,10 +930,15 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
     scheduleTurnReminder()
   }
 
+  const prepareBattleSpeech = () => {
+    if (!battleSpeechClient.current) battleSpeechClient.current = new LinxiVoiceClient(() => {})
+    void battleSpeechClient.current.prepareAudio().catch(() => undefined)
+  }
+
   const speakBattleText = (text: string, showText = true) => {
     if (showText) setVoiceText(text)
     battleSpeechQueue.current = battleSpeechQueue.current.then(async () => {
-      const client = new LinxiVoiceClient(() => {})
+      const client = battleSpeechClient.current ?? new LinxiVoiceClient(() => {})
       battleSpeechClient.current = client
       try {
         await client.speakText(text)
@@ -941,9 +946,6 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
         await new Promise((resolve) => window.setTimeout(resolve, BATTLE_RULES.voicePlaybackSettleMs))
       } catch {
         updateBattleVoiceState('error')
-      } finally {
-        client.disconnect()
-        if (battleSpeechClient.current === client) battleSpeechClient.current = null
       }
     })
   }
@@ -1002,6 +1004,7 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
   }
 
   const playBattleMove = (move: Move) => {
+    prepareBattleSpeech()
     setSelected(null)
     setTargets([])
     refresh(move)
@@ -1101,6 +1104,7 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
     if (battleVoiceState.current === 'listening' || battleVoiceState.current === 'connecting') return
     battleVoiceClient.current?.disconnect()
     voiceMoveAuthorization.current.cancel()
+    prepareBattleSpeech()
     const client = createBattleVoiceClient()
     setVoiceText('正在连接零七，请准备说出走法…')
     try {

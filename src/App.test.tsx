@@ -33,6 +33,7 @@ vi.mock('./linxi', () => ({
     currentState = 'idle'
     start = vi.fn(async () => { if (voiceMock.startError) throw voiceMock.startError; this.currentState = 'listening'; this.emit({ type: 'state', state: 'listening' }) })
     stop = vi.fn(async () => { this.currentState = 'thinking'; this.emit({ type: 'state', state: 'thinking' }) })
+    prepareAudio = vi.fn(async () => undefined)
     speakText = vi.fn(async () => { if (voiceMock.speakError) throw voiceMock.speakError })
     waitForPlayback = vi.fn(async () => { if (voiceMock.playbackHangs) await new Promise(() => {}) })
     disconnect = vi.fn(() => { this.currentState = 'idle' })
@@ -604,9 +605,9 @@ describe('ZERO7', () => {
     await screen.findByText('马８进７', {}, { timeout: 4000 })
     await waitFor(() => {
       const speechClients = voiceMock.instances.filter((client) => client.speakText.mock.calls.length > 0)
-      expect(speechClients).toHaveLength(2)
-      expect(speechClients[0].speakText).toHaveBeenCalledWith('你走马二进三。')
-      expect(speechClients[1].speakText).toHaveBeenCalledWith('零七应对马８进７。')
+      expect(speechClients).toHaveLength(1)
+      expect(speechClients[0].speakText).toHaveBeenNthCalledWith(1, '你走马二进三。')
+      expect(speechClients[0].speakText).toHaveBeenNthCalledWith(2, '零七应对马８进７。')
     })
   })
 

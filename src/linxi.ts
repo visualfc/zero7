@@ -61,8 +61,12 @@ export class LinxiVoiceClient {
     this.setState('listening')
   }
 
-  async speakText(text: string) {
+  async prepareAudio() {
     await this.player.prepare()
+  }
+
+  async speakText(text: string) {
+    await this.prepareAudio()
     if (this.socket?.readyState !== WebSocket.OPEN) {
       this.setState('connecting')
       await this.connect()

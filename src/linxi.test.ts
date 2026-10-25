@@ -114,6 +114,7 @@ describe('灵矽语音客户端', () => {
   it('发送朗读请求并处理被打断的播放', async () => {
     const events: LinxiEvent[] = []
     const client = new LinxiVoiceClient((event) => events.push(event))
+    await client.prepareAudio()
     const speaking = client.speakText('提示内容'); await ready(); await vi.waitFor(() => expect(FakeWebSocket.instances[0]?.sent).toContain(JSON.stringify({ type: 'speak', text: '提示内容' })))
     const socket = FakeWebSocket.instances[0]
     expect(socket.sent).toContain(JSON.stringify({ type: 'speak', text: '提示内容' }))
