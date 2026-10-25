@@ -757,6 +757,7 @@ function LessonPage(props: {
           {!props.completed && (
             <>
               <div className="lesson-card lesson-voice-card">
+              <div className="coach-head compact"><div className="coach-avatar small">象</div><div><strong>语音走棋与讲解</strong><span>{voiceStateLabel(props.voiceState)}</span></div><span className={`connection-dot ${props.voiceState}`} /></div>
               <button className={props.voiceHeld ? 'voice-button listening' : 'voice-button'} onPointerDown={(event) => { event.currentTarget.setPointerCapture?.(event.pointerId); props.onVoiceStart() }} onPointerUp={props.onVoiceStop} onPointerCancel={props.onVoiceStop} onPointerLeave={(event) => { if (event.currentTarget.hasPointerCapture(event.pointerId)) props.onVoiceStop() }} disabled={props.thinking || props.voiceState === 'connecting' || props.voiceState === 'thinking'}>
                 <span><Mic /></span><strong>{props.voiceHeld ? '松开完成' : '按住语音输入'}</strong><small>（按住按钮/空格，说完后松开）</small>
               </button>
