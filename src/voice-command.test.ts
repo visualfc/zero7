@@ -35,7 +35,7 @@ describe('全局语音指令', () => {
     expect(parseVoiceCommand('马二进三。')).toEqual({ type: 'move', text: '马二进三。' })
     expect(parseVoiceCommand('车一平二')).toEqual({ type: 'move', text: '车一平二' })
     expect(parseVoiceCommand('我可以说什么')).toEqual({ type: 'help' })
-    expect(parseVoiceCommand('去2借5')).toEqual({ type: 'unknown', text: '去2借5' })
+    expect(parseVoiceCommand('去2借5')).toEqual({ type: 'move', text: '去2借5' })
     expect(normalizeVoiceCommandText('  返回首页！ ')).toBe('返回首页')
   })
 

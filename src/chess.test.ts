@@ -46,6 +46,7 @@ describe('语音棋谱解析', () => {
   })
 
   it('归一化常见同音字和数字', () => {
+    expect(normalizeMoveText('去一进二')).toBe('车一进二')
     expect(normalizeMoveText('跑 5 近 5！')).toBe('炮五进五')
     expect(normalizeMoveText('车2坪山')).toBe('车二平三')
   })

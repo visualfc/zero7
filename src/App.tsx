@@ -858,6 +858,8 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const [voiceHeld, setVoiceHeld] = useState(false)
   const voicePressStartedAt = useRef<number | null>(null)
   const battleVoiceClient = useRef<LinxiVoiceClient | null>(null)
+  const battleSpeechClient = useRef<LinxiVoiceClient | null>(null)
+  const battleSpeechQueue = useRef(Promise.resolve())
   const battleVoiceState = useRef<LinxiState>('idle')
   const voiceMoveAuthorization = useRef(new VoiceMoveAuthorization())
   const ignoreBattleReplies = useRef(false)
@@ -886,6 +888,9 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
       voicePressStartedAt.current = null
       setVoiceHeld(false)
       battleVoiceClient.current?.disconnect()
+      battleSpeechClient.current?.disconnect()
+      battleSpeechClient.current = null
+      battleSpeechQueue.current = Promise.resolve()
       if (turnReminderTimer.current !== null) window.clearTimeout(turnReminderTimer.current)
     }
   }, [])
@@ -925,21 +930,22 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
     scheduleTurnReminder()
   }
 
-  const speakBattleText = async (text: string, showText = true) => {
+  const speakBattleText = (text: string, showText = true) => {
     if (showText) setVoiceText(text)
-    try {
-      let client = battleVoiceClient.current
-      if (!client || client.currentState === 'idle' || client.currentState === 'error') {
-        client?.disconnect()
-        client = createBattleVoiceClient()
+    battleSpeechQueue.current = battleSpeechQueue.current.then(async () => {
+      const client = new LinxiVoiceClient(() => {})
+      battleSpeechClient.current = client
+      try {
+        await client.speakText(text)
+        await client.waitForPlayback()
+        await new Promise((resolve) => window.setTimeout(resolve, BATTLE_RULES.voicePlaybackSettleMs))
+      } catch {
+        updateBattleVoiceState('error')
+      } finally {
+        client.disconnect()
+        if (battleSpeechClient.current === client) battleSpeechClient.current = null
       }
-      await client.speakText(text)
-      await client.waitForPlayback()
-      await new Promise((resolve) => window.setTimeout(resolve, BATTLE_RULES.voicePlaybackSettleMs))
-      client.disconnect()
-    } catch {
-      updateBattleVoiceState('error')
-    }
+    })
   }
 
 
@@ -1471,6 +1477,7 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
             {!['轮到红方走棋', `${BATTLE_RULES.brandName}正在思考…`, '轮到你继续走棋。'].includes(status) && <p className="battle-message">{status}</p>}
             <div className="coach-head compact"><div className="coach-avatar small">象</div><div><strong>语音走棋与讲解</strong><span>{voiceStateLabel(voiceState)}</span></div><span className={`connection-dot ${voiceState}`} /></div>
             <p>{voiceText}</p>
+            <p className="voice-shortcut-hint">也可以按住空格键进行语音输入</p>
             <button className={voiceHeld ? 'voice-button listening' : 'voice-button'} onPointerDown={(event) => { event.currentTarget.setPointerCapture?.(event.pointerId); voicePressStartedAt.current = Date.now(); setVoiceHeld(true); void startBattleVoice() }} onPointerUp={() => void stopBattleVoice()} onPointerCancel={() => void stopBattleVoice()} disabled={reviewOpen || replayStep !== null || thinking || voiceState === 'connecting' || voiceState === 'thinking' || game.current.turn() !== 'w'}><span><Mic /></span><strong>{voiceHeld ? '松开完成' : '按住说走法'}</strong><small>按住按钮，说完后松开</small></button>
           </div>
 
