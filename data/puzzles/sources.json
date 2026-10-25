@@ -5,5 +5,19 @@
     "url": "https://github.com/maksimKorzh/wukong-xiangqi",
     "license": "MIT",
     "role": "经过搜索验证的将杀局面"
+  },
+  {
+    "id": "xiangqi-pwa-offline",
+    "name": "棋弈江湖",
+    "url": "https://github.com/dffge552/xiangqi-pwa-offline",
+    "license": "MIT",
+    "role": "残局、杀法与古谱题源"
+  },
+  {
+    "id": "chessdb",
+    "name": "ChessDB",
+    "url": "https://github.com/noobpwnftw/chessdb",
+    "license": "Unlicense / 公共领域数据库快照",
+    "role": "离线答案、评分和主变化校验"
   }
 ]

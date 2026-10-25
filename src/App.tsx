@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Award,
   BookOpen,
@@ -24,7 +24,7 @@ import { BATTLE_RULES, describeAiResponse, describePlayerMove } from './battle-r
 import { commandHelp, parseVoiceCommand, type VoiceCommand } from './voice-command'
 import { getPikafishMove, getPikafishStatus, type EngineLevel } from './pikafish'
 
-type Page = 'home' | 'lesson' | 'battle' | 'progress'
+type Page = 'home' | 'lesson' | 'endgame' | 'battle' | 'progress'
 const MIN_VOICE_HOLD_MS = 350
 const EMPTY_LEVELS: Level[] = []
 
@@ -34,6 +34,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
   const [levelIndex, setLevelIndex] = useState(0)
   const level = levels[levelIndex]
   const [pieces, setPieces] = useState<Piece[]>(() => initialLevels[0]?.pieces.map((piece) => ({ ...piece })) ?? [])
+  const [lessonHistory, setLessonHistory] = useState<string[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [hintLevel, setHintLevel] = useState(0)
   const [voiceState, setVoiceState] = useState<LinxiState>('idle')
@@ -63,6 +64,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
       setLevels(loaded)
       lessonGame.current = new Chess(loaded[0].fen)
       setPieces(battlePieces(lessonGame.current))
+      setLessonHistory([])
     }).catch((error) => {
       if (error instanceof DOMException && error.name === 'AbortError') return
       setToast(error instanceof Error ? error.message : '题库加载失败')
@@ -145,6 +147,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
     lessonHintVoiceClient.current = null
     setLevelIndex(index)
     setPieces(battlePieces(lessonGame.current))
+    setLessonHistory([])
     setSelectedId(null)
     setHintLevel(0)
     setVoiceText('')
@@ -154,17 +157,37 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
 
   const resetLesson = () => loadLevel(levelIndex)
 
-  const openLesson = (index = 0) => {
+  const openLesson = (index = Math.max(0, levels.findIndex((item) => item.mode === 'mate1'))) => {
     loadLevel(index)
     setPage('lesson')
   }
 
-  const speakLessonSuccess = async () => {
+  const openEndgame = () => {
+    const index = Math.max(0, levels.findIndex((item) => item.mode === 'endgame'))
+    loadLevel(index)
+    setPage('endgame')
+  }
+
+  const selectLevel = (index: number) => loadLevel(index)
+  const navigate = (next: Page) => {
+    if (next === 'lesson') openLesson()
+    else if (next === 'endgame') openEndgame()
+    else setPage(next)
+  }
+
+  const continueLevel = () => {
+    const mode = level.mode
+    const candidates = levels.map((item, index) => ({ item, index })).filter(({ item }) => item.mode === mode)
+    const current = candidates.findIndex(({ index }) => index === levelIndex)
+    loadLevel(candidates[(current + 1) % candidates.length]?.index ?? levelIndex)
+  }
+
+  const speakLessonSuccess = async (notation = level.answer) => {
     lessonSuccessVoiceClient.current?.disconnect()
     const client = new LinxiVoiceClient(() => {})
     lessonSuccessVoiceClient.current = client
     try {
-      await client.speakText(`${level.answer}，绝杀！`)
+      await client.speakText(`${notation}，绝杀！`)
       await client.waitForPlayback()
     } catch (error) {
       setToast(error instanceof Error ? error.message : '成功讲解播放失败')
@@ -174,11 +197,11 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
     }
   }
 
-  const completeLesson = () => {
+  const completeLesson = (notation = level.answer) => {
     setSelectedId(null)
     setCompleted(true)
-    setVoiceText(`${level.answer}，绝杀！`)
-    void speakLessonSuccess()
+    setVoiceText(`${notation}，绝杀！`)
+    void speakLessonSuccess(notation)
   }
 
   const respondToLessonMove = async (game: Chess, candidateAnswer = false) => {
@@ -191,8 +214,9 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
       const result = await getPikafishMove(fen, '初级')
       if (requestId !== lessonRequestId.current || lessonGame.current !== game || game.fen() !== fen) return
       if (!result.move) {
-        if (candidateAnswer && locallyCheckmated && result.terminal) {
-          completeLesson()
+        if (locallyCheckmated && result.terminal) {
+          const lastMove = game.history({ verbose: true }).at(-1)
+          completeLesson(lastMove?.zh ?? level.answer)
           return
         }
         setVoiceText('对方没有合法应手，但当前没有形成将死。可以重新练习或继续下一题。')
@@ -201,6 +225,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
       const response = game.move(result.move)
       if (!response) throw new Error('Pikafish 返回了无效应手')
       setPieces(battlePieces(game))
+      setLessonHistory((game.history({ verbose: true }) as Move[]).map((move) => move.zh))
       setVoiceText(candidateAnswer
         ? `这步仍有解法。零七走了${response.zh}，请继续尝试或重新练习。`
         : `零七走了${response.zh}。继续寻找这道题的制胜方法，或点击重新练习。`)
@@ -220,6 +245,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
       return
     }
     setPieces(battlePieces(game))
+    setLessonHistory((game.history({ verbose: true }) as Move[]).map((move) => move.zh))
     setSelectedId(null)
     void respondToLessonMove(game, true)
   }
@@ -236,14 +262,20 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
       const move = makeBattleMove(game, from, square)
       if (!move) return
       setPieces(battlePieces(game))
+      setLessonHistory((game.history({ verbose: true }) as Move[]).map((move) => move.zh))
       setSelectedId(null)
-      void respondToLessonMove(game, candidateAnswer || game.isCheckmate())
+      void respondToLessonMove(game, level.mode === 'mate1' ? candidateAnswer : game.isCheckmate())
       return
     }
 
     const movingSide = game.turn() === 'w' ? 'red' : 'black'
     const sideName = movingSide === 'red' ? '红' : '黑'
     if (piece?.side === movingSide) {
+      if (game.isCheck() && battleLegalTargets(game, piece).length === 0) {
+        setSelectedId(null)
+        setVoiceText('当前处于将军中，请先应将。')
+        return
+      }
       setSelectedId(piece.id)
       setVoiceText(`选中了${sideName}${piece.text}，请选择合法落点。`)
       return
@@ -367,16 +399,18 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
   if (!level) return <div className="app-shell puzzle-loading"><main><div className="loading-card">正在加载练习题库…</div></main>{toast && <div className="toast" role="status"><Volume2 /> {toast}</div>}</div>
 
   return (
-    <div className={`app-shell ${page === 'battle' ? 'battle-shell' : ''} ${page === 'home' ? 'home-shell' : ''} ${page === 'lesson' || page === 'progress' ? 'content-shell' : ''}`}>
+    <div className={`app-shell ${page === 'battle' ? 'battle-shell' : ''} ${page === 'home' ? 'home-shell' : ''} ${page === 'lesson' || page === 'endgame' || page === 'progress' ? 'content-shell' : ''}`}>
       <main>
-        {page === 'home' && <HomePage levels={levels} onStart={openLesson} onBattle={() => setPage('battle')} onNavigate={setPage} completedCount={levelIndex} />}
-        {page === 'lesson' && (
+        {page === 'home' && <HomePage levels={levels} onStart={openLesson} onEndgame={openEndgame} onBattle={() => setPage('battle')} onNavigate={navigate} completedCount={levelIndex} />}
+        {(page === 'lesson' || page === 'endgame') && (
           <LessonPage
             pieces={pieces}
             selectedId={selectedId}
             legalTargets={legalTargets}
             level={level}
             levelIndex={levelIndex}
+            lessonHistory={lessonHistory}
+            page={page}
             completed={completed}
             thinking={lessonThinking}
             voiceState={voiceState}
@@ -389,20 +423,23 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
             onVoiceStart={() => { voicePressStartedAt.current = Date.now(); setVoiceHeld(true); void startVoice() }} onVoiceStop={() => { setVoiceHeld(false); void stopVoice() }}
             onHint={() => void requestHint()}
             onReset={resetLesson}
-            onContinue={() => loadLevel((levelIndex + 1) % levels.length)}
-            onNavigate={setPage}
+            onContinue={continueLevel}
+            levels={levels}
+            onSelectLevel={selectLevel}
+            onNavigate={navigate}
           />
         )}
-        {page === 'battle' && <BattlePage onNavigate={setPage} />}
-        {page === 'progress' && <ProgressPage onLesson={openLesson} onNavigate={setPage} />}
+        {page === 'battle' && <BattlePage onNavigate={navigate} />}
+        {page === 'progress' && <ProgressPage onLesson={openLesson} onNavigate={navigate} />}
       </main>
 
       {toast && <div className="toast" role="status"><Volume2 /> {toast}</div>}
 
       <nav className="mobile-nav" aria-label="移动端主导航">
         <NavButton active={page === 'home'} icon={<Home />} label="首页" onClick={() => setPage('home')} />
-        <NavButton active={page === 'lesson'} icon={<BookOpen />} label="训练" onClick={() => setPage('lesson')} />
         <NavButton active={page === 'battle'} icon={<Swords />} label="对战" onClick={() => setPage('battle')} />
+        <NavButton active={page === 'lesson'} icon={<BookOpen />} label="训练" onClick={() => openLesson()} />
+        <NavButton active={page === 'endgame'} icon={<Target />} label="残局" onClick={openEndgame} />
         <NavButton active={page === 'progress'} icon={<Trophy />} label="成长" onClick={() => setPage('progress')} />
       </nav>
     </div>
@@ -414,10 +451,10 @@ function NavButton({ active, icon, label, onClick }: { active: boolean; icon: Re
 }
 
 function SideNavigation({ active, onNavigate }: { active: Page; onNavigate: (page: Page) => void }) {
-  return <nav className="battle-side-nav unified-side-nav" aria-label="主导航"><button className="brand battle-side-brand" onClick={() => onNavigate('home')} aria-label="返回首页"><span className="brand-mark"><span>象</span></span><span className="brand-name">零七 <small>ZERO7</small></span></button><div className="battle-side-nav-buttons"><NavButton active={active === 'home'} icon={<Home />} label="首页" onClick={() => onNavigate('home')} /><NavButton active={active === 'lesson'} icon={<BookOpen />} label="训练" onClick={() => onNavigate('lesson')} /><NavButton active={active === 'battle'} icon={<Swords />} label="对战" onClick={() => onNavigate('battle')} /><NavButton active={active === 'progress'} icon={<Trophy />} label="成长" onClick={() => onNavigate('progress')} /></div></nav>
+  return <nav className="battle-side-nav unified-side-nav" aria-label="主导航"><button className="brand battle-side-brand" onClick={() => onNavigate('home')} aria-label="返回首页"><span className="brand-mark"><span>象</span></span><span className="brand-name">零七 <small>ZERO7</small></span></button><div className="battle-side-nav-buttons"><NavButton active={active === 'battle'} icon={<Swords />} label="对战" onClick={() => onNavigate('battle')} /><NavButton active={active === 'lesson'} icon={<BookOpen />} label="训练" onClick={() => onNavigate('lesson')} /><NavButton active={active === 'endgame'} icon={<Target />} label="残局" onClick={() => onNavigate('endgame')} /><NavButton active={active === 'progress'} icon={<Trophy />} label="成长" onClick={() => onNavigate('progress')} /></div></nav>
 }
 
-function HomePage({ levels, onStart, onBattle, onNavigate, completedCount }: { levels: Level[]; onStart: (index?: number) => void; onBattle: () => void; onNavigate: (page: Page) => void; completedCount: number }) {
+function HomePage({ levels, onStart, onEndgame, onBattle, onNavigate, completedCount }: { levels: Level[]; onStart: (index?: number) => void; onEndgame: () => void; onBattle: () => void; onNavigate: (page: Page) => void; completedCount: number }) {
   return (
     <div className="home-page">
       <div className="home-main">
@@ -426,7 +463,7 @@ function HomePage({ levels, onStart, onBattle, onNavigate, completedCount }: { l
           <span className="eyebrow"><Sparkles /> 训练 · 对弈 · 复盘</span>
           <h1>你好，棋友！<br /><em>今天想练哪一步？</em></h1>
           <p>和零七一起训练、对弈、复盘，轻松读懂每一步棋。</p>
-          <div className="hero-actions"><button className="primary-button" onClick={onBattle}><Swords /> 人机对战</button><button className="secondary-button" onClick={() => onStart(0)}>进入训练 <ChevronRight /></button></div>
+          <div className="hero-actions"><button className="primary-button" onClick={onBattle}><Swords /> 人机对战</button><button className="secondary-button" onClick={() => onStart(0)}>进入训练 <ChevronRight /></button><button className="secondary-button" onClick={onEndgame}><Award /> 残局训练</button></div>
         </div>
         <div className="hero-art" aria-hidden="true">
           <div className="sun sun-a" /><div className="sun sun-b" />
@@ -459,6 +496,7 @@ function HomePage({ levels, onStart, onBattle, onNavigate, completedCount }: { l
         <div className="home-side-card"><span className="section-kicker">TODAY</span><strong>今日进度</strong><p>已完成 {completedCount} / 3</p><div className="home-progress"><i style={{ width: `${(completedCount / 3) * 100}%` }} /></div></div>
         <button className="primary-button full" onClick={onBattle}><Swords /> 对弈</button>
         <button className="secondary-button full" onClick={() => onStart(0)}><Target /> 训练</button>
+        <button className="secondary-button full" onClick={onEndgame}><Award /> 残局训练</button>
         <div className="home-side-card home-tip"><div className="coach-avatar small">象</div><p>下棋不用急，先看看对方下一步想做什么。</p></div>
       </aside>
     </div>
@@ -479,24 +517,26 @@ function LessonCard({ number, color, icon, title, text, tags, onClick }: { numbe
 }
 
 function LessonPage(props: {
-  pieces: Piece[]; selectedId: string | null; legalTargets: Square[]; level: Level; levelIndex: number; completed: boolean; thinking: boolean; voiceState: LinxiState; voiceHeld: boolean;
+  pieces: Piece[]; selectedId: string | null; legalTargets: Square[]; lessonHistory: string[]; level: Level; levelIndex: number; page: Page; levels: Level[]; completed: boolean; thinking: boolean; voiceState: LinxiState; voiceHeld: boolean;
   voiceText: string; hint: string; hintLevel: number; onSquare: (square: Square) => void; onBack: () => void;
-  onVoiceStart: () => void; onVoiceStop: () => void; onHint: () => void; onReset: () => void; onContinue: () => void; onNavigate: (page: Page) => void
+  onVoiceStart: () => void; onVoiceStop: () => void; onHint: () => void; onReset: () => void; onContinue: () => void; onSelectLevel: (index: number) => void; onNavigate: (page: Page) => void
 }) {
   return (
-    <div className="lesson-page unified-page">
+    <div className={`lesson-page unified-page ${props.page === 'endgame' ? 'endgame-page' : ''}`}>
       <div className="unified-main">
       <section className="challenge-layout">
         <div className="board-panel">
+          <div className="lesson-move-rail" aria-label="残局棋谱">{Array.from({ length: Math.ceil(props.lessonHistory.length / 2) }, (_, index) => <div className="battle-move-turn" key={index}><span>{index + 1}.</span><div><span className="lesson-move">{props.lessonHistory[index * 2]}</span>{props.lessonHistory[index * 2 + 1] && <span className="lesson-move">{props.lessonHistory[index * 2 + 1]}</span>}</div></div>)}</div>
           <ChessBoard pieces={props.pieces} selectedId={props.selectedId} legalTargets={props.legalTargets} instruction={props.level.instruction} onSquare={props.onSquare} />
         </div>
       </section>
       </div>
 
       <aside className="unified-sidebar lesson-sidebar">
-        <SideNavigation active="lesson" onNavigate={props.onNavigate} />
+        <SideNavigation active={props.page} onNavigate={props.onNavigate} />
         <div className={`coach-panel ${props.completed ? 'lesson-completed' : ''}`}>
-          <div className="lesson-side-description"><div className="lesson-badges"><span className="mini-badge">{props.level.category}</span><span className="mini-badge difficulty-badge">{props.level.difficulty}</span></div><div className="puzzle-title-tooltip" tabIndex={0} aria-describedby={`puzzle-meta-${props.level.id}`}><h1>{props.level.title.split('\n').map((line, index) => <span key={line}>{index > 0 && <br />}{line}</span>)}</h1><div id={`puzzle-meta-${props.level.id}`} className="puzzle-tooltip" role="tooltip"><span>{props.level.description}</span><a href={props.level.source.url} target="_blank" rel="noreferrer">{props.level.source.name} · {props.level.source.license} · {props.level.sourcePuzzleId}</a></div></div><div className={`lesson-first-player ${props.level.fen.split(' ')[1] === 'b' ? 'black' : 'red'}`}>{props.level.fen.split(' ')[1] === 'b' ? '黑方先走' : '红方先走'}</div></div>
+          <div className="lesson-picker"><label htmlFor="lesson-picker-select">选择题目</label><select id="lesson-picker-select" value={props.levelIndex} onChange={(event) => props.onSelectLevel(Number(event.target.value))}>{props.levels.map((item, index) => item.mode === props.level.mode && <option key={item.id} value={index}>{String(props.levels.slice(0, index + 1).filter((candidate) => candidate.mode === props.level.mode).length).padStart(3, '0')}</option>)}</select></div>
+          <div className="lesson-side-description"><div className="lesson-badges"><span className="mini-badge">{props.level.category}</span><span className="mini-badge difficulty-badge">{props.level.difficulty}</span><span className="mini-badge source-badge">{props.level.source.name}</span></div><div className="puzzle-title"><h1>{props.level.title.replace(/\\\\n/g, '\n').replace(/\\n/g, '\n').split(/\r?\n/).map((line, index) => <Fragment key={`${props.level.id}-${index}`}>{index > 0 && <br />}{line}</Fragment>)}</h1></div><div className={`lesson-first-player ${props.level.fen.split(' ')[1] === 'b' ? 'black' : 'red'}`}>{props.level.fen.split(' ')[1] === 'b' ? '黑方先行' : '红方先行'}</div></div>
           {!props.completed && props.voiceText && <div className="lesson-status" aria-live="polite">{props.voiceText}</div>}
 
           {!props.completed && (

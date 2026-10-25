@@ -4,10 +4,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
 import { puzzleToLevel, type PuzzleRecord } from './puzzles'
 import wukongRecords from '../data/puzzles/wukong.json'
+import qiyiRecords from '../data/puzzles/xiangqi-pwa-offline.json'
 
 const wukongSource = { id: 'wukong-xiangqi', name: 'Wukong Xiangqi', url: 'https://github.com/maksimKorzh/wukong-xiangqi', license: 'MIT', role: '经过搜索验证的将杀局面' } as const
 const testRecords = wukongRecords.slice(0, 4).map((record) => ({ ...record, source: wukongSource })) as PuzzleRecord[]
-const testLevels = testRecords.map(puzzleToLevel)
+const qiyiSource = { id: 'xiangqi-pwa-offline', name: '棋弈江湖', url: 'https://github.com/dffge552/xiangqi-pwa-offline', license: 'MIT', role: '残局、杀法与古谱题源' } as const
+const testLevels = [...testRecords, { ...qiyiRecords[0], source: qiyiSource }].map((record, index) => puzzleToLevel(record as PuzzleRecord, index))
 const defendedCandidateLevel = puzzleToLevel({ ...testRecords[0], id: 'defended-candidate', solution: [{ from: 'c0', to: 'e2' }] }, 0)
 const puzzleMock = vi.hoisted(() => ({ fetch: vi.fn() }))
 
@@ -60,6 +62,30 @@ function solveLevel(index: number) {
 }
 
 describe('ZERO7', () => {
+  it('导航顺序为首页、对战、训练、残局、成长', () => {
+    render(<App initialLevels={testLevels} />)
+    const navigation = screen.getAllByRole('navigation', { name: '主导航' })[0]
+    const labels = navigation.querySelectorAll('.nav-button span')
+    expect([...labels].map((label) => label.textContent)).toEqual(['对战', '训练', '残局', '成长'])
+    expect(navigation.querySelector('.battle-side-brand')).toHaveAttribute('aria-label', '返回首页')
+  })
+
+  it('训练和残局页面都可以选择指定题目', () => {
+    render(<App initialLevels={testLevels} />)
+    fireEvent.click(screen.getAllByRole('button', { name: '残局训练' })[0])
+    expect(screen.getByLabelText('选择题目')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '返回首页' }))
+    fireEvent.click(screen.getByRole('button', { name: /进入训练/ }))
+    expect(screen.getByLabelText('选择题目')).toBeInTheDocument()
+    expect(screen.getByLabelText('选择题目').querySelector('option')).toHaveTextContent('001')
+    fireEvent.change(screen.getByLabelText('选择题目'), { target: { value: '1' } })
+    expect(screen.getByRole('heading', { name: /炮怎样完成最后一击/ })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '返回首页' }))
+    fireEvent.click(screen.getAllByRole('button', { name: '残局' })[0])
+    expect(screen.getByLabelText('选择题目')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /残局/ })).toBeInTheDocument()
+  })
+
   it('从首页进入第一关', () => {
     render(<App initialLevels={testLevels} />)
     fireEvent.click(screen.getByRole('button', { name: /进入训练/ }))
@@ -67,27 +93,34 @@ describe('ZERO7', () => {
     expect(screen.getAllByRole('button', { name: '红车' })[0]).toBeInTheDocument()
   })
 
-  it('题目说明和来源只在标题 Tooltip 中显示', () => {
+  it('残局页面在棋盘左侧显示走棋记录', () => {
+    render(<App initialLevels={testLevels} />)
+    fireEvent.click(screen.getAllByRole('button', { name: '残局训练' })[0])
+    expect(screen.getByLabelText('残局棋谱')).toBeEmptyDOMElement()
+    const level = testLevels.find((item) => item.mode === 'endgame')!
+    clickBoardSquare(level.move.from.row, level.move.from.col)
+    clickBoardSquare(level.move.to.row, level.move.to.col)
+    expect(screen.getByLabelText('残局棋谱')).toHaveTextContent(level.answer)
+  })
+
+  it('训练题标题不显示 Tooltip', () => {
     render(<App initialLevels={testLevels} />)
     fireEvent.click(screen.getByRole('button', { name: /进入训练/ }))
-    const title = screen.getByRole('heading', { name: /车怎样完成最后一击/ }).parentElement!
-    const tooltip = screen.getByRole('tooltip')
-    expect(title).toHaveAttribute('tabindex', '0')
-    expect(title).toHaveAttribute('aria-describedby', tooltip.id)
-    expect(tooltip).toHaveTextContent('这是经过搜索验证的实战将杀局面，请找出唯一的一步将杀。')
-    expect(within(tooltip).getByRole('link', { name: 'Wukong Xiangqi · MIT · puzzle_0' })).toHaveAttribute('href', wukongSource.url)
+    expect(screen.getByRole('heading', { name: /车怎样完成最后一击/ })).toBeInTheDocument()
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /车怎样完成最后一击/ }).querySelectorAll('br')).toHaveLength(1)
     expect(document.querySelector('.puzzle-source')).not.toBeInTheDocument()
   })
 
-  it('明确显示红方先走和黑方先走，并允许对应一方完成题目', async () => {
+  it('明确显示红方先行和黑方先行，并允许对应一方完成题目', async () => {
     const { unmount } = render(<App initialLevels={testLevels} />)
     fireEvent.click(screen.getByRole('button', { name: /进入训练/ }))
-    expect(screen.getByText('红方先走')).toBeInTheDocument()
+    expect(screen.getByText('红方先行')).toBeInTheDocument()
     unmount()
 
     render(<App initialLevels={testLevels} />)
     fireEvent.click(screen.getAllByRole('button', { name: /炮怎样完成最后一击/ })[1])
-    expect(screen.getByText('黑方先走')).toBeInTheDocument()
+    expect(screen.getByText('黑方先行')).toBeInTheDocument()
     solveLevel(2)
     expect(await screen.findByText('绝杀！')).toBeInTheDocument()
   })
@@ -226,7 +259,7 @@ describe('ZERO7', () => {
     await screen.findByText('绝杀！')
     fireEvent.click(screen.getByRole('button', { name: /继续下一题/ }))
     expect(screen.getByText(/马怎样完成最后一击/)).toBeInTheDocument()
-    expect(screen.getByRole('tooltip')).toHaveTextContent('Wukong Xiangqi · MIT · puzzle_3')
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
   })
 
   it('进入人机对战后直接开局并提供重开一局按钮', async () => {
@@ -370,7 +403,7 @@ describe('ZERO7', () => {
     navigate('成长')
     expect(screen.getByText('我的象棋成长')).toBeInTheDocument()
     expect(screen.getByText('零七棋友')).toBeInTheDocument()
-    navigate('首页')
+    fireEvent.click(screen.getByLabelText('返回首页'))
     expect(screen.getByText('今日三小关')).toBeInTheDocument()
   })
 

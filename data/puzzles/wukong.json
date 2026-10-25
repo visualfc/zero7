@@ -26,7 +26,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1",
@@ -55,7 +56,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-2",
@@ -84,7 +86,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-3",
@@ -113,7 +116,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-4",
@@ -142,7 +146,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-5",
@@ -171,7 +176,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-6",
@@ -200,7 +206,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-7",
@@ -229,7 +236,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-8",
@@ -258,7 +266,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-9",
@@ -287,7 +296,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-10",
@@ -316,7 +326,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-12",
@@ -345,7 +356,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-13",
@@ -374,7 +386,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-14",
@@ -403,7 +416,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-15",
@@ -432,7 +446,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-16",
@@ -461,7 +476,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-17",
@@ -490,7 +506,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-18",
@@ -519,7 +536,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-19",
@@ -548,7 +566,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-20",
@@ -577,7 +596,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-21",
@@ -606,7 +626,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-22",
@@ -635,7 +656,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-23",
@@ -664,7 +686,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-24",
@@ -693,7 +716,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-25",
@@ -722,7 +746,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-26",
@@ -751,7 +776,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-27",
@@ -780,7 +806,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-28",
@@ -809,7 +836,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-29",
@@ -838,7 +866,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-30",
@@ -867,7 +896,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-31",
@@ -896,7 +926,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-32",
@@ -925,7 +956,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-33",
@@ -954,7 +986,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-34",
@@ -983,7 +1016,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-35",
@@ -1012,7 +1046,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-36",
@@ -1041,7 +1076,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-38",
@@ -1070,7 +1106,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-39",
@@ -1099,7 +1136,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-40",
@@ -1128,7 +1166,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-41",
@@ -1157,7 +1196,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-42",
@@ -1186,7 +1226,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-43",
@@ -1215,7 +1256,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-44",
@@ -1244,7 +1286,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-45",
@@ -1273,7 +1316,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-46",
@@ -1302,7 +1346,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-47",
@@ -1331,7 +1376,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-48",
@@ -1360,7 +1406,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-50",
@@ -1389,7 +1436,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-51",
@@ -1418,7 +1466,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-52",
@@ -1447,7 +1496,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-53",
@@ -1476,7 +1526,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-54",
@@ -1505,7 +1556,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-55",
@@ -1534,7 +1586,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-56",
@@ -1563,7 +1616,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-57",
@@ -1592,7 +1646,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-59",
@@ -1621,7 +1676,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-60",
@@ -1650,7 +1706,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-61",
@@ -1679,7 +1736,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-62",
@@ -1708,7 +1766,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-63",
@@ -1737,7 +1796,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-64",
@@ -1766,7 +1826,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-65",
@@ -1795,7 +1856,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-66",
@@ -1824,7 +1886,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-67",
@@ -1853,7 +1916,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-68",
@@ -1882,7 +1946,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-69",
@@ -1911,7 +1976,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-70",
@@ -1940,7 +2006,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-71",
@@ -1969,7 +2036,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-72",
@@ -1998,7 +2066,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-73",
@@ -2027,7 +2096,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-74",
@@ -2056,7 +2126,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-75",
@@ -2085,7 +2156,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-76",
@@ -2114,7 +2186,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-77",
@@ -2143,7 +2216,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-78",
@@ -2172,7 +2246,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-79",
@@ -2201,7 +2276,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-80",
@@ -2230,7 +2306,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-81",
@@ -2259,7 +2336,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-82",
@@ -2288,7 +2366,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-83",
@@ -2317,7 +2396,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-84",
@@ -2346,7 +2426,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-86",
@@ -2375,7 +2456,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-87",
@@ -2404,7 +2486,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-89",
@@ -2433,7 +2516,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-90",
@@ -2462,7 +2546,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-91",
@@ -2491,7 +2576,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-93",
@@ -2520,7 +2606,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-94",
@@ -2549,7 +2636,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-95",
@@ -2578,7 +2666,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-96",
@@ -2607,7 +2696,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-97",
@@ -2636,7 +2726,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-99",
@@ -2665,7 +2756,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-100",
@@ -2694,7 +2786,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-101",
@@ -2723,7 +2816,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-102",
@@ -2752,7 +2846,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-103",
@@ -2781,7 +2876,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-104",
@@ -2810,7 +2906,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-105",
@@ -2839,7 +2936,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-106",
@@ -2868,7 +2966,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-107",
@@ -2897,7 +2996,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-108",
@@ -2926,7 +3026,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-110",
@@ -2955,7 +3056,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-111",
@@ -2984,7 +3086,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-112",
@@ -3013,7 +3116,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-113",
@@ -3042,7 +3146,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-114",
@@ -3071,7 +3176,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-115",
@@ -3100,7 +3206,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-116",
@@ -3129,7 +3236,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-117",
@@ -3158,7 +3266,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-118",
@@ -3187,7 +3296,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-119",
@@ -3216,7 +3326,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-120",
@@ -3245,7 +3356,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-121",
@@ -3274,7 +3386,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-122",
@@ -3303,7 +3416,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-123",
@@ -3332,7 +3446,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-124",
@@ -3361,7 +3476,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-125",
@@ -3390,7 +3506,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-126",
@@ -3419,7 +3536,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-127",
@@ -3448,7 +3566,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-128",
@@ -3477,7 +3596,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-129",
@@ -3506,7 +3626,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-130",
@@ -3535,7 +3656,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-131",
@@ -3564,7 +3686,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-132",
@@ -3593,7 +3716,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-133",
@@ -3622,7 +3746,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-134",
@@ -3651,7 +3776,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-135",
@@ -3680,7 +3806,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-136",
@@ -3709,7 +3836,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-138",
@@ -3738,7 +3866,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-139",
@@ -3767,7 +3896,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-140",
@@ -3796,7 +3926,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-141",
@@ -3825,7 +3956,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-142",
@@ -3854,7 +3986,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-143",
@@ -3883,7 +4016,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-144",
@@ -3912,7 +4046,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-145",
@@ -3941,7 +4076,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-146",
@@ -3970,7 +4106,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-148",
@@ -3999,7 +4136,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-149",
@@ -4028,7 +4166,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-150",
@@ -4057,7 +4196,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-151",
@@ -4086,7 +4226,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-152",
@@ -4115,7 +4256,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-153",
@@ -4144,7 +4286,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-154",
@@ -4173,7 +4316,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-155",
@@ -4202,7 +4346,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-156",
@@ -4231,7 +4376,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-157",
@@ -4260,7 +4406,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-158",
@@ -4289,7 +4436,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-159",
@@ -4318,7 +4466,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-161",
@@ -4347,7 +4496,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-162",
@@ -4376,7 +4526,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-163",
@@ -4405,7 +4556,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-164",
@@ -4434,7 +4586,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-166",
@@ -4463,7 +4616,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-167",
@@ -4492,7 +4646,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-168",
@@ -4521,7 +4676,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-169",
@@ -4550,7 +4706,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-170",
@@ -4579,7 +4736,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-171",
@@ -4608,7 +4766,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-172",
@@ -4637,7 +4796,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-173",
@@ -4666,7 +4826,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-174",
@@ -4695,7 +4856,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-175",
@@ -4724,7 +4886,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-176",
@@ -4753,7 +4916,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-177",
@@ -4782,7 +4946,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-178",
@@ -4811,7 +4976,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-179",
@@ -4840,7 +5006,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-180",
@@ -4869,7 +5036,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-181",
@@ -4898,7 +5066,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-182",
@@ -4927,7 +5096,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-183",
@@ -4956,7 +5126,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-184",
@@ -4985,7 +5156,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-185",
@@ -5014,7 +5186,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-186",
@@ -5043,7 +5216,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-187",
@@ -5072,7 +5246,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-188",
@@ -5101,7 +5276,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-189",
@@ -5130,7 +5306,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-190",
@@ -5159,7 +5336,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-191",
@@ -5188,7 +5366,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-192",
@@ -5217,7 +5396,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-193",
@@ -5246,7 +5426,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-194",
@@ -5275,7 +5456,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-195",
@@ -5304,7 +5486,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-196",
@@ -5333,7 +5516,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-197",
@@ -5362,7 +5546,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-198",
@@ -5391,7 +5576,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-199",
@@ -5420,7 +5606,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-200",
@@ -5449,7 +5636,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-202",
@@ -5478,7 +5666,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-203",
@@ -5507,7 +5696,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-204",
@@ -5536,7 +5726,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-205",
@@ -5565,7 +5756,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-206",
@@ -5594,7 +5786,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-207",
@@ -5623,7 +5816,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-208",
@@ -5652,7 +5846,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-209",
@@ -5681,7 +5876,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-210",
@@ -5710,7 +5906,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-211",
@@ -5739,7 +5936,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-212",
@@ -5768,7 +5966,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-213",
@@ -5797,7 +5996,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-215",
@@ -5826,7 +6026,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-216",
@@ -5855,7 +6056,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-217",
@@ -5884,7 +6086,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-218",
@@ -5913,7 +6116,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-219",
@@ -5942,7 +6146,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-220",
@@ -5971,7 +6176,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-221",
@@ -6000,7 +6206,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-222",
@@ -6029,7 +6236,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-223",
@@ -6058,7 +6266,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-224",
@@ -6087,7 +6296,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-225",
@@ -6116,7 +6326,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-226",
@@ -6145,7 +6356,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-227",
@@ -6174,7 +6386,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-228",
@@ -6203,7 +6416,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-229",
@@ -6232,7 +6446,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-230",
@@ -6261,7 +6476,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-231",
@@ -6290,7 +6506,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-232",
@@ -6319,7 +6536,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-233",
@@ -6348,7 +6566,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-234",
@@ -6377,7 +6596,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-235",
@@ -6406,7 +6626,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-236",
@@ -6435,7 +6656,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-237",
@@ -6464,7 +6686,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-238",
@@ -6493,7 +6716,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-239",
@@ -6522,7 +6746,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-240",
@@ -6551,7 +6776,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-241",
@@ -6580,7 +6806,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-242",
@@ -6609,7 +6836,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-243",
@@ -6638,7 +6866,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-244",
@@ -6667,7 +6896,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-246",
@@ -6696,7 +6926,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-247",
@@ -6725,7 +6956,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-248",
@@ -6754,7 +6986,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-250",
@@ -6783,7 +7016,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-251",
@@ -6812,7 +7046,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-252",
@@ -6841,7 +7076,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-253",
@@ -6870,7 +7106,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-254",
@@ -6899,7 +7136,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-255",
@@ -6928,7 +7166,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-256",
@@ -6957,7 +7196,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-257",
@@ -6986,7 +7226,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-258",
@@ -7015,7 +7256,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-259",
@@ -7044,7 +7286,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-260",
@@ -7073,7 +7316,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-261",
@@ -7102,7 +7346,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-262",
@@ -7131,7 +7376,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-263",
@@ -7160,7 +7406,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-264",
@@ -7189,7 +7436,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-265",
@@ -7218,7 +7466,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-266",
@@ -7247,7 +7496,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-267",
@@ -7276,7 +7526,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-268",
@@ -7305,7 +7556,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-269",
@@ -7334,7 +7586,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-270",
@@ -7363,7 +7616,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-271",
@@ -7392,7 +7646,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-272",
@@ -7421,7 +7676,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-273",
@@ -7450,7 +7706,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-274",
@@ -7479,7 +7736,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-275",
@@ -7508,7 +7766,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-276",
@@ -7537,7 +7796,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-277",
@@ -7566,7 +7826,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-278",
@@ -7595,7 +7856,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-279",
@@ -7624,7 +7886,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-280",
@@ -7653,7 +7916,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-283",
@@ -7682,7 +7946,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-284",
@@ -7711,7 +7976,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-285",
@@ -7740,7 +8006,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-286",
@@ -7769,7 +8036,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-287",
@@ -7798,7 +8066,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-288",
@@ -7827,7 +8096,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-289",
@@ -7856,7 +8126,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-290",
@@ -7885,7 +8156,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-291",
@@ -7914,7 +8186,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-292",
@@ -7943,7 +8216,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-293",
@@ -7972,7 +8246,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-295",
@@ -8001,7 +8276,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-296",
@@ -8030,7 +8306,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-297",
@@ -8059,7 +8336,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-298",
@@ -8088,7 +8366,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-299",
@@ -8117,7 +8396,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-301",
@@ -8146,7 +8426,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-302",
@@ -8175,7 +8456,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-303",
@@ -8204,7 +8486,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-304",
@@ -8233,7 +8516,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-305",
@@ -8262,7 +8546,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-306",
@@ -8291,7 +8576,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-307",
@@ -8320,7 +8606,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-309",
@@ -8349,7 +8636,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-310",
@@ -8378,7 +8666,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-311",
@@ -8407,7 +8696,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-312",
@@ -8436,7 +8726,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-315",
@@ -8465,7 +8756,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-316",
@@ -8494,7 +8786,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-317",
@@ -8523,7 +8816,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-318",
@@ -8552,7 +8846,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-319",
@@ -8581,7 +8876,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-320",
@@ -8610,7 +8906,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-321",
@@ -8639,7 +8936,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-322",
@@ -8668,7 +8966,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-323",
@@ -8697,7 +8996,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-324",
@@ -8726,7 +9026,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-325",
@@ -8755,7 +9056,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-326",
@@ -8784,7 +9086,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-327",
@@ -8813,7 +9116,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-328",
@@ -8842,7 +9146,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-329",
@@ -8871,7 +9176,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-330",
@@ -8900,7 +9206,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-331",
@@ -8929,7 +9236,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-332",
@@ -8958,7 +9266,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-333",
@@ -8987,7 +9296,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-334",
@@ -9016,7 +9326,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-335",
@@ -9045,7 +9356,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-336",
@@ -9074,7 +9386,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-337",
@@ -9103,7 +9416,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-338",
@@ -9132,7 +9446,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-339",
@@ -9161,7 +9476,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-340",
@@ -9190,7 +9506,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-341",
@@ -9219,7 +9536,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-342",
@@ -9248,7 +9566,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-344",
@@ -9277,7 +9596,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-347",
@@ -9306,7 +9626,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-348",
@@ -9335,7 +9656,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-349",
@@ -9364,7 +9686,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-350",
@@ -9393,7 +9716,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-351",
@@ -9422,7 +9746,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-352",
@@ -9451,7 +9776,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-353",
@@ -9480,7 +9806,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-354",
@@ -9509,7 +9836,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-356",
@@ -9538,7 +9866,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-357",
@@ -9567,7 +9896,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-358",
@@ -9596,7 +9926,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-359",
@@ -9625,7 +9956,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-360",
@@ -9654,7 +9986,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-361",
@@ -9683,7 +10016,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-362",
@@ -9712,7 +10046,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-363",
@@ -9741,7 +10076,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-364",
@@ -9770,7 +10106,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-365",
@@ -9799,7 +10136,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-366",
@@ -9828,7 +10166,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-367",
@@ -9857,7 +10196,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-368",
@@ -9886,7 +10226,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-369",
@@ -9915,7 +10256,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-370",
@@ -9944,7 +10286,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-371",
@@ -9973,7 +10316,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-372",
@@ -10002,7 +10346,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-373",
@@ -10031,7 +10376,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-374",
@@ -10060,7 +10406,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-376",
@@ -10089,7 +10436,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-377",
@@ -10118,7 +10466,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-378",
@@ -10147,7 +10496,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-380",
@@ -10176,7 +10526,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-381",
@@ -10205,7 +10556,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-382",
@@ -10234,7 +10586,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-383",
@@ -10263,7 +10616,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-384",
@@ -10292,7 +10646,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-385",
@@ -10321,7 +10676,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-386",
@@ -10350,7 +10706,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-387",
@@ -10379,7 +10736,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-388",
@@ -10408,7 +10766,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-389",
@@ -10437,7 +10796,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-390",
@@ -10466,7 +10826,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-391",
@@ -10495,7 +10856,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-392",
@@ -10524,7 +10886,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-393",
@@ -10553,7 +10916,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-394",
@@ -10582,7 +10946,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-395",
@@ -10611,7 +10976,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-396",
@@ -10640,7 +11006,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-397",
@@ -10669,7 +11036,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-398",
@@ -10698,7 +11066,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-399",
@@ -10727,7 +11096,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-400",
@@ -10756,7 +11126,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-401",
@@ -10785,7 +11156,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-402",
@@ -10814,7 +11186,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-404",
@@ -10843,7 +11216,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-405",
@@ -10872,7 +11246,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-406",
@@ -10901,7 +11276,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-407",
@@ -10930,7 +11306,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-408",
@@ -10959,7 +11336,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-409",
@@ -10988,7 +11366,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-410",
@@ -11017,7 +11396,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-411",
@@ -11046,7 +11426,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-412",
@@ -11075,7 +11456,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-413",
@@ -11104,7 +11486,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-414",
@@ -11133,7 +11516,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-415",
@@ -11162,7 +11546,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-416",
@@ -11191,7 +11576,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-417",
@@ -11220,7 +11606,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-418",
@@ -11249,7 +11636,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-420",
@@ -11278,7 +11666,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-421",
@@ -11307,7 +11696,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-422",
@@ -11336,7 +11726,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-424",
@@ -11365,7 +11756,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-425",
@@ -11394,7 +11786,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-426",
@@ -11423,7 +11816,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-427",
@@ -11452,7 +11846,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-428",
@@ -11481,7 +11876,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-429",
@@ -11510,7 +11906,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-430",
@@ -11539,7 +11936,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-431",
@@ -11568,7 +11966,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-432",
@@ -11597,7 +11996,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-433",
@@ -11626,7 +12026,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-435",
@@ -11655,7 +12056,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-436",
@@ -11684,7 +12086,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-437",
@@ -11713,7 +12116,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-438",
@@ -11742,7 +12146,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-439",
@@ -11771,7 +12176,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-440",
@@ -11800,7 +12206,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-441",
@@ -11829,7 +12236,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-443",
@@ -11858,7 +12266,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-444",
@@ -11887,7 +12296,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-446",
@@ -11916,7 +12326,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-448",
@@ -11945,7 +12356,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-449",
@@ -11974,7 +12386,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-450",
@@ -12003,7 +12416,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-451",
@@ -12032,7 +12446,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-452",
@@ -12061,7 +12476,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-453",
@@ -12090,7 +12506,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-454",
@@ -12119,7 +12536,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-455",
@@ -12148,7 +12566,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-457",
@@ -12177,7 +12596,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-458",
@@ -12206,7 +12626,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-459",
@@ -12235,7 +12656,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-461",
@@ -12264,7 +12686,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-462",
@@ -12293,7 +12716,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-463",
@@ -12322,7 +12746,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-464",
@@ -12351,7 +12776,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-465",
@@ -12380,7 +12806,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-467",
@@ -12409,7 +12836,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-468",
@@ -12438,7 +12866,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-469",
@@ -12467,7 +12896,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-470",
@@ -12496,7 +12926,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-471",
@@ -12525,7 +12956,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-473",
@@ -12554,7 +12986,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-474",
@@ -12583,7 +13016,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-475",
@@ -12612,7 +13046,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-476",
@@ -12641,7 +13076,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-477",
@@ -12670,7 +13106,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-478",
@@ -12699,7 +13136,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-479",
@@ -12728,7 +13166,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-480",
@@ -12757,7 +13196,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-481",
@@ -12786,7 +13226,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-482",
@@ -12815,7 +13256,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-483",
@@ -12844,7 +13286,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-484",
@@ -12873,7 +13316,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-485",
@@ -12902,7 +13346,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-486",
@@ -12931,7 +13376,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-487",
@@ -12960,7 +13406,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-488",
@@ -12989,7 +13436,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-489",
@@ -13018,7 +13466,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-490",
@@ -13047,7 +13496,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-491",
@@ -13076,7 +13526,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-492",
@@ -13105,7 +13556,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-493",
@@ -13134,7 +13586,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-495",
@@ -13163,7 +13616,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-496",
@@ -13192,7 +13646,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-497",
@@ -13221,7 +13676,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-498",
@@ -13250,7 +13706,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-499",
@@ -13279,7 +13736,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-500",
@@ -13308,7 +13766,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-501",
@@ -13337,7 +13796,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-502",
@@ -13366,7 +13826,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-503",
@@ -13395,7 +13856,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-504",
@@ -13424,7 +13886,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-506",
@@ -13453,7 +13916,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-507",
@@ -13482,7 +13946,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-508",
@@ -13511,7 +13976,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-509",
@@ -13540,7 +14006,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-511",
@@ -13569,7 +14036,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-512",
@@ -13598,7 +14066,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-513",
@@ -13627,7 +14096,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-514",
@@ -13656,7 +14126,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-515",
@@ -13685,7 +14156,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-516",
@@ -13714,7 +14186,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-517",
@@ -13743,7 +14216,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-518",
@@ -13772,7 +14246,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-519",
@@ -13801,7 +14276,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-521",
@@ -13830,7 +14306,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-522",
@@ -13859,7 +14336,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-523",
@@ -13888,7 +14366,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-524",
@@ -13917,7 +14396,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-525",
@@ -13946,7 +14426,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-526",
@@ -13975,7 +14456,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-527",
@@ -14004,7 +14486,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-528",
@@ -14033,7 +14516,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-529",
@@ -14062,7 +14546,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-530",
@@ -14091,7 +14576,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-532",
@@ -14120,7 +14606,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-533",
@@ -14149,7 +14636,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-534",
@@ -14178,7 +14666,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-535",
@@ -14207,7 +14696,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-536",
@@ -14236,7 +14726,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-537",
@@ -14265,7 +14756,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-538",
@@ -14294,7 +14786,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-539",
@@ -14323,7 +14816,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-541",
@@ -14352,7 +14846,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-542",
@@ -14381,7 +14876,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-543",
@@ -14410,7 +14906,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-544",
@@ -14439,7 +14936,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-545",
@@ -14468,7 +14966,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-546",
@@ -14497,7 +14996,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-547",
@@ -14526,7 +15026,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-548",
@@ -14555,7 +15056,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-549",
@@ -14584,7 +15086,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-550",
@@ -14613,7 +15116,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-551",
@@ -14642,7 +15146,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-552",
@@ -14671,7 +15176,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-553",
@@ -14700,7 +15206,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-554",
@@ -14729,7 +15236,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-555",
@@ -14758,7 +15266,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-556",
@@ -14787,7 +15296,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-557",
@@ -14816,7 +15326,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-558",
@@ -14845,7 +15356,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-559",
@@ -14874,7 +15386,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-560",
@@ -14903,7 +15416,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-561",
@@ -14932,7 +15446,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-562",
@@ -14961,7 +15476,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-563",
@@ -14990,7 +15506,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-564",
@@ -15019,7 +15536,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-565",
@@ -15048,7 +15566,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-566",
@@ -15077,7 +15596,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-567",
@@ -15106,7 +15626,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-568",
@@ -15135,7 +15656,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-569",
@@ -15164,7 +15686,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-572",
@@ -15193,7 +15716,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-573",
@@ -15222,7 +15746,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-574",
@@ -15251,7 +15776,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-575",
@@ -15280,7 +15806,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-577",
@@ -15309,7 +15836,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-579",
@@ -15338,7 +15866,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-582",
@@ -15367,7 +15896,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-583",
@@ -15396,7 +15926,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-584",
@@ -15425,7 +15956,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-585",
@@ -15454,7 +15986,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-586",
@@ -15483,7 +16016,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-587",
@@ -15512,7 +16046,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-588",
@@ -15541,7 +16076,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-589",
@@ -15570,7 +16106,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-590",
@@ -15599,7 +16136,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-591",
@@ -15628,7 +16166,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-592",
@@ -15657,7 +16196,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-594",
@@ -15686,7 +16226,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-595",
@@ -15715,7 +16256,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-596",
@@ -15744,7 +16286,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-597",
@@ -15773,7 +16316,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-598",
@@ -15802,7 +16346,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-599",
@@ -15831,7 +16376,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-600",
@@ -15860,7 +16406,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-601",
@@ -15889,7 +16436,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-602",
@@ -15918,7 +16466,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-604",
@@ -15947,7 +16496,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-605",
@@ -15976,7 +16526,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-606",
@@ -16005,7 +16556,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-607",
@@ -16034,7 +16586,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-608",
@@ -16063,7 +16616,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-609",
@@ -16092,7 +16646,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-610",
@@ -16121,7 +16676,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-611",
@@ -16150,7 +16706,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-612",
@@ -16179,7 +16736,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-613",
@@ -16208,7 +16766,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-614",
@@ -16237,7 +16796,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-615",
@@ -16266,7 +16826,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-617",
@@ -16295,7 +16856,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-618",
@@ -16324,7 +16886,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-620",
@@ -16353,7 +16916,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-621",
@@ -16382,7 +16946,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-622",
@@ -16411,7 +16976,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-623",
@@ -16440,7 +17006,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-624",
@@ -16469,7 +17036,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-625",
@@ -16498,7 +17066,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-626",
@@ -16527,7 +17096,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-627",
@@ -16556,7 +17126,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-628",
@@ -16585,7 +17156,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-629",
@@ -16614,7 +17186,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-631",
@@ -16643,7 +17216,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-632",
@@ -16672,7 +17246,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-633",
@@ -16701,7 +17276,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-634",
@@ -16730,7 +17306,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-635",
@@ -16759,7 +17336,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-636",
@@ -16788,7 +17366,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-638",
@@ -16817,7 +17396,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-639",
@@ -16846,7 +17426,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-640",
@@ -16875,7 +17456,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-641",
@@ -16904,7 +17486,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-642",
@@ -16933,7 +17516,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-643",
@@ -16962,7 +17546,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-644",
@@ -16991,7 +17576,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-645",
@@ -17020,7 +17606,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-646",
@@ -17049,7 +17636,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-647",
@@ -17078,7 +17666,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-648",
@@ -17107,7 +17696,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-649",
@@ -17136,7 +17726,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-650",
@@ -17165,7 +17756,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-651",
@@ -17194,7 +17786,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-652",
@@ -17223,7 +17816,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-653",
@@ -17252,7 +17846,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-654",
@@ -17281,7 +17876,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-655",
@@ -17310,7 +17906,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-656",
@@ -17339,7 +17936,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-657",
@@ -17368,7 +17966,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-658",
@@ -17397,7 +17996,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-660",
@@ -17426,7 +18026,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-661",
@@ -17455,7 +18056,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-663",
@@ -17484,7 +18086,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-664",
@@ -17513,7 +18116,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-665",
@@ -17542,7 +18146,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-666",
@@ -17571,7 +18176,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-667",
@@ -17600,7 +18206,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-668",
@@ -17629,7 +18236,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-669",
@@ -17658,7 +18266,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-670",
@@ -17687,7 +18296,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-671",
@@ -17716,7 +18326,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-672",
@@ -17745,7 +18356,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-673",
@@ -17774,7 +18386,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-674",
@@ -17803,7 +18416,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-676",
@@ -17832,7 +18446,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-677",
@@ -17861,7 +18476,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-678",
@@ -17890,7 +18506,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-679",
@@ -17919,7 +18536,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-680",
@@ -17948,7 +18566,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-681",
@@ -17977,7 +18596,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-682",
@@ -18006,7 +18626,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-683",
@@ -18035,7 +18656,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-684",
@@ -18064,7 +18686,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-685",
@@ -18093,7 +18716,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-686",
@@ -18122,7 +18746,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-687",
@@ -18151,7 +18776,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-688",
@@ -18180,7 +18806,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-689",
@@ -18209,7 +18836,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-691",
@@ -18238,7 +18866,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-692",
@@ -18267,7 +18896,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-694",
@@ -18296,7 +18926,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-695",
@@ -18325,7 +18956,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-696",
@@ -18354,7 +18986,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-697",
@@ -18383,7 +19016,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-698",
@@ -18412,7 +19046,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-699",
@@ -18441,7 +19076,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-700",
@@ -18470,7 +19106,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-701",
@@ -18499,7 +19136,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-702",
@@ -18528,7 +19166,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-703",
@@ -18557,7 +19196,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-704",
@@ -18586,7 +19226,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-705",
@@ -18615,7 +19256,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-706",
@@ -18644,7 +19286,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-707",
@@ -18673,7 +19316,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-708",
@@ -18702,7 +19346,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-709",
@@ -18731,7 +19376,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-710",
@@ -18760,7 +19406,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-711",
@@ -18789,7 +19436,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-712",
@@ -18818,7 +19466,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-713",
@@ -18847,7 +19496,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-714",
@@ -18876,7 +19526,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-715",
@@ -18905,7 +19556,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-716",
@@ -18934,7 +19586,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-717",
@@ -18963,7 +19616,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-718",
@@ -18992,7 +19646,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-719",
@@ -19021,7 +19676,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-720",
@@ -19050,7 +19706,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-721",
@@ -19079,7 +19736,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-722",
@@ -19108,7 +19766,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-724",
@@ -19137,7 +19796,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-725",
@@ -19166,7 +19826,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-726",
@@ -19195,7 +19856,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-727",
@@ -19224,7 +19886,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-728",
@@ -19253,7 +19916,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-729",
@@ -19282,7 +19946,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-730",
@@ -19311,7 +19976,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-731",
@@ -19340,7 +20006,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-732",
@@ -19369,7 +20036,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-733",
@@ -19398,7 +20066,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-734",
@@ -19427,7 +20096,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-735",
@@ -19456,7 +20126,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-736",
@@ -19485,7 +20156,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-737",
@@ -19514,7 +20186,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-738",
@@ -19543,7 +20216,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-739",
@@ -19572,7 +20246,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-740",
@@ -19601,7 +20276,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-741",
@@ -19630,7 +20306,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-742",
@@ -19659,7 +20336,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-743",
@@ -19688,7 +20366,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-744",
@@ -19717,7 +20396,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-746",
@@ -19746,7 +20426,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-747",
@@ -19775,7 +20456,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-748",
@@ -19804,7 +20486,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-750",
@@ -19833,7 +20516,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-751",
@@ -19862,7 +20546,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-752",
@@ -19891,7 +20576,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-753",
@@ -19920,7 +20606,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-754",
@@ -19949,7 +20636,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-755",
@@ -19978,7 +20666,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-756",
@@ -20007,7 +20696,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-757",
@@ -20036,7 +20726,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-758",
@@ -20065,7 +20756,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-759",
@@ -20094,7 +20786,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-760",
@@ -20123,7 +20816,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-761",
@@ -20152,7 +20846,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-762",
@@ -20181,7 +20876,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-763",
@@ -20210,7 +20906,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-764",
@@ -20239,7 +20936,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-765",
@@ -20268,7 +20966,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-766",
@@ -20297,7 +20996,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-767",
@@ -20326,7 +21026,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-768",
@@ -20355,7 +21056,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-769",
@@ -20384,7 +21086,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-770",
@@ -20413,7 +21116,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-771",
@@ -20442,7 +21146,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-773",
@@ -20471,7 +21176,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-774",
@@ -20500,7 +21206,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-775",
@@ -20529,7 +21236,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-776",
@@ -20558,7 +21266,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-777",
@@ -20587,7 +21296,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-779",
@@ -20616,7 +21326,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-780",
@@ -20645,7 +21356,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-781",
@@ -20674,7 +21386,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-782",
@@ -20703,7 +21416,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-783",
@@ -20732,7 +21446,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-784",
@@ -20761,7 +21476,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-786",
@@ -20790,7 +21506,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-787",
@@ -20819,7 +21536,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-788",
@@ -20848,7 +21566,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-789",
@@ -20877,7 +21596,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-790",
@@ -20906,7 +21626,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-791",
@@ -20935,7 +21656,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-792",
@@ -20964,7 +21686,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-793",
@@ -20993,7 +21716,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-794",
@@ -21022,7 +21746,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-797",
@@ -21051,7 +21776,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-798",
@@ -21080,7 +21806,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-800",
@@ -21109,7 +21836,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-801",
@@ -21138,7 +21866,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-802",
@@ -21167,7 +21896,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-803",
@@ -21196,7 +21926,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-805",
@@ -21225,7 +21956,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-806",
@@ -21254,7 +21986,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-808",
@@ -21283,7 +22016,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-809",
@@ -21312,7 +22046,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-810",
@@ -21341,7 +22076,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-811",
@@ -21370,7 +22106,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-812",
@@ -21399,7 +22136,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-813",
@@ -21428,7 +22166,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-814",
@@ -21457,7 +22196,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-815",
@@ -21486,7 +22226,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-816",
@@ -21515,7 +22256,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-817",
@@ -21544,7 +22286,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-818",
@@ -21573,7 +22316,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-819",
@@ -21602,7 +22346,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-820",
@@ -21631,7 +22376,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-822",
@@ -21660,7 +22406,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-823",
@@ -21689,7 +22436,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-824",
@@ -21718,7 +22466,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-825",
@@ -21747,7 +22496,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-826",
@@ -21776,7 +22526,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-827",
@@ -21805,7 +22556,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-828",
@@ -21834,7 +22586,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-829",
@@ -21863,7 +22616,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-830",
@@ -21892,7 +22646,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-831",
@@ -21921,7 +22676,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-832",
@@ -21950,7 +22706,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-833",
@@ -21979,7 +22736,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-834",
@@ -22008,7 +22766,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-835",
@@ -22037,7 +22796,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-836",
@@ -22066,7 +22826,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-837",
@@ -22095,7 +22856,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-838",
@@ -22124,7 +22886,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-839",
@@ -22153,7 +22916,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-840",
@@ -22182,7 +22946,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-841",
@@ -22211,7 +22976,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-842",
@@ -22240,7 +23006,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-843",
@@ -22269,7 +23036,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-844",
@@ -22298,7 +23066,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-845",
@@ -22327,7 +23096,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-846",
@@ -22356,7 +23126,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-847",
@@ -22385,7 +23156,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-848",
@@ -22414,7 +23186,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-849",
@@ -22443,7 +23216,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-850",
@@ -22472,7 +23246,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-851",
@@ -22501,7 +23276,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-853",
@@ -22530,7 +23306,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-854",
@@ -22559,7 +23336,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-855",
@@ -22588,7 +23366,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-856",
@@ -22617,7 +23396,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-857",
@@ -22646,7 +23426,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-858",
@@ -22675,7 +23456,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-859",
@@ -22704,7 +23486,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-861",
@@ -22733,7 +23516,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-862",
@@ -22762,7 +23546,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-863",
@@ -22791,7 +23576,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-864",
@@ -22820,7 +23606,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-865",
@@ -22849,7 +23636,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-866",
@@ -22878,7 +23666,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-867",
@@ -22907,7 +23696,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-868",
@@ -22936,7 +23726,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-869",
@@ -22965,7 +23756,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-870",
@@ -22994,7 +23786,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-871",
@@ -23023,7 +23816,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-872",
@@ -23052,7 +23846,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-873",
@@ -23081,7 +23876,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-874",
@@ -23110,7 +23906,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-875",
@@ -23139,7 +23936,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-876",
@@ -23168,7 +23966,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-877",
@@ -23197,7 +23996,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-879",
@@ -23226,7 +24026,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-880",
@@ -23255,7 +24056,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-881",
@@ -23284,7 +24086,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-882",
@@ -23313,7 +24116,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-883",
@@ -23342,7 +24146,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-884",
@@ -23371,7 +24176,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-885",
@@ -23400,7 +24206,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-886",
@@ -23429,7 +24236,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-887",
@@ -23458,7 +24266,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-888",
@@ -23487,7 +24296,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-889",
@@ -23516,7 +24326,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-890",
@@ -23545,7 +24356,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-891",
@@ -23574,7 +24386,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-892",
@@ -23603,7 +24416,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-893",
@@ -23632,7 +24446,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-894",
@@ -23661,7 +24476,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-895",
@@ -23690,7 +24506,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-896",
@@ -23719,7 +24536,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-897",
@@ -23748,7 +24566,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-898",
@@ -23777,7 +24596,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-899",
@@ -23806,7 +24626,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-900",
@@ -23835,7 +24656,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-901",
@@ -23864,7 +24686,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-902",
@@ -23893,7 +24716,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-903",
@@ -23922,7 +24746,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-904",
@@ -23951,7 +24776,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-905",
@@ -23980,7 +24806,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-906",
@@ -24009,7 +24836,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-907",
@@ -24038,7 +24866,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-908",
@@ -24067,7 +24896,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-909",
@@ -24096,7 +24926,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-910",
@@ -24125,7 +24956,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-911",
@@ -24154,7 +24986,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-912",
@@ -24183,7 +25016,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-913",
@@ -24212,7 +25046,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-914",
@@ -24241,7 +25076,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-915",
@@ -24270,7 +25106,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-917",
@@ -24299,7 +25136,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-918",
@@ -24328,7 +25166,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-919",
@@ -24357,7 +25196,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-920",
@@ -24386,7 +25226,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-921",
@@ -24415,7 +25256,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-922",
@@ -24444,7 +25286,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-923",
@@ -24473,7 +25316,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-925",
@@ -24502,7 +25346,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-926",
@@ -24531,7 +25376,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-927",
@@ -24560,7 +25406,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-928",
@@ -24589,7 +25436,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-929",
@@ -24618,7 +25466,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-930",
@@ -24647,7 +25496,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-931",
@@ -24676,7 +25526,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-932",
@@ -24705,7 +25556,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-933",
@@ -24734,7 +25586,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-934",
@@ -24763,7 +25616,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-935",
@@ -24792,7 +25646,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-936",
@@ -24821,7 +25676,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-937",
@@ -24850,7 +25706,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-938",
@@ -24879,7 +25736,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-939",
@@ -24908,7 +25766,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-940",
@@ -24937,7 +25796,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-942",
@@ -24966,7 +25826,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-943",
@@ -24995,7 +25856,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-944",
@@ -25024,7 +25886,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-945",
@@ -25053,7 +25916,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-946",
@@ -25082,7 +25946,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-947",
@@ -25111,7 +25976,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-948",
@@ -25140,7 +26006,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-949",
@@ -25169,7 +26036,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-950",
@@ -25198,7 +26066,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-951",
@@ -25227,7 +26096,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-952",
@@ -25256,7 +26126,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-953",
@@ -25285,7 +26156,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-954",
@@ -25314,7 +26186,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-955",
@@ -25343,7 +26216,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-956",
@@ -25372,7 +26246,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-957",
@@ -25401,7 +26276,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-959",
@@ -25430,7 +26306,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-960",
@@ -25459,7 +26336,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-961",
@@ -25488,7 +26366,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-962",
@@ -25517,7 +26396,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-963",
@@ -25546,7 +26426,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-964",
@@ -25575,7 +26456,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-965",
@@ -25604,7 +26486,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-966",
@@ -25633,7 +26516,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-967",
@@ -25662,7 +26546,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-968",
@@ -25691,7 +26576,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-969",
@@ -25720,7 +26606,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-970",
@@ -25749,7 +26636,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-971",
@@ -25778,7 +26666,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-972",
@@ -25807,7 +26696,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-973",
@@ -25836,7 +26726,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-974",
@@ -25865,7 +26756,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-975",
@@ -25894,7 +26786,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-976",
@@ -25923,7 +26816,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-977",
@@ -25952,7 +26846,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-978",
@@ -25981,7 +26876,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-979",
@@ -26010,7 +26906,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-980",
@@ -26039,7 +26936,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-981",
@@ -26068,7 +26966,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-982",
@@ -26097,7 +26996,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-983",
@@ -26126,7 +27026,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-984",
@@ -26155,7 +27056,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-985",
@@ -26184,7 +27086,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-986",
@@ -26213,7 +27116,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-987",
@@ -26242,7 +27146,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-988",
@@ -26271,7 +27176,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-989",
@@ -26300,7 +27206,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-990",
@@ -26329,7 +27236,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-991",
@@ -26358,7 +27266,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-993",
@@ -26387,7 +27296,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-994",
@@ -26416,7 +27326,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-995",
@@ -26445,7 +27356,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-997",
@@ -26474,7 +27386,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-998",
@@ -26503,7 +27416,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-999",
@@ -26532,7 +27446,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1000",
@@ -26561,7 +27476,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1001",
@@ -26590,7 +27506,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1004",
@@ -26619,7 +27536,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1005",
@@ -26648,7 +27566,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1006",
@@ -26677,7 +27596,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1007",
@@ -26706,7 +27626,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1008",
@@ -26735,7 +27656,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1009",
@@ -26764,7 +27686,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1010",
@@ -26793,7 +27716,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1011",
@@ -26822,7 +27746,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1012",
@@ -26851,7 +27776,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1013",
@@ -26880,7 +27806,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1014",
@@ -26909,7 +27836,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1015",
@@ -26938,7 +27866,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1017",
@@ -26967,7 +27896,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1018",
@@ -26996,7 +27926,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1019",
@@ -27025,7 +27956,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1020",
@@ -27054,7 +27986,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1021",
@@ -27083,7 +28016,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1022",
@@ -27112,7 +28046,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1023",
@@ -27141,7 +28076,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1025",
@@ -27170,7 +28106,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1026",
@@ -27199,7 +28136,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1027",
@@ -27228,7 +28166,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1028",
@@ -27257,7 +28196,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1030",
@@ -27286,7 +28226,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1031",
@@ -27315,7 +28256,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1032",
@@ -27344,7 +28286,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1033",
@@ -27373,7 +28316,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1034",
@@ -27402,7 +28346,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1035",
@@ -27431,7 +28376,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1037",
@@ -27460,7 +28406,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1038",
@@ -27489,7 +28436,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1039",
@@ -27518,7 +28466,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1040",
@@ -27547,7 +28496,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1041",
@@ -27576,7 +28526,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1042",
@@ -27605,7 +28556,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1043",
@@ -27634,7 +28586,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1044",
@@ -27663,7 +28616,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1045",
@@ -27692,7 +28646,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1046",
@@ -27721,7 +28676,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1047",
@@ -27750,7 +28706,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1048",
@@ -27779,7 +28736,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1049",
@@ -27808,7 +28766,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1050",
@@ -27837,7 +28796,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1051",
@@ -27866,7 +28826,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1052",
@@ -27895,7 +28856,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1053",
@@ -27924,7 +28886,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1054",
@@ -27953,7 +28916,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1055",
@@ -27982,7 +28946,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1056",
@@ -28011,7 +28976,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1057",
@@ -28040,7 +29006,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1058",
@@ -28069,7 +29036,8 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   },
   {
     "id": "wukong-mate-1059",
@@ -28098,6 +29066,7 @@
     "verifiedBy": [
       "source",
       "xiangqi.js"
-    ]
+    ],
+    "mode": "mate1"
   }
 ]

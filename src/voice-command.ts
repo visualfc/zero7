@@ -1,6 +1,6 @@
 import { normalizeMoveText } from './chess'
 
-export type VoicePage = 'home' | 'lesson' | 'battle' | 'progress' | 'profile'
+export type VoicePage = 'home' | 'lesson' | 'endgame' | 'battle' | 'progress' | 'profile'
 
 export type VoiceCommand =
   | { type: 'move'; text: string }
