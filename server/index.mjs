@@ -4,10 +4,12 @@ import express from 'express'
 import { WebSocket, WebSocketServer } from 'ws'
 import { PikafishEngine } from './pikafish.mjs'
 import { ensurePuzzleDatabase, openPuzzleRepository } from './puzzle-database.mjs'
+import { openClassicRepository } from './classic-database.mjs'
 
 const pikafish = new PikafishEngine()
 const { databasePath } = ensurePuzzleDatabase()
 const puzzles = openPuzzleRepository(databasePath)
+const classics = openClassicRepository(new URL('../data/classic/games.json', import.meta.url), new URL('../server/data/classic-games.sqlite', import.meta.url))
 const port = Number(process.env.LINXI_BRIDGE_PORT || 8787)
 const app = express()
 const server = app.listen(port, '0.0.0.0', () => {
@@ -40,6 +42,14 @@ app.get('/api/puzzles', (request, response) => {
     difficulty: typeof request.query.difficulty === 'string' ? request.query.difficulty : undefined,
   }))
 })
+
+app.get('/api/classic-games', (request, response) => {
+  const offset = Math.max(0, Number.parseInt(String(request.query.offset ?? '0'), 10) || 0)
+  const limit = Math.min(100, Math.max(1, Number.parseInt(String(request.query.limit ?? '50'), 10) || 50))
+  response.json(classics.list({ offset, limit, query: typeof request.query.q === 'string' ? request.query.q : '' }))
+})
+
+app.get('/api/classic-games/:id', (request, response) => { const game = classics.get(request.params.id); if (!game) return response.status(404).json({ error: '没有找到这盘棋' }); response.json(game) })
 
 app.get('/api/puzzles/:id', (request, response) => {
   const puzzle = puzzles.get(request.params.id)

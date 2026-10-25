@@ -15,7 +15,6 @@ import {
     Volume2,
 } from 'lucide-react'
 import './App.css'
-import classicGames from './classic-games.json'
 import { LinxiVoiceClient, type LinxiState } from './linxi'
 import { parseVoiceMove, sameSquare, type Level, type Piece, type Square } from './chess'
 import { endgameCategories, fetchPuzzleLibrary, getEndgameCategory } from './puzzles'
@@ -26,6 +25,7 @@ import { commandHelp, parseVoiceCommand, type VoiceCommand } from './voice-comma
 import { getPikafishMove, getPikafishStatus, warmupPikafish, type EngineLevel } from './pikafish'
 
 type Page = 'home' | 'lesson' | 'endgame' | 'battle' | 'progress'
+type ClassicGame = { id: string; event: string; red: string; redOriginal: string; black: string; blackOriginal: string; moves?: string[]; source: string }
 const MIN_VOICE_HOLD_MS = 350
 const EMPTY_LEVELS: Level[] = []
 
@@ -787,7 +787,10 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const [replayStep, setReplayStep] = useState<number | null>(null)
   const [reviewOpen, setReviewOpen] = useState(false)
   const [reviewMode, setReviewMode] = useState<'current' | 'classic'>('current')
-  const [classicGameId, setClassicGameId] = useState(classicGames[0].id)
+  const [classicGames, setClassicGames] = useState<ClassicGame[]>([])
+  const [classicQuery, setClassicQuery] = useState('')
+  const [classicLoading, setClassicLoading] = useState(false)
+  const [classicGameId, setClassicGameId] = useState('')
   const [reviewStep, setReviewStep] = useState(0)
   const [reviewAnalysis, setReviewAnalysis] = useState<{ actual: string; recommended: string; comparison: string } | null>(null)
   const [reviewAnalysisLoading, setReviewAnalysisLoading] = useState(false)
@@ -795,6 +798,26 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const [status, setStatus] = useState('轮到红方走棋')
   const [difficulty, setDifficulty] = useState<EngineLevel>('初级')
   const difficultyDescriptions = { 入门: '皮卡鱼 2026-01-31\n入门 · 约 1280 Elo', 初级: '皮卡鱼 2026-01-31\n初级 · 约 1500 Elo', 中级: '皮卡鱼 2026-01-31\n中级 · 约 1900 Elo' } as const
+  useEffect(() => {
+    if (!reviewOpen || reviewMode !== 'classic') return
+    const controller = new AbortController()
+    setClassicLoading(true)
+    fetch(`/api/classic-games?limit=50&q=${encodeURIComponent(classicQuery)}`, { signal: controller.signal })
+      .then((response) => response.json() as Promise<{ items?: ClassicGame[] }>)
+      .then((payload) => { const items = payload.items ?? []; setClassicGames(items); if (items[0]) { const nextId = items.some((item) => item.id === classicGameId) ? classicGameId : items[0].id; setClassicGameId(nextId); showReviewStep(0, 'classic', nextId) } })
+      .catch(() => undefined)
+      .finally(() => setClassicLoading(false))
+    return () => controller.abort()
+  }, [reviewOpen, reviewMode, classicQuery])
+  useEffect(() => {
+    if (!reviewOpen || reviewMode !== 'classic' || !classicGameId) return
+    const selected = classicGames.find((item) => item.id === classicGameId)
+    if (selected?.moves) { showReviewStep(0, 'classic', classicGameId); return }
+    fetch(`/api/classic-games/${classicGameId}`)
+      .then((response) => response.json() as Promise<ClassicGame>)
+      .then((game) => { setClassicGames((items) => items.map((item) => item.id === game.id ? game : item)); showReviewStep(0, 'classic', game.id) })
+      .catch(() => setStatus('经典棋局加载失败，请稍后重试。'))
+  }, [classicGameId, reviewOpen, reviewMode])
   const [thinking, setThinking] = useState(false)
   const [resigned, setResigned] = useState(false)
   const [analysis, setAnalysis] = useState<{ red: number; black: number; move: string; explanation: string } | null>(null)
@@ -1151,7 +1174,7 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
   }
 
   const reviewMoves = (mode = reviewMode, gameId = classicGameId) => mode === 'classic'
-    ? (classicGames.find((item) => item.id === gameId) ?? classicGames[0]).moves
+    ? (classicGames.find((item) => item.id === gameId) ?? classicGames[0])?.moves ?? []
     : (game.current.history({ verbose: true }) as Move[]).map((move) => `${move.from}${move.to}`)
 
   const showReviewStep = (step: number, mode = reviewMode, gameId = classicGameId) => {
@@ -1298,14 +1321,6 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
     <div className="battle-page page-wrap">
       <section className="battle-layout">
         <div className="battle-board-column">
-          {reviewOpen && <div className="battle-review-panel" aria-label="复盘控制">
-            <div className="review-head"><strong>{reviewMode === 'classic' ? '经典对局复盘' : '本局复盘'}</strong><button className="secondary-button compact-action" onClick={closeReview}>退出复盘</button></div>
-            <div className="review-tabs"><button className={reviewMode === 'current' ? 'active' : ''} onClick={() => { setReviewMode('current'); showReviewStep(0, 'current') }} disabled={history.length === 0}>本局</button><button className={reviewMode === 'classic' ? 'active' : ''} onClick={() => { setReviewMode('classic'); showReviewStep(0, 'classic') }}>经典对局</button></div>
-            {reviewMode === 'classic' && <select aria-label="选择经典对局" value={classicGameId} onChange={(event) => { setClassicGameId(event.target.value); showReviewStep(0, 'classic', event.target.value) }}>{classicGames.map((item) => <option key={item.id} value={item.id}>{item.event} · {item.red} vs {item.black}</option>)}</select>}
-            <div className="review-navigation"><button onClick={() => showReviewStep(0)} disabled={reviewStep === 0}>开局</button><button onClick={() => showReviewStep(reviewStep - 1)} disabled={reviewStep === 0}>上一步</button><span>{reviewStep} / {reviewMoves().length}</span><button onClick={() => showReviewStep(reviewStep + 1)} disabled={reviewStep >= reviewMoves().length}>下一步</button><button onClick={() => showReviewStep(reviewMoves().length)} disabled={reviewStep >= reviewMoves().length}>终局</button></div>
-            <button className="secondary-button compact-action" onClick={() => void analyzeReviewStep()} disabled={reviewAnalysisLoading}>{reviewAnalysisLoading ? '正在分析…' : '分析当前节点'}</button>
-            {reviewAnalysis && <div className="analysis-result"><p>实战着：{reviewAnalysis.actual}</p><p>推荐着：{reviewAnalysis.recommended}</p><strong>{reviewAnalysis.comparison}</strong><button className="analysis-speak-button" onClick={() => void speakAnalysisText(reviewAnalysis.comparison)} aria-label="语音讲解复盘"><Volume2 /></button></div>}
-          </div>}
           <div className="board-panel battle-board-panel">
             <div className="battle-move-rail" ref={moveRailRef} aria-label="对局棋谱">{Array.from({ length: Math.ceil(history.length / 2) }, (_, index) => <div className="battle-move-turn" key={index}><span>{index + 1}.</span><div><button className={replayStep === index * 2 + 1 ? 'move-replay active' : 'move-replay'} onClick={() => replayMove(index * 2 + 1)}>{history[index * 2]}</button>{history[index * 2 + 1] && <button className={replayStep === index * 2 + 2 ? 'move-replay active' : 'move-replay'} onClick={() => replayMove(index * 2 + 2)}>{history[index * 2 + 1]}</button>}</div></div>)}</div>
             <ChessBoard pieces={pieces} selectedId={selectedPiece?.id ?? null} legalTargets={targets} lastPath={lastPath} onSquare={handleSquare} />
@@ -1314,6 +1329,14 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
         </div>
         <aside className="battle-sidebar">
           <SideNavigation active="battle" onNavigate={onNavigate} />
+          {reviewOpen && <div className="battle-review-panel battle-review-rail" aria-label="复盘控制">
+            <div className="review-head"><strong>{reviewMode === 'classic' ? '经典对局复盘' : '本局复盘'}</strong><button className="secondary-button compact-action" onClick={closeReview}>退出复盘</button></div>
+            <div className="review-tabs"><button className={reviewMode === 'current' ? 'active' : ''} onClick={() => { setReviewMode('current'); showReviewStep(0, 'current') }} disabled={history.length === 0}>本局</button><button className={reviewMode === 'classic' ? 'active' : ''} onClick={() => { setReviewMode('classic'); showReviewStep(0, 'classic') }}>经典对局</button></div>
+            {reviewMode === 'classic' && <><input aria-label="搜索经典对局" placeholder="搜索赛事或棋手" value={classicQuery} onChange={(event) => setClassicQuery(event.target.value)} /><select aria-label="选择经典对局" value={classicGameId} disabled={classicLoading || classicGames.length === 0} onChange={(event) => { setClassicGameId(event.target.value); showReviewStep(0, 'classic', event.target.value) }}>{classicGames.map((item) => <option key={item.id} value={item.id}>{item.event} · {item.red} vs {item.black}</option>)}</select></>}
+            <div className="review-navigation"><button onClick={() => showReviewStep(0)} disabled={reviewStep === 0}>开局</button><button onClick={() => showReviewStep(reviewStep - 1)} disabled={reviewStep === 0}>上一步</button><span>{reviewStep} / {reviewMoves().length}</span><button onClick={() => showReviewStep(reviewStep + 1)} disabled={reviewStep >= reviewMoves().length}>下一步</button><button onClick={() => showReviewStep(reviewMoves().length)} disabled={reviewStep >= reviewMoves().length}>终局</button></div>
+            <button className="secondary-button compact-action" onClick={() => void analyzeReviewStep()} disabled={reviewAnalysisLoading}>{reviewAnalysisLoading ? '正在分析…' : '分析当前节点'}</button>
+            {reviewAnalysis && <div className="analysis-result"><p>实战着：{reviewAnalysis.actual}</p><p>推荐着：{reviewAnalysis.recommended}</p><strong>{reviewAnalysis.comparison}</strong><button className="analysis-speak-button" onClick={() => void speakAnalysisText(reviewAnalysis.comparison)} aria-label="语音讲解复盘"><Volume2 /></button></div>}
+          </div>}
           <div className="battle-card engine-card"><div className="battle-side-actions"><div className="difficulty-inline" aria-label="选择棋力">{(['入门', '初级', '中级'] as const).map((item) => <button key={item} className={difficulty === item ? 'active' : ''} onClick={() => setDifficulty(item)} aria-describedby={`difficulty-${item}`} data-tooltip={difficultyDescriptions[item]}>{item}</button>)}</div><span className="visually-hidden" id="difficulty-入门">{difficultyDescriptions.入门}</span><span className="visually-hidden" id="difficulty-初级">{difficultyDescriptions.初级}</span><span className="visually-hidden" id="difficulty-中级">{difficultyDescriptions.中级}</span><button className="secondary-button battle-restart-button" onClick={restart}><RotateCcw /> 重开一局</button></div><span className="visually-hidden" aria-live="polite">{engineName}</span></div>
           <div className="battle-card battle-voice-card">
             {!['轮到红方走棋', `${BATTLE_RULES.brandName}正在思考…`, '轮到你继续走棋。'].includes(status) && <p className="battle-message">{status}</p>}

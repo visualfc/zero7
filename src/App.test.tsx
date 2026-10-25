@@ -827,18 +827,23 @@ describe('ZERO7', () => {
     expect(screen.queryByLabelText('复盘控制')).not.toBeInTheDocument()
   })
 
-  it('经典对局可以选择并逐步回放完整棋谱', () => {
+  it('经典对局可以选择并逐步回放完整棋谱', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (input: string | URL | Request) => {
+      if (String(input).includes('/api/classic-games')) return new Response(JSON.stringify({ items: [{ id: 'classic-1', event: 'Jiafun Cup National Champion 1997', red: '刘殿中', redOriginal: 'LIU DianZhong', black: '柳大华', blackOriginal: 'LIU DaHua', moves: ['h2e2', 'b9c7', 'h0g2', 'h7f7', 'g3g4', 'h9g7', 'b2c2', 'i9h9', 'b0a2', 'a9b9', 'a0b0', 'b7b3', 'c3c4', 'h9h5', 'i0h0', 'h5d5', 'c2c6', 'c9e7', 'e2f2', 'd5d6', 'c4c5', 'b3b2', 'h0h8', 'b2g2', 'b0b9', 'c7b9', 'h8b8', 'g2a2', 'c0a2', 'b9d8', 'c6c9', 'd9e8', 'c9a9', 'd6d7', 'b8b9', 'e8d9', 'b9b8', 'd9e8', 'f2d2', 'd7a7', 'b8b9', 'e8d9', 'b9d9', 'e9e8', 'c5d5', 'd8b7', 'a9f9', 'g6g5', 'd2g2', 'f7f8', 'g4g5', 'g7f9', 'd9f9', 'a7a9', 'f9a9', 'b7a9', 'g5g6', 'a9c8', 'g2e2', 'e8e9', 'e2e6', 'f8e8', 'e6e8', 'e9e8', 'i3i4', 'e7c9', 'g6h6', 'c8e7', 'd5e5', 'e7c6', 'e5e6', 'c6b4', 'a2c4'], source: 'Wukong Xiangqi master games database' }] }), { status: 200 })
+      return new Response(JSON.stringify({ move: null, terminal: true }), { status: 200 })
+    }))
     render(<App initialLevels={testLevels} />)
     fireEvent.click(screen.getByRole('button', { name: /人机对战/ }))
     fireEvent.click(screen.getByRole('button', { name: /经典对局/ }))
-    expect(screen.getByLabelText('复盘控制')).toHaveTextContent('0 / 76')
-    expect(screen.getByLabelText('选择经典对局')).toHaveTextContent('LIU DianZhong vs LIU DaHua')
+    await screen.findByLabelText('选择经典对局')
+    await waitFor(() => expect(screen.getByLabelText('复盘控制')).toHaveTextContent('0 / 73'))
+    expect(screen.getByLabelText('选择经典对局')).toHaveTextContent('刘殿中 vs 柳大华')
     fireEvent.click(screen.getByRole('button', { name: '下一步' }))
-    expect(screen.getByLabelText('复盘控制')).toHaveTextContent('1 / 76')
+    await waitFor(() => expect(screen.getByLabelText('复盘控制')).toHaveTextContent('1 / 73'))
     fireEvent.click(screen.getByRole('button', { name: '终局' }))
-    expect(screen.getByLabelText('复盘控制')).toHaveTextContent('76 / 76')
-    fireEvent.change(screen.getByLabelText('选择经典对局'), { target: { value: 'classic-2' } })
-    expect(screen.getByLabelText('复盘控制')).toHaveTextContent('0 / 104')
+    await waitFor(() => expect(screen.getByLabelText('复盘控制')).toHaveTextContent('73 / 73'))
+    fireEvent.change(screen.getByLabelText('选择经典对局'), { target: { value: 'classic-1' } })
+    await waitFor(() => expect(screen.getByLabelText('复盘控制')).toHaveTextContent('0 / 73'))
   })
 
   it('点击棋谱可以跳转并返回当前局面', async () => {

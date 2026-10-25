@@ -267,6 +267,13 @@
   .battle-board-panel .board-wrap { width: min(540px, calc(100% - 110px), calc((100dvh - 55px) * .9)); transform: translateX(50px); }
 }
 .battle-review-panel { width: min(620px,100%); margin: 4px auto; padding: 10px; display: grid; gap: 8px; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); }
+.battle-review-rail { position: static; width: 100%; min-height: 0; margin: 0; max-height: 360px; overflow-y: auto; align-content: start; }
+.battle-review-rail .review-head, .battle-review-rail .review-tabs { align-items: flex-start; flex-wrap: wrap; }
+.battle-review-rail .review-navigation { flex-wrap: wrap; justify-content: flex-start; }
+.battle-review-rail .review-navigation span { width: 100%; order: -1; text-align: center; }
+.battle-review-rail .compact-action { width: 100%; }
+.battle-review-rail .analysis-result { font-size: 11px; }
+.battle-move-rail.review-hidden { display: none; }
 .review-head, .review-navigation, .review-tabs { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
 .review-tabs button, .review-navigation button { border: 1px solid var(--line); border-radius: 8px; padding: 5px 9px; background: white; color: var(--muted); cursor: pointer; }
 .review-tabs button.active { background: var(--coral); color: white; border-color: var(--coral); }
@@ -378,6 +385,7 @@
   .battle-board-panel .board-wrap { width: min(calc(100vw - 10px), calc((100dvh - 101px) * .9)); margin-top: 15px; transform: none; }
   .mobile-battle-voice { position: static; width: 100%; margin-top: 4px; }
   .battle-review-panel { padding: 8px; gap: 6px; }
+  .battle-review-rail { max-height: none; margin: 4px auto; }
   .review-navigation { flex-wrap: wrap; }
   .review-navigation button { padding: 5px 7px; font-size: 10px; }
   .battle-status { min-height: 24px; margin-bottom: 3px; padding: 4px 6px; border-radius: 8px; font-size: 10px; }
