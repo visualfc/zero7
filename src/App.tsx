@@ -25,7 +25,7 @@ import { parseVoiceMove, sameSquare, type Level, type Piece, type Square } from 
 import { endgameCategories, fetchPuzzleLibrary, getEndgameCategory } from './puzzles'
 import { battlePieces, battleStatus, buildBattleReview, chooseAiMove, createBattle, findVoiceMove, isChessMoveTranscript, legalTargets as battleLegalTargets, squareToPoint, makeBattleMove, terminalType as getTerminalType, VoiceMoveAuthorization, type TerminalType } from './battle'
 import { Chess, type Move } from '@weshell/xiangqi.js'
-import { BATTLE_RULES, describeBattleTurn } from './battle-rules'
+import { BATTLE_RULES, describeAiResponse, describePlayerMove } from './battle-rules'
 import { commandHelp, parseVoiceCommand, type VoiceCommand, type VoicePage } from './voice-command'
 import { getPikafishMove, getPikafishStatus, warmupPikafish, type EngineLevel } from './pikafish'
 
@@ -950,10 +950,8 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const aiTurn = async (playerMove: Move) => {
     ignoreBattleReplies.current = false
     const requestId = ++aiRequestId.current
-    if (game.current.isGameOver()) {
-      void speakBattleText(describeBattleTurn(playerMove))
-      return
-    }
+    void speakBattleText(describePlayerMove(playerMove))
+    if (game.current.isGameOver()) return
     await new Promise((resolve) => window.setTimeout(resolve, BATTLE_RULES.aiThinkDelayMs))
     if (requestId !== aiRequestId.current || ignoreBattleReplies.current) return
     if (turnReminderTimer.current !== null) window.clearTimeout(turnReminderTimer.current)
@@ -993,15 +991,14 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
         if (aiMove) refresh(aiMove)
         setThinking(false)
         if (analysisVisible && aiMove) void analyzePosition()
-        if (!ignoreBattleReplies.current && aiMove) {
-          void speakBattleText(describeBattleTurn(playerMove, aiMove))
-        }
+        if (!ignoreBattleReplies.current && aiMove) void speakBattleText(describeAiResponse(aiMove))
       }
     }
   }
 
   const playBattleMove = (move: Move) => {
     prepareBattleSpeech()
+    setVoiceText(describePlayerMove(move))
     setSelected(null)
     setTargets([])
     refresh(move)

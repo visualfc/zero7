@@ -593,7 +593,7 @@ describe('ZERO7', () => {
     expect(screen.getByLabelText('最近一步走子路径')).toHaveClass('black')
   })
 
-  it('人机应手使用独立语音客户端并按顺序播报黑方走法', async () => {
+  it('人机应手分别播报双方走法', async () => {
     vi.stubGlobal('fetch', vi.fn(async (input: string | URL | Request) => String(input).includes('/status')
       ? new Response(JSON.stringify({ available: true, name: 'Pikafish Test' }), { status: 200 })
       : new Response(JSON.stringify({ move: 'h9g7', engine: 'Pikafish Test', level: '初级' }), { status: 200 })))
@@ -606,7 +606,8 @@ describe('ZERO7', () => {
     await waitFor(() => {
       const speechClients = voiceMock.instances.filter((client) => client.speakText.mock.calls.length > 0)
       expect(speechClients).toHaveLength(1)
-      expect(speechClients[0].speakText).toHaveBeenCalledWith('你走马二进三。零七应对马８进７。')
+      expect(speechClients[0].speakText).toHaveBeenNthCalledWith(1, '你走马二进三。')
+      expect(speechClients[0].speakText).toHaveBeenNthCalledWith(2, '零七应对马８进７。')
     })
   })
 
