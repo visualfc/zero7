@@ -297,7 +297,6 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
         return
       }
       if (playerNotation) queueLessonSpeech(playerNotation)
-      await lessonMoveSpeech.current
       await new Promise((resolve) => window.setTimeout(resolve, BATTLE_RULES.aiThinkDelayMs))
       if (requestId !== lessonRequestId.current || lessonGame.current !== game || game.fen() !== fen) return
       if (candidateAnswer && forcedMate && level.mode !== 'mate1') {
@@ -903,10 +902,11 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
     ignoreBattleReplies.current = false
     const requestId = ++aiRequestId.current
     if (game.current.isGameOver()) {
-      await speakBattleText(describePlayerMove(playerMove))
+      void speakBattleText(describePlayerMove(playerMove))
       return
     }
-    await speakBattleText(describePlayerMove(playerMove))
+    void speakBattleText(describePlayerMove(playerMove))
+    await new Promise((resolve) => window.setTimeout(resolve, BATTLE_RULES.aiThinkDelayMs))
     if (requestId !== aiRequestId.current || ignoreBattleReplies.current) return
     if (turnReminderTimer.current !== null) window.clearTimeout(turnReminderTimer.current)
     turnReminderTimer.current = null

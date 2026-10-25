@@ -25,6 +25,7 @@ const voiceMock = vi.hoisted(() => ({
   instances: [] as Array<{ emit: (event: { type: string; state?: string; text?: string }) => void; currentState: string; start: ReturnType<typeof vi.fn>; stop: ReturnType<typeof vi.fn>; speakText: ReturnType<typeof vi.fn>; waitForPlayback: ReturnType<typeof vi.fn>; disconnect: ReturnType<typeof vi.fn> }>,
   startError: null as Error | null,
   speakError: null as Error | null,
+  playbackHangs: false,
 }))
 
 vi.mock('./linxi', () => ({
@@ -33,7 +34,7 @@ vi.mock('./linxi', () => ({
     start = vi.fn(async () => { if (voiceMock.startError) throw voiceMock.startError; this.currentState = 'listening'; this.emit({ type: 'state', state: 'listening' }) })
     stop = vi.fn(async () => { this.currentState = 'thinking'; this.emit({ type: 'state', state: 'thinking' }) })
     speakText = vi.fn(async () => { if (voiceMock.speakError) throw voiceMock.speakError })
-    waitForPlayback = vi.fn(async () => {})
+    waitForPlayback = vi.fn(async () => { if (voiceMock.playbackHangs) await new Promise(() => {}) })
     disconnect = vi.fn(() => { this.currentState = 'idle' })
     emit: (event: { type: string; state?: string; text?: string }) => void
     constructor(emit: (event: { type: string; state?: string; text?: string }) => void) { this.emit = emit; voiceMock.instances.push(this) }
@@ -45,6 +46,7 @@ beforeEach(() => {
   voiceMock.instances = []
   voiceMock.startError = null
   voiceMock.speakError = null
+  voiceMock.playbackHangs = false
   puzzleMock.fetch.mockReset()
   puzzleMock.fetch.mockResolvedValue(testLevels)
   vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ move: null, terminal: true, engine: 'Pikafish Test', level: '初级', score: null }), { status: 200 })))
@@ -168,6 +170,23 @@ describe('ZERO7', () => {
     expect(await screen.findByRole('status')).toHaveTextContent('分析失败')
     fireEvent.click(screen.getByRole('button', { name: /收起引擎讲解/ }))
     expect(screen.getByRole('button', { name: /展开引擎讲解/ })).toBeInTheDocument()
+  })
+
+  it('残局 TTS 播放卡住时黑棋仍按时应对', async () => {
+    voiceMock.playbackHangs = true
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      if (String(input).endsWith('/warmup')) return new Response(null, { status: 204 })
+      if (JSON.parse(String(init?.body)).analysis) return new Response(JSON.stringify({ move: 'h0e0', engine: 'Pikafish Test', level: '中级', score: { type: 'cp', value: 80 } }), { status: 200 })
+      return new Response(JSON.stringify({ move: 'e9f9', engine: 'Pikafish Test', level: '初级', score: null }), { status: 200 })
+    }))
+    render(<App initialLevels={testLevels} />)
+    fireEvent.click(screen.getAllByRole('button', { name: '残局训练' })[0])
+    const level = testLevels.find((item) => item.mode === 'endgame')!
+    clickBoardSquare(level.move.from.row, level.move.from.col)
+    clickBoardSquare(level.move.to.row, level.move.to.col)
+    await act(async () => new Promise((resolve) => setTimeout(resolve, BATTLE_RULES.aiThinkDelayMs + 50)))
+    expect(screen.getByLabelText('残局棋谱')).toHaveTextContent('将５平６')
+    expect(screen.getByLabelText('最近一步走子路径')).toHaveClass('black')
   })
 
   it('残局引擎讲解展开后在黑棋应手后自动更新', async () => {
@@ -528,6 +547,20 @@ describe('ZERO7', () => {
     expect(screen.queryByLabelText('最近一步走子路径')).not.toBeInTheDocument()
     fireEvent.click(screen.getAllByRole('button', { name: '红马' }).at(-1)!)
     fireEvent.click(screen.getAllByRole('button', { name: '红车' }).at(-1)!)
+  })
+
+  it('人机 TTS 播放卡住时引擎仍会走棋', async () => {
+    voiceMock.playbackHangs = true
+    vi.stubGlobal('fetch', vi.fn(async (input: string | URL | Request) => String(input).includes('/status')
+      ? new Response(JSON.stringify({ available: true, name: 'Pikafish Test' }), { status: 200 })
+      : new Response(JSON.stringify({ move: 'h9g7', engine: 'Pikafish Test', level: '初级' }), { status: 200 })))
+    render(<App initialLevels={testLevels} />)
+    fireEvent.click(screen.getByRole('button', { name: /人机对战/ }))
+    await screen.findByText('Pikafish Test')
+    fireEvent.click(screen.getAllByRole('button', { name: '红马' }).at(-1)!)
+    fireEvent.click(screen.getByRole('button', { name: '7-6' }))
+    expect(await screen.findByText('马８进７', {}, { timeout: 4000 })).toBeInTheDocument()
+    expect(screen.getByLabelText('最近一步走子路径')).toHaveClass('black')
   })
 
   it('重新开局后忽略上一局延迟返回的 AI 走法', async () => {
