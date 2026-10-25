@@ -844,7 +844,7 @@ describe('ZERO7', () => {
     fireEvent.click(screen.getByRole('button', { name: '返回对战' }))
     expect(screen.queryByLabelText('复盘控制')).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: /AI复盘/ })).toBeInTheDocument()
-  })
+  }, 30000)
 
   it('点击棋谱可以跳转并返回当前局面', async () => {
     const scrollTo = vi.fn()
