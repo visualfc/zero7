@@ -4,6 +4,7 @@ import {
   BookOpen,
   ChevronLeft,
   ChevronRight,
+  Crown,
   Home,
   SkipBack,
   SkipForward,
@@ -16,7 +17,6 @@ import {
   Star,
   Swords,
   Target,
-  Trophy,
     Volume2,
 } from 'lucide-react'
 import './App.css'
@@ -29,7 +29,7 @@ import { BATTLE_RULES, describeAiResponse, describePlayerMove } from './battle-r
 import { commandHelp, parseVoiceCommand, type VoiceCommand, type VoicePage } from './voice-command'
 import { getPikafishMove, getPikafishStatus, warmupPikafish, type EngineLevel } from './pikafish'
 
-type Page = 'home' | 'lesson' | 'endgame' | 'battle' | 'progress'
+type Page = 'home' | 'lesson' | 'endgame' | 'battle'
 type ClassicGame = { id: string; event: string; red: string; redOriginal: string; black: string; blackOriginal: string; moves?: string[]; source: string }
 const MIN_VOICE_HOLD_MS = 350
 const EMPTY_LEVELS: Level[] = []
@@ -443,8 +443,8 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
   const executeGlobalCommand = (command: VoiceCommand) => {
     if (command.type === 'help') { setVoiceText(commandHelp(page as VoicePage)); return true }
     if (command.type === 'navigation.home') { setPage('home'); return true }
-    if (command.type === 'battle.start' && (page === 'home' || page === 'progress')) { setPage('battle'); return true }
-    if (command.type === 'training.start' && (page === 'home' || page === 'progress')) { openLesson(); return true }
+    if (command.type === 'battle.start' && page === 'home') { setPage('battle'); return true }
+    if (command.type === 'training.start' && page === 'home') { openLesson(); return true }
     return false
   }
 
@@ -546,7 +546,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
   if (!level) return <div className="app-shell puzzle-loading"><main><div className="loading-card">正在加载练习题库…</div></main>{toast && <div className="toast" role="status"><Volume2 /> {toast}</div>}</div>
 
   return (
-    <div className={`app-shell ${page === 'battle' ? 'battle-shell' : ''} ${page === 'home' ? 'home-shell' : ''} ${page === 'lesson' || page === 'endgame' || page === 'progress' ? 'content-shell' : ''}`}>
+    <div className={`app-shell ${page === 'battle' ? 'battle-shell' : ''} ${page === 'home' ? 'home-shell' : ''} ${page === 'lesson' || page === 'endgame' ? 'content-shell' : ''}`}>
       <main>
         {page === 'home' && <HomePage levels={levels} onStart={openLesson} onEndgame={openEndgame} onBattle={() => setPage('battle')} onNavigate={navigate} completedCount={levelIndex} />}
         {(page === 'lesson' || page === 'endgame') && (
@@ -584,7 +584,6 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
           />
         )}
         {page === 'battle' && <BattlePage onNavigate={navigate} />}
-        {page === 'progress' && <ProgressPage onLesson={openLesson} onNavigate={navigate} />}
       </main>
 
       {toast && <div className="toast" role="status"><Volume2 /> {toast}</div>}
@@ -592,9 +591,8 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
       <nav className="mobile-nav" aria-label="移动端主导航">
         <NavButton active={page === 'home'} icon={<Home />} label="首页" onClick={() => setPage('home')} />
         <NavButton active={page === 'battle'} icon={<Swords />} label="对战" onClick={() => setPage('battle')} />
-        <NavButton active={page === 'lesson'} icon={<BookOpen />} label="训练" onClick={() => openLesson()} />
-        <NavButton active={page === 'endgame'} icon={<Target />} label="残局" onClick={openEndgame} />
-        <NavButton active={page === 'progress'} icon={<Trophy />} label="成长" onClick={() => setPage('progress')} />
+        <NavButton active={page === 'lesson'} icon={<Target />} label="训练" onClick={() => openLesson()} />
+        <NavButton active={page === 'endgame'} icon={<Crown />} label="残局" onClick={openEndgame} />
       </nav>
     </div>
   )
@@ -605,10 +603,21 @@ function NavButton({ active, icon, label, onClick }: { active: boolean; icon: Re
 }
 
 function SideNavigation({ active, onNavigate }: { active: Page; onNavigate: (page: Page) => void }) {
-  return <nav className="battle-side-nav unified-side-nav" aria-label="主导航"><button className="brand battle-side-brand" onClick={() => onNavigate('home')} aria-label="返回首页"><span className="brand-mark"><span>象</span></span><span className="brand-name">零七 <small>ZERO7</small></span></button><div className="battle-side-nav-buttons"><NavButton active={active === 'battle'} icon={<Swords />} label="对战" onClick={() => onNavigate('battle')} /><NavButton active={active === 'lesson'} icon={<BookOpen />} label="训练" onClick={() => onNavigate('lesson')} /><NavButton active={active === 'endgame'} icon={<Target />} label="残局" onClick={() => onNavigate('endgame')} /><NavButton active={active === 'progress'} icon={<Trophy />} label="成长" onClick={() => onNavigate('progress')} /></div></nav>
+  return <nav className="battle-side-nav unified-side-nav" aria-label="主导航"><button className="brand battle-side-brand" onClick={() => onNavigate('home')} aria-label="返回首页"><span className="brand-mark"><span>象</span></span><span className="brand-name">零七 <small>ZERO7</small></span></button><div className="battle-side-nav-buttons"><NavButton active={active === 'battle'} icon={<Swords />} label="对战" onClick={() => onNavigate('battle')} /><NavButton active={active === 'lesson'} icon={<Target />} label="训练" onClick={() => onNavigate('lesson')} /><NavButton active={active === 'endgame'} icon={<Crown />} label="残局" onClick={() => onNavigate('endgame')} /></div></nav>
 }
 
 function HomePage({ levels, onStart, onEndgame, onBattle, onNavigate, completedCount }: { levels: Level[]; onStart: (index?: number) => void; onEndgame: () => void; onBattle: () => void; onNavigate: (page: Page) => void; completedCount: number }) {
+  const dailyLevels = useMemo(() => {
+    const training = levels.map((level, index) => ({ level, index })).filter(({ level }) => level.mode !== 'endgame')
+    const day = new Date().toLocaleDateString('zh-CN')
+    let seed = [...`${day}:${training.map(({ level }) => level.id).join(',')}`].reduce((value, char) => ((value * 31) + char.charCodeAt(0)) >>> 0, 2166136261)
+    const random = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296 }
+    const groups = new Map<string, typeof training>()
+    training.forEach((entry) => groups.set(entry.level.mode, [...(groups.get(entry.level.mode) ?? []), entry]))
+    const selected = [...groups.values()].map((items) => items[Math.floor(random() * items.length)]).sort(() => random() - 0.5).slice(0, 3)
+    const remaining = training.filter((entry) => !selected.some((item) => item.index === entry.index)).sort(() => random() - 0.5)
+    return [...selected, ...remaining].slice(0, 3)
+  }, [levels])
   return (
     <div className="home-page">
       <div className="home-main">
@@ -617,7 +626,7 @@ function HomePage({ levels, onStart, onEndgame, onBattle, onNavigate, completedC
           <span className="eyebrow"><Sparkles /> 训练 · 对弈 · 复盘</span>
           <h1>你好，棋友！<br /><em>今天想练哪一步？</em></h1>
           <p>和零七一起训练、对弈、复盘，轻松读懂每一步棋。</p>
-          <div className="hero-actions"><button className="primary-button" onClick={onBattle}><Swords /> 人机对战</button><button className="secondary-button" onClick={() => onStart(0)}>杀棋训练 <ChevronRight /></button><button className="secondary-button" onClick={onEndgame}><Award /> 残局训练</button></div>
+          <div className="hero-actions"><button className="primary-button" onClick={onBattle}><Swords /> 人机对战</button><button className="secondary-button" onClick={() => onStart(0)}><Target /> 杀棋训练</button><button className="secondary-button" onClick={onEndgame}><Crown /> 残局训练</button></div>
         </div>
         <div className="hero-art" aria-hidden="true">
           <div className="sun sun-a" /><div className="sun sun-b" />
@@ -635,7 +644,7 @@ function HomePage({ levels, onStart, onEndgame, onBattle, onNavigate, completedC
       <section className="section-block">
         <div className="section-heading"><div><span className="section-kicker">TODAY</span><h2>今日三小关</h2></div><span className="progress-copy">已完成 {completedCount} / 3</span></div>
         <div className="lesson-grid">
-          {levels.slice(0, 3).map((level, index) => <LessonCard key={level.id} number={level.number} color={['coral', 'gold', 'blue'][index]} icon={[<Target key="target" />, <Lightbulb key="hint" />, <Award key="award" />][index]} title={level.title.replace('\n', '')} text={level.description} tags={[level.category, level.difficulty]} onClick={() => onStart(index)} />)}
+          {dailyLevels.map(({ level, index: levelIndex }, index) => <LessonCard key={level.id} number={level.number} color={['coral', 'gold', 'blue'][index]} icon={[<Target key="target" />, <Lightbulb key="hint" />, <Award key="award" />][index]} title={level.title.replace('\n', '')} text={level.description} tags={[level.category, level.difficulty]} onClick={() => onStart(levelIndex)} />)}
         </div>
       </section>
 
@@ -648,9 +657,6 @@ function HomePage({ levels, onStart, onEndgame, onBattle, onNavigate, completedC
       <aside className="home-sidebar">
         <SideNavigation active="home" onNavigate={onNavigate} />
         <div className="home-side-card"><span className="section-kicker">TODAY</span><strong>今日进度</strong><p>已完成 {completedCount} / 3</p><div className="home-progress"><i style={{ width: `${(completedCount / 3) * 100}%` }} /></div></div>
-        <button className="primary-button full" onClick={onBattle}><Swords /> 对弈</button>
-        <button className="secondary-button full" onClick={() => onStart(0)}><Target /> 杀棋训练 <ChevronRight /></button>
-        <button className="secondary-button full" onClick={onEndgame}><Award /> 残局训练</button>
         <div className="home-side-card home-tip"><div className="coach-avatar small">象</div><p>下棋不用急，先看看对方下一步想做什么。</p></div>
       </aside>
     </div>
@@ -743,7 +749,7 @@ function LessonPage(props: {
               })}
             </select>
           </div>
-          <div className="lesson-side-description"><div className="lesson-badges"><span className="mini-badge">{props.level.category}</span><span className="mini-badge difficulty-badge">{props.level.difficulty}</span><span className="mini-badge source-badge">{props.level.source.name}</span></div><div className="puzzle-title"><h1>{props.level.title.replace(/\\\\n/g, '\n').replace(/\\n/g, '\n').split(/\r?\n/).map((line, index) => <Fragment key={`${props.level.id}-${index}`}>{index > 0 && <br />}{line}</Fragment>)}</h1></div><div className={`lesson-first-player ${props.level.fen.split(' ')[1] === 'b' ? 'black' : 'red'}`}>{props.level.fen.split(' ')[1] === 'b' ? '黑方先行' : '红方先行'}</div></div>
+          <div className="lesson-side-description"><div className="lesson-badges"><span className="mini-badge">{props.level.category}</span><span className="mini-badge difficulty-badge">{props.level.difficulty}</span><span className={`mini-badge source-badge ${props.level.fen.split(' ')[1] === 'b' ? 'black' : 'red'}`}>{props.level.fen.split(' ')[1] === 'b' ? '黑方先行' : '红方先行'}</span></div><div className="puzzle-title"><h1>{props.level.title.replace(/\\\\n/g, '\n').replace(/\\n/g, '\n').split(/\r?\n/).map((line, index) => <Fragment key={`${props.level.id}-${index}`}>{index > 0 && <br />}{line}</Fragment>)}</h1></div></div>
           {!props.completed && props.voiceText && <div className="lesson-status" aria-live="polite">{props.voiceText}</div>}
 
           {!props.completed && (
@@ -1563,23 +1569,6 @@ function ChessBoard({ pieces, selectedId, legalTargets, lastPath, instruction, o
       {instruction && <div className="board-tip"><span className="red-dot" /> {instruction}</div>}
     </div>
   )
-}
-
-function ProgressPage({ onLesson, onNavigate }: { onLesson: (index?: number) => void; onNavigate: (page: Page) => void }) {
-  return (
-    <div className="simple-page unified-page"><div className="unified-main simple-main">
-      <span className="eyebrow"><Trophy /> MY JOURNEY</span><h1>我的象棋成长</h1><p className="lead">每一次认真思考，都让你的判断更稳一步。</p>
-      <div className="stats-grid"><Stat value="3" label="连续学习天数" color="coral" /><Stat value="28" label="收集智慧星" color="gold" /><Stat value="5" label="完成小关卡" color="blue" /></div>
-      <section className="profile-card"><div className="profile-avatar">棋<br />友</div><div><h2>零七棋友</h2><p>当前等级：象棋入门</p><span className="profile-tag"><Star /> 已训练 3 天</span></div></section>
-      <section className="journey-card"><div><span className="section-kicker">本周目标</span><h2>完成 3 次象棋练习</h2><p>再完成今天的三小关，就能点亮“小小观察家”徽章。</p><div className="journey-bar"><span /></div><small>2 / 3 次</small></div><div className="badge-art"><Award /></div></section>
-      <section className="settings-card"><h2>训练设置</h2><div><span><Volume2 /> 语音讲解</span><strong>开启</strong></div><div><span><BookOpen /> 每日目标</span><strong>3 个训练关卡</strong></div><div><span><Target /> 当前难度</span><strong>入门</strong></div></section>
-      <button className="primary-button" onClick={() => onLesson(0)}>继续今日挑战 <ChevronRight /></button>
-    </div><aside className="unified-sidebar"><SideNavigation active="progress" onNavigate={onNavigate} /><div className="home-side-card"><span className="section-kicker">THIS WEEK</span><strong>本周完成 2 / 3</strong><p>再完成一次练习即可达成目标。</p></div><button className="primary-button full" onClick={() => onLesson(0)}><Target /> 继续训练</button></aside></div>
-  )
-}
-
-function Stat({ value, label, color }: { value: string; label: string; color: string }) {
-  return <div className={`stat-card ${color}`}><strong>{value}</strong><span>{label}</span></div>
 }
 
 export default App
