@@ -15,6 +15,7 @@ import {
     Volume2,
 } from 'lucide-react'
 import './App.css'
+import classicGames from './classic-games.json'
 import { LinxiVoiceClient, type LinxiState } from './linxi'
 import { parseVoiceMove, sameSquare, type Level, type Piece, type Square } from './chess'
 import { endgameCategories, fetchPuzzleLibrary, getEndgameCategory } from './puzzles'
@@ -784,6 +785,13 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const turnReminderTimer = useRef<number | null>(null)
   const moveRailRef = useRef<HTMLDivElement | null>(null)
   const [replayStep, setReplayStep] = useState<number | null>(null)
+  const [reviewOpen, setReviewOpen] = useState(false)
+  const [reviewMode, setReviewMode] = useState<'current' | 'classic'>('current')
+  const [classicGameId, setClassicGameId] = useState(classicGames[0].id)
+  const [reviewStep, setReviewStep] = useState(0)
+  const [reviewAnalysis, setReviewAnalysis] = useState<{ actual: string; recommended: string; comparison: string } | null>(null)
+  const [reviewAnalysisLoading, setReviewAnalysisLoading] = useState(false)
+  const reviewRequestId = useRef(0)
   const [status, setStatus] = useState('轮到红方走棋')
   const [difficulty, setDifficulty] = useState<EngineLevel>('初级')
   const difficultyDescriptions = { 入门: '皮卡鱼 2026-01-31\n入门 · 约 1280 Elo', 初级: '皮卡鱼 2026-01-31\n初级 · 约 1500 Elo', 中级: '皮卡鱼 2026-01-31\n中级 · 约 1900 Elo' } as const
@@ -1009,7 +1017,7 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
     if (!voiceMoveAuthorization.current.consume()) return
     const command = parseVoiceCommand(text)
     if (handleBattleCommand(command)) return
-    if (replayStep !== null || thinking || game.current.isGameOver() || game.current.turn() !== 'w') return
+    if (reviewOpen || replayStep !== null || thinking || game.current.isGameOver() || game.current.turn() !== 'w') return
     const move = findVoiceMove(game.current, text)
     if (!move) {
       battleVoiceClient.current?.disconnect()
@@ -1047,7 +1055,7 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
       updateBattleVoiceState('error')
       return
     }
-    if (replayStep !== null || thinking || game.current.isGameOver() || game.current.turn() !== 'w') return
+    if (reviewOpen || replayStep !== null || thinking || game.current.isGameOver() || game.current.turn() !== 'w') return
     if (battleVoiceState.current === 'listening' || battleVoiceState.current === 'connecting') return
     battleVoiceClient.current?.disconnect()
     voiceMoveAuthorization.current.cancel()
@@ -1066,7 +1074,7 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
   }
 
   const handleSquare = (square: Square) => {
-    if (thinking || game.current.isGameOver() || game.current.turn() !== 'w') return
+    if (reviewOpen || thinking || game.current.isGameOver() || game.current.turn() !== 'w') return
     voiceMoveAuthorization.current.cancel()
     if (battleVoiceState.current === 'listening' || battleVoiceState.current === 'thinking') battleVoiceClient.current?.disconnect()
     const activePieces = replayStep !== null ? battlePieces(game.current) : pieces
@@ -1142,12 +1150,85 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
     }
   }
 
+  const reviewMoves = (mode = reviewMode, gameId = classicGameId) => mode === 'classic'
+    ? (classicGames.find((item) => item.id === gameId) ?? classicGames[0]).moves
+    : (game.current.history({ verbose: true }) as Move[]).map((move) => `${move.from}${move.to}`)
+
+  const showReviewStep = (step: number, mode = reviewMode, gameId = classicGameId) => {
+    reviewRequestId.current += 1
+    const moves = reviewMoves(mode, gameId)
+    const nextStep = Math.max(0, Math.min(step, moves.length))
+    const replayGame = createBattle()
+    moves.slice(0, nextStep).forEach((move) => replayGame.move(move))
+    const verbose = replayGame.history({ verbose: true }) as Move[]
+    const lastMove = verbose.at(-1)
+    setPieces(battlePieces(replayGame))
+    setLastPath(lastMove ? { from: squareToPoint(lastMove.from), to: squareToPoint(lastMove.to), side: lastMove.color === 'w' ? 'red' : 'black' } : null)
+    setReviewStep(nextStep)
+    setReviewAnalysis(null)
+    setReviewAnalysisLoading(false)
+    setStatus(`复盘第 ${nextStep} 步，共 ${moves.length} 步`)
+  }
+
+  const openReview = (mode: 'current' | 'classic') => {
+    if (mode === 'current' && history.length === 0) return
+    battleVoiceClient.current?.disconnect()
+    voiceMoveAuthorization.current.cancel()
+    setVoiceHeld(false)
+    setReviewOpen(true)
+    setReviewMode(mode)
+    setSelected(null)
+    setTargets([])
+    showReviewStep(0, mode)
+  }
+
+  const closeReview = () => {
+    reviewRequestId.current += 1
+    setReviewOpen(false)
+    setReviewAnalysis(null)
+    setReviewAnalysisLoading(false)
+    setPieces(battlePieces(game.current))
+    setLastPath(null)
+    setStatus(battleStatus(game.current))
+  }
+
+  const analyzeReviewStep = async () => {
+    const requestId = ++reviewRequestId.current
+    const moves = reviewMoves()
+    const reviewGame = createBattle()
+    moves.slice(0, reviewStep).forEach((move) => reviewGame.move(move))
+    const fen = reviewGame.fen()
+    setReviewAnalysisLoading(true)
+    try {
+      const result = await getPikafishMove(fen, '中级', true)
+      if (requestId !== reviewRequestId.current) return
+      const actualGame = new Chess(fen)
+      const recommendedMove = result.move ? actualGame.move(result.move) : null
+      const actualUci = moves[reviewStep]
+      const actualMove = actualUci ? new Chess(fen).move(actualUci) : null
+      const recommended = recommendedMove?.zh ?? '当前没有合法着法'
+      const actual = actualMove?.zh ?? '对局已经结束'
+      const comparison = actualUci && result.move === actualUci
+        ? '实战着与引擎首选一致。'
+        : actualUci ? `实战选择${actual}，引擎更推荐${recommended}。` : '当前已经到达本局终点。'
+      setReviewAnalysis({ actual, recommended, comparison })
+    } catch {
+      setStatus('当前复盘局面分析失败，请稍后重试。')
+    } finally {
+      if (requestId === reviewRequestId.current) setReviewAnalysisLoading(false)
+    }
+  }
+
   const reviewBattle = () => {
     void speakBattleText(buildBattleReview(game.current, resigned))
   }
 
   const restart = () => {
     aiRequestId.current += 1
+    reviewRequestId.current += 1
+    setReviewOpen(false)
+    setReviewAnalysis(null)
+    setReviewAnalysisLoading(false)
     game.current = createBattle()
     setPieces(battlePieces(game.current))
     setHistory([])
@@ -1217,11 +1298,19 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
     <div className="battle-page page-wrap">
       <section className="battle-layout">
         <div className="battle-board-column">
+          {reviewOpen && <div className="battle-review-panel" aria-label="复盘控制">
+            <div className="review-head"><strong>{reviewMode === 'classic' ? '经典对局复盘' : '本局复盘'}</strong><button className="secondary-button compact-action" onClick={closeReview}>退出复盘</button></div>
+            <div className="review-tabs"><button className={reviewMode === 'current' ? 'active' : ''} onClick={() => { setReviewMode('current'); showReviewStep(0, 'current') }} disabled={history.length === 0}>本局</button><button className={reviewMode === 'classic' ? 'active' : ''} onClick={() => { setReviewMode('classic'); showReviewStep(0, 'classic') }}>经典对局</button></div>
+            {reviewMode === 'classic' && <select aria-label="选择经典对局" value={classicGameId} onChange={(event) => { setClassicGameId(event.target.value); showReviewStep(0, 'classic', event.target.value) }}>{classicGames.map((item) => <option key={item.id} value={item.id}>{item.event} · {item.red} vs {item.black}</option>)}</select>}
+            <div className="review-navigation"><button onClick={() => showReviewStep(0)} disabled={reviewStep === 0}>开局</button><button onClick={() => showReviewStep(reviewStep - 1)} disabled={reviewStep === 0}>上一步</button><span>{reviewStep} / {reviewMoves().length}</span><button onClick={() => showReviewStep(reviewStep + 1)} disabled={reviewStep >= reviewMoves().length}>下一步</button><button onClick={() => showReviewStep(reviewMoves().length)} disabled={reviewStep >= reviewMoves().length}>终局</button></div>
+            <button className="secondary-button compact-action" onClick={() => void analyzeReviewStep()} disabled={reviewAnalysisLoading}>{reviewAnalysisLoading ? '正在分析…' : '分析当前节点'}</button>
+            {reviewAnalysis && <div className="analysis-result"><p>实战着：{reviewAnalysis.actual}</p><p>推荐着：{reviewAnalysis.recommended}</p><strong>{reviewAnalysis.comparison}</strong><button className="analysis-speak-button" onClick={() => void speakAnalysisText(reviewAnalysis.comparison)} aria-label="语音讲解复盘"><Volume2 /></button></div>}
+          </div>}
           <div className="board-panel battle-board-panel">
             <div className="battle-move-rail" ref={moveRailRef} aria-label="对局棋谱">{Array.from({ length: Math.ceil(history.length / 2) }, (_, index) => <div className="battle-move-turn" key={index}><span>{index + 1}.</span><div><button className={replayStep === index * 2 + 1 ? 'move-replay active' : 'move-replay'} onClick={() => replayMove(index * 2 + 1)}>{history[index * 2]}</button>{history[index * 2 + 1] && <button className={replayStep === index * 2 + 2 ? 'move-replay active' : 'move-replay'} onClick={() => replayMove(index * 2 + 2)}>{history[index * 2 + 1]}</button>}</div></div>)}</div>
             <ChessBoard pieces={pieces} selectedId={selectedPiece?.id ?? null} legalTargets={targets} lastPath={lastPath} onSquare={handleSquare} />
           </div>
-          <button className={`mobile-battle-voice ${voiceHeld ? 'listening' : ''}`} onPointerDown={(event) => { event.currentTarget.setPointerCapture?.(event.pointerId); voicePressStartedAt.current = Date.now(); setVoiceHeld(true); void startBattleVoice() }} onPointerUp={() => void stopBattleVoice()} onPointerCancel={() => void stopBattleVoice()} onContextMenu={(event) => event.preventDefault()} aria-label={voiceHeld ? '松开完成' : '按住说走法'} disabled={replayStep !== null || thinking || voiceState === 'connecting' || voiceState === 'thinking' || game.current.turn() !== 'w'}><Mic /><span><strong>{voiceHeld ? '松开完成' : '按住说走法'}</strong><small>按住按钮，说完后松开</small></span></button>
+          <button className={`mobile-battle-voice ${voiceHeld ? 'listening' : ''}`} onPointerDown={(event) => { event.currentTarget.setPointerCapture?.(event.pointerId); voicePressStartedAt.current = Date.now(); setVoiceHeld(true); void startBattleVoice() }} onPointerUp={() => void stopBattleVoice()} onPointerCancel={() => void stopBattleVoice()} onContextMenu={(event) => event.preventDefault()} aria-label={voiceHeld ? '松开完成' : '按住说走法'} disabled={reviewOpen || replayStep !== null || thinking || voiceState === 'connecting' || voiceState === 'thinking' || game.current.turn() !== 'w'}><Mic /><span><strong>{voiceHeld ? '松开完成' : '按住说走法'}</strong><small>按住按钮，说完后松开</small></span></button>
         </div>
         <aside className="battle-sidebar">
           <SideNavigation active="battle" onNavigate={onNavigate} />
@@ -1230,13 +1319,15 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
             {!['轮到红方走棋', `${BATTLE_RULES.brandName}正在思考…`, '轮到你继续走棋。'].includes(status) && <p className="battle-message">{status}</p>}
             <div className="coach-head compact"><div className="coach-avatar small">象</div><div><strong>语音走棋与讲解</strong><span>{voiceStateLabel(voiceState)}</span></div><span className={`connection-dot ${voiceState}`} /></div>
             <p>{voiceText}</p>
-            <button className={voiceHeld ? 'voice-button listening' : 'voice-button'} onPointerDown={(event) => { event.currentTarget.setPointerCapture?.(event.pointerId); voicePressStartedAt.current = Date.now(); setVoiceHeld(true); void startBattleVoice() }} onPointerUp={() => void stopBattleVoice()} onPointerCancel={() => void stopBattleVoice()} disabled={replayStep !== null || thinking || voiceState === 'connecting' || voiceState === 'thinking' || game.current.turn() !== 'w'}><span><Mic /></span><strong>{voiceHeld ? '松开完成' : '按住说走法'}</strong><small>按住按钮，说完后松开</small></button>
+            <button className={voiceHeld ? 'voice-button listening' : 'voice-button'} onPointerDown={(event) => { event.currentTarget.setPointerCapture?.(event.pointerId); voicePressStartedAt.current = Date.now(); setVoiceHeld(true); void startBattleVoice() }} onPointerUp={() => void stopBattleVoice()} onPointerCancel={() => void stopBattleVoice()} disabled={reviewOpen || replayStep !== null || thinking || voiceState === 'connecting' || voiceState === 'thinking' || game.current.turn() !== 'w'}><span><Mic /></span><strong>{voiceHeld ? '松开完成' : '按住说走法'}</strong><small>按住按钮，说完后松开</small></button>
           </div>
 
           {replayStep !== null && <button className="secondary-button full" onClick={returnToCurrentPosition}>返回当前局面</button>}
           <div className="battle-actions"><button className="secondary-button" onClick={undo} disabled={thinking || history.length === 0}><RotateCcw /> 悔棋</button><button className="secondary-button" onClick={() => { if (turnReminderTimer.current !== null) window.clearTimeout(turnReminderTimer.current); turnReminderTimer.current = null; setResigned(true); setStatus(`你已认输，本局由 ${BATTLE_RULES.brandName} 获胜。`) }}>认输</button></div>
           {engineStatus === 'pikafish' && <div className="battle-card analysis-card"><button className="secondary-button full compact-action" onClick={() => { if (analysisVisible) setAnalysisVisible(false); else { setAnalysisVisible(true); if (!analysis) void analyzePosition() } }} disabled={replayStep !== null}><Target /> {analysisLoading ? '正在分析…' : analysisVisible ? '收起局面分析' : '局面分析'}</button>{analysisVisible && (analysis || analysisLoading) && <div className="analysis-result">{analysis ? <><div className="probability-row"><span>红方 {analysis.red}%</span><span>黑方 {analysis.black}%</span></div><div className="probability-bar"><i style={{ width: `${analysis.red}%` }} /></div><div className="analysis-recommendation"><strong>推荐走法：{analysis.move}</strong><button className="analysis-speak-button" onClick={() => void speakAnalysisText(analysis.explanation)} aria-label="语音讲解推荐" title="语音讲解推荐"><Volume2 /></button></div><p>{analysis.explanation}</p></> : <p>正在分析当前局面…</p>}</div>}</div>}
-          {(resigned || game.current.isGameOver()) && <button className="secondary-button full review-button" onClick={reviewBattle}><Volume2 /> 语音复盘</button>}
+          <button className="secondary-button full review-button" onClick={() => openReview('current')} disabled={history.length === 0}><BookOpen /> 本局复盘</button>
+          <button className="secondary-button full review-button" onClick={() => openReview('classic')}><Trophy /> 经典对局</button>
+          {(resigned || game.current.isGameOver()) && <button className="secondary-button full review-button" onClick={reviewBattle}><Volume2 /> 语音总结</button>}
         </aside>
       </section>
     </div>

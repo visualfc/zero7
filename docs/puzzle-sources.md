@@ -10,7 +10,7 @@ ZERO7 的练习题统一保存来源、原始题号、许可证、完整 FEN、�
 | 棋弈江湖 | 7,346 道残局关键着 | MIT | <https://github.com/dffge552/xiangqi-pwa-offline> |
 | ChessDB | 离线复核答案、评分和主变化 | Unlicense / 公共领域数据库快照 | <https://github.com/noobpwnftw/chessdb> |
 
-题库数据遵循 Wukong Xiangqi 的 MIT 许可证。项目的 Apache-2.0 许可证覆盖 ZERO7 自有代码和中文训练提示。已导入内容的完整许可证文本保存在 [`THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md)。
+题库数据遵循 Wukong Xiangqi 的 MIT 许可证。复盘模块另使用其 `xqdb` 完整大师对局库，首批导入 3 盘带赛事和棋手信息的 UCI 格式代表性棋谱，并使用 `xiangqi.js` 从标准开局逐着校验；经典对局不计入练习题总数。项目的 Apache-2.0 许可证覆盖 ZERO7 自有代码和中文训练提示。已导入内容的完整许可证文本保存在 [`THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md)。
 
 ## 当前题量
 
