@@ -92,7 +92,7 @@ AI 复盘整合在人机对战页底部。进入后暂停人机操作和回合�
 - JSON 是可审计源数据，SQLite 是自动生成的运行时查询数据库。
 - 设备凭证只保存在服务端 `.env`，不会进入浏览器代码。
 
-题库和棋谱来源、数量及许可证详见 [题库来源](./docs/puzzle-sources.md) 和 [第三方声明](./THIRD_PARTY_NOTICES.md)。系统时序和交互约束详见 [设计文档](./docs/design.md)，未来实现按阶段记录在 [路线图](./docs/roadmap.md)。
+题库和棋谱来源、数量及许可证详见 [题库来源](./docs/puzzle-sources.md) 和 [第三方声明](./THIRD_PARTY_NOTICES.md)。面向用户的操作步骤详见 [使用指南](./docs/user-guide.md)，系统时序和交互约束详见 [设计文档](./docs/design.md)，未来实现按阶段记录在 [路线图](./docs/roadmap.md)。
 
 ## 安装与运行
 
