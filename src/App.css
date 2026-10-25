@@ -271,7 +271,8 @@
 .battle-review-rail .review-head, .battle-review-rail .review-tabs { align-items: flex-start; flex-wrap: wrap; }
 .battle-review-rail .review-navigation { flex-wrap: wrap; justify-content: flex-start; }
 .battle-review-rail .review-navigation span { width: 100%; order: -1; text-align: center; }
-.battle-review-rail .compact-action { width: 100%; }
+.battle-review-rail .compact-action, .battle-review-rail .review-analyze-button { width: 100%; }
+.review-analyze-button { min-height: 42px; font-weight: 800; }
 .battle-review-rail .analysis-result { font-size: 11px; }
 .battle-move-rail.review-hidden { display: none; }
 .review-head, .review-navigation, .review-tabs { display: flex; align-items: center; justify-content: space-between; gap: 6px; }

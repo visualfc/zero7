@@ -74,7 +74,7 @@ describe('ZERO7', () => {
     render(<App initialLevels={testLevels} />)
     const navigation = screen.getAllByRole('navigation', { name: '主导航' })[0]
     const labels = navigation.querySelectorAll('.nav-button span')
-    expect([...labels].map((label) => label.textContent)).toEqual(['对战', '复盘', '训练', '残局', '成长'])
+    expect([...labels].map((label) => label.textContent)).toEqual(['对战', 'AI复盘', '训练', '残局', '成长'])
     expect(navigation.querySelector('.battle-side-brand')).toHaveAttribute('aria-label', '返回首页')
   })
 
@@ -776,18 +776,8 @@ describe('ZERO7', () => {
     const probability = screen.queryByText(/红方 \d+%/)
     const unavailable = screen.queryByText('当前无法获取胜负概率，请确认 Pikafish 可用。')
     expect(probability || unavailable).toBeTruthy()
-    if (screen.queryByRole('button', { name: /语音讲解推荐/ })) {
-      const moveVoiceButton = screen.getAllByRole('button', { name: /按住说走法/ })[0]
-      const moveVoiceLabel = moveVoiceButton.textContent
-      fireEvent.click(screen.getByRole('button', { name: /语音讲解推荐/ }))
-      expect(voiceMock.instances.at(-1)!.speakText).toHaveBeenCalled()
-      fireEvent.click(screen.getByRole('button', { name: /语音讲解推荐/ }))
-      expect(voiceMock.instances.at(-2)!.disconnect).toHaveBeenCalled()
-      expect(moveVoiceButton.textContent).toBe(moveVoiceLabel)
-      expect(moveVoiceButton).not.toHaveClass('listening')
-    } else {
-      expect(screen.getByText('当前无法获取胜负概率，请确认 Pikafish 可用。')).toBeInTheDocument()
-    }
+    expect(screen.queryByRole('button', { name: /语音讲解推荐/ })).not.toBeInTheDocument()
+    if (!probability) expect(screen.getByText('当前无法获取胜负概率，请确认 Pikafish 可用。')).toBeInTheDocument()
     const collapse = screen.queryByRole('button', { name: '收起局面分析' })
     if (collapse) {
       fireEvent.click(collapse)
@@ -801,32 +791,6 @@ describe('ZERO7', () => {
     fireEvent.click(screen.getByRole('button', { name: '1-1' }))
   })
 
-  it('本局复盘支持逐步导航和引擎对比', async () => {
-    vi.stubGlobal('fetch', vi.fn(async (input: string | URL | Request, options?: RequestInit) => {
-      if (String(input).includes('/status')) return new Response(JSON.stringify({ available: true, name: 'Pikafish Test' }), { status: 200 })
-      const request = JSON.parse(String(options?.body))
-      if (request.analysis) return new Response(JSON.stringify({ move: 'h9g7', score: { type: 'cp', value: 100 }, engine: 'Pikafish Test', level: '中级' }), { status: 200 })
-      return new Response(JSON.stringify({ move: 'h9g7', engine: 'Pikafish Test', level: '初级' }), { status: 200 })
-    }))
-    render(<App initialLevels={testLevels} />)
-    fireEvent.click(screen.getByRole('button', { name: /人机对战/ }))
-    await screen.findByText('Pikafish Test')
-    fireEvent.click(screen.getAllByRole('button', { name: '红马' }).at(-1)!)
-    fireEvent.click(screen.getByRole('button', { name: '7-6' }))
-    await screen.findByText('马８进７', {}, { timeout: 4000 })
-    fireEvent.click(screen.getByRole('button', { name: /本局复盘/ }))
-    expect(screen.getByLabelText('复盘控制')).toHaveTextContent('0 / 2')
-    fireEvent.click(screen.getByRole('button', { name: '下一步' }))
-    expect(screen.getByLabelText('复盘控制')).toHaveTextContent('1 / 2')
-    fireEvent.click(screen.getByRole('button', { name: '分析当前节点' }))
-    expect(await screen.findByText(/实战着：马８进７/)).toBeInTheDocument()
-    expect(screen.getByText(/推荐着：马８进７/)).toBeInTheDocument()
-    expect(screen.getByText('实战着与引擎首选一致。')).toBeInTheDocument()
-    expect(screen.getAllByRole('button', { name: /按住说走法/ }).every((button) => button.hasAttribute('disabled'))).toBe(true)
-    fireEvent.click(screen.getByRole('button', { name: '退出复盘' }))
-    expect(screen.queryByLabelText('复盘控制')).not.toBeInTheDocument()
-  })
-
   it('经典对局可以选择并逐步回放完整棋谱', async () => {
     vi.stubGlobal('fetch', vi.fn(async (input: string | URL | Request) => {
       if (String(input).includes('/api/classic-games/classic-1')) return new Response(JSON.stringify({ id: 'classic-1', event: 'Jiafun Cup National Champion 1997', red: '刘殿中', redOriginal: 'LIU DianZhong', black: '柳大华', blackOriginal: 'LIU DaHua', moves: ['h2e2', 'b9c7', 'h0g2', 'h7f7', 'g3g4', 'h9g7', 'b2c2', 'i9h9', 'b0a2', 'a9b9', 'a0b0', 'b7b3', 'c3c4', 'h9h5', 'i0h0', 'h5d5', 'c2c6', 'c9e7', 'e2f2', 'd5d6', 'c4c5', 'b3b2', 'h0h8', 'b2g2', 'b0b9', 'c7b9', 'h8b8', 'g2a2', 'c0a2', 'b9d8', 'c6c9', 'd9e8', 'c9a9', 'd6d7', 'b8b9', 'e8d9', 'b9b8', 'd9e8', 'f2d2', 'd7a7', 'b8b9', 'e8d9', 'b9d9', 'e9e8', 'c5d5', 'd8b7', 'a9f9', 'g6g5', 'd2g2', 'f7f8', 'g4g5', 'g7f9', 'd9f9', 'a7a9', 'f9a9', 'b7a9', 'g5g6', 'a9c8', 'g2e2', 'e8e9', 'e2e6', 'f8e8', 'e6e8', 'e9e8', 'i3i4', 'e7c9', 'g6h6', 'c8e7', 'd5e5', 'e7c6', 'e5e6', 'c6b4', 'a2c4'], source: 'Wukong Xiangqi master games database' }), { status: 200 })
@@ -834,18 +798,18 @@ describe('ZERO7', () => {
       return new Response(JSON.stringify({ move: null, terminal: true }), { status: 200 })
     }))
     render(<App initialLevels={testLevels} />)
-    fireEvent.click(screen.getByRole('button', { name: /人机对战/ }))
-    fireEvent.click(screen.getByRole('button', { name: /经典对局/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /AI复盘/ })[0])
     await screen.findByLabelText('选择经典对局')
     await waitFor(() => expect(screen.getByLabelText('复盘控制')).toHaveTextContent('0 / 73'))
     expect(screen.getByLabelText('选择经典对局')).toHaveTextContent('刘殿中 vs 柳大华')
     await waitFor(() => expect(screen.getByLabelText('对局棋谱')).toHaveTextContent('炮二平五'))
-    fireEvent.click(screen.getByRole('button', { name: '下一步' }))
-    await waitFor(() => expect(screen.getByLabelText('复盘控制')).toHaveTextContent('1 / 73'))
-    fireEvent.click(screen.getByRole('button', { name: '终局' }))
-    await waitFor(() => expect(screen.getByLabelText('复盘控制')).toHaveTextContent('73 / 73'))
-    fireEvent.change(screen.getByLabelText('选择经典对局'), { target: { value: 'classic-1' } })
-    await waitFor(() => expect(screen.getByLabelText('复盘控制')).toHaveTextContent('0 / 73'))
+    fireEvent.click(screen.getAllByRole('button', { name: /.+/ }).filter((button) => button.className.includes('move-replay')).at(-1)!)
+    fireEvent.click(screen.getByRole('button', { name: '分析当前局面' }))
+    expect(await screen.findByText('当前已经到达本局终点。')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '上一步' }))
+    expect(screen.getByLabelText('复盘控制')).toHaveTextContent('72 / 73')
+    fireEvent.click(screen.getByRole('button', { name: '上一步' }))
+    expect(screen.getByLabelText('复盘控制')).toHaveTextContent('71 / 73')
   })
 
   it('点击棋谱可以跳转并返回当前局面', async () => {

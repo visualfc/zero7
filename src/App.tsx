@@ -4,6 +4,7 @@ import {
   BookOpen,
   ChevronRight,
   Home,
+  History,
   Lightbulb,
   Mic,
   RotateCcw,
@@ -587,7 +588,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
       <nav className="mobile-nav" aria-label="移动端主导航">
         <NavButton active={page === 'home'} icon={<Home />} label="首页" onClick={() => setPage('home')} />
         <NavButton active={page === 'battle'} icon={<Swords />} label="对战" onClick={() => setPage('battle')} />
-        <NavButton active={page === 'review'} icon={<BookOpen />} label="复盘" onClick={() => setPage('review')} />
+        <NavButton active={page === 'review'} icon={<History />} label="AI复盘" onClick={() => setPage('review')} />
         <NavButton active={page === 'lesson'} icon={<BookOpen />} label="训练" onClick={() => openLesson()} />
         <NavButton active={page === 'endgame'} icon={<Target />} label="残局" onClick={openEndgame} />
         <NavButton active={page === 'progress'} icon={<Trophy />} label="成长" onClick={() => setPage('progress')} />
@@ -601,7 +602,7 @@ function NavButton({ active, icon, label, onClick }: { active: boolean; icon: Re
 }
 
 function SideNavigation({ active, onNavigate }: { active: Page; onNavigate: (page: Page) => void }) {
-  return <nav className="battle-side-nav unified-side-nav" aria-label="主导航"><button className="brand battle-side-brand" onClick={() => onNavigate('home')} aria-label="返回首页"><span className="brand-mark"><span>象</span></span><span className="brand-name">零七 <small>ZERO7</small></span></button><div className="battle-side-nav-buttons"><NavButton active={active === 'battle'} icon={<Swords />} label="对战" onClick={() => onNavigate('battle')} /><NavButton active={active === 'review'} icon={<BookOpen />} label="复盘" onClick={() => onNavigate('review')} /><NavButton active={active === 'lesson'} icon={<BookOpen />} label="训练" onClick={() => onNavigate('lesson')} /><NavButton active={active === 'endgame'} icon={<Target />} label="残局" onClick={() => onNavigate('endgame')} /><NavButton active={active === 'progress'} icon={<Trophy />} label="成长" onClick={() => onNavigate('progress')} /></div></nav>
+  return <nav className="battle-side-nav unified-side-nav" aria-label="主导航"><button className="brand battle-side-brand" onClick={() => onNavigate('home')} aria-label="返回首页"><span className="brand-mark"><span>象</span></span><span className="brand-name">零七 <small>ZERO7</small></span></button><div className="battle-side-nav-buttons"><NavButton active={active === 'battle'} icon={<Swords />} label="对战" onClick={() => onNavigate('battle')} /><NavButton active={active === 'review'} icon={<History />} label="AI复盘" onClick={() => onNavigate('review')} /><NavButton active={active === 'lesson'} icon={<BookOpen />} label="训练" onClick={() => onNavigate('lesson')} /><NavButton active={active === 'endgame'} icon={<Target />} label="残局" onClick={() => onNavigate('endgame')} /><NavButton active={active === 'progress'} icon={<Trophy />} label="成长" onClick={() => onNavigate('progress')} /></div></nav>
 }
 
 function HomePage({ levels, onStart, onEndgame, onBattle, onNavigate, completedCount }: { levels: Level[]; onStart: (index?: number) => void; onEndgame: () => void; onBattle: () => void; onNavigate: (page: Page) => void; completedCount: number }) {
@@ -787,15 +788,15 @@ function BattlePage({ onNavigate, reviewPage = false }: { onNavigate: (page: Pag
   const turnReminderTimer = useRef<number | null>(null)
   const moveRailRef = useRef<HTMLDivElement | null>(null)
   const [replayStep, setReplayStep] = useState<number | null>(null)
-  const [reviewOpen, setReviewOpen] = useState(reviewPage)
-  useEffect(() => { setReviewOpen(reviewPage) }, [reviewPage])
-  const [reviewMode, setReviewMode] = useState<'current' | 'classic'>('current')
+  const reviewOpen = reviewPage
+  const reviewMode = 'classic' as const
   const [classicGames, setClassicGames] = useState<ClassicGame[]>([])
   const [classicQuery, setClassicQuery] = useState('')
   const [classicLoading, setClassicLoading] = useState(false)
   const [classicGameId, setClassicGameId] = useState('')
   const [reviewStep, setReviewStep] = useState(0)
   const [reviewAnalysis, setReviewAnalysis] = useState<{ actual: string; recommended: string; comparison: string } | null>(null)
+  const [reviewAnalysisVisible, setReviewAnalysisVisible] = useState(false)
   const [reviewAnalysisLoading, setReviewAnalysisLoading] = useState(false)
   const reviewRequestId = useRef(0)
   const [status, setStatus] = useState('轮到红方走棋')
@@ -834,7 +835,6 @@ function BattlePage({ onNavigate, reviewPage = false }: { onNavigate: (page: Pag
   const [voiceHeld, setVoiceHeld] = useState(false)
   const voicePressStartedAt = useRef<number | null>(null)
   const battleVoiceClient = useRef<LinxiVoiceClient | null>(null)
-  const analysisVoiceClient = useRef<LinxiVoiceClient | null>(null)
   const battleVoiceState = useRef<LinxiState>('idle')
   const voiceMoveAuthorization = useRef(new VoiceMoveAuthorization())
   const ignoreBattleReplies = useRef(false)
@@ -863,7 +863,6 @@ function BattlePage({ onNavigate, reviewPage = false }: { onNavigate: (page: Pag
       voicePressStartedAt.current = null
       setVoiceHeld(false)
       battleVoiceClient.current?.disconnect()
-      analysisVoiceClient.current?.disconnect()
       if (turnReminderTimer.current !== null) window.clearTimeout(turnReminderTimer.current)
     }
   }, [])
@@ -919,19 +918,6 @@ function BattlePage({ onNavigate, reviewPage = false }: { onNavigate: (page: Pag
     }
   }
 
-  const speakAnalysisText = async (text: string) => {
-    analysisVoiceClient.current?.disconnect()
-    const client = new LinxiVoiceClient(() => {})
-    analysisVoiceClient.current = client
-    try {
-      await client.speakText(text)
-      await client.waitForPlayback()
-      await new Promise((resolve) => window.setTimeout(resolve, BATTLE_RULES.voicePlaybackSettleMs))
-    } finally {
-      client.disconnect()
-      if (analysisVoiceClient.current === client) analysisVoiceClient.current = null
-    }
-  }
 
   const aiTurn = async (playerMove: Move) => {
     ignoreBattleReplies.current = false
@@ -1200,31 +1186,6 @@ function BattlePage({ onNavigate, reviewPage = false }: { onNavigate: (page: Pag
     setStatus(`复盘第 ${nextStep} 步，共 ${moves.length} 步`)
   }
 
-  const openReview = (mode: 'current' | 'classic') => {
-    if (mode === 'current' && history.length === 0) return
-    battleVoiceClient.current?.disconnect()
-    voiceMoveAuthorization.current.cancel()
-    setVoiceHeld(false)
-    setReviewOpen(true)
-    onNavigate('review')
-    setReviewMode(mode)
-    setSelected(null)
-    setTargets([])
-    showReviewStep(0, mode)
-  }
-
-  const closeReview = () => {
-    reviewRequestId.current += 1
-    setReviewOpen(false)
-    onNavigate('battle')
-    setReviewHistory([])
-    setReviewAnalysis(null)
-    setReviewAnalysisLoading(false)
-    setPieces(battlePieces(game.current))
-    setLastPath(null)
-    setStatus(battleStatus(game.current))
-  }
-
   const analyzeReviewStep = async () => {
     const requestId = ++reviewRequestId.current
     const moves = reviewMoves()
@@ -1252,6 +1213,10 @@ function BattlePage({ onNavigate, reviewPage = false }: { onNavigate: (page: Pag
     }
   }
 
+  useEffect(() => {
+    if (reviewPage && reviewAnalysisVisible) void analyzeReviewStep()
+  }, [reviewStep, reviewAnalysisVisible, classicGameId])
+
   const reviewBattle = () => {
     void speakBattleText(buildBattleReview(game.current, resigned))
   }
@@ -1259,7 +1224,6 @@ function BattlePage({ onNavigate, reviewPage = false }: { onNavigate: (page: Pag
   const restart = () => {
     aiRequestId.current += 1
     reviewRequestId.current += 1
-    setReviewOpen(false)
     setReviewAnalysis(null)
     setReviewAnalysisLoading(false)
     game.current = createBattle()
@@ -1340,14 +1304,13 @@ function BattlePage({ onNavigate, reviewPage = false }: { onNavigate: (page: Pag
         <aside className="battle-sidebar">
           <SideNavigation active={reviewPage ? 'review' : 'battle'} onNavigate={onNavigate} />
           {reviewOpen && <div className="battle-review-panel battle-review-rail" aria-label="复盘控制">
-            <div className="review-head"><strong>{reviewMode === 'classic' ? '经典对局复盘' : '本局复盘'}</strong><button className="secondary-button compact-action" onClick={closeReview}>退出复盘</button></div>
-            <div className="review-tabs"><button className={reviewMode === 'current' ? 'active' : ''} onClick={() => { setReviewMode('current'); showReviewStep(0, 'current') }} disabled={history.length === 0}>本局</button><button className={reviewMode === 'classic' ? 'active' : ''} onClick={() => { setReviewMode('classic'); showReviewStep(0, 'classic') }}>经典对局</button></div>
+            <div className="review-head"><strong>AI复盘 · 经典对局</strong></div>
             {reviewMode === 'classic' && <><input aria-label="搜索经典对局" placeholder="搜索赛事或棋手" value={classicQuery} onChange={(event) => setClassicQuery(event.target.value)} /><select aria-label="选择经典对局" value={classicGameId} disabled={classicLoading || classicGames.length === 0} onChange={(event) => { setClassicGameId(event.target.value); setReviewHistory([]); setReviewStep(0) }}>{classicGames.map((item) => <option key={item.id} value={item.id}>{item.event} · {item.red} vs {item.black}</option>)}</select></>}
-            <div className="review-navigation"><button onClick={() => showReviewStep(0)} disabled={reviewStep === 0}>开局</button><button onClick={() => showReviewStep(reviewStep - 1)} disabled={reviewStep === 0}>上一步</button><span>{reviewStep} / {reviewMoves().length}</span><button onClick={() => showReviewStep(reviewStep + 1)} disabled={reviewStep >= reviewMoves().length}>下一步</button><button onClick={() => showReviewStep(reviewMoves().length)} disabled={reviewStep >= reviewMoves().length}>终局</button></div>
-            <button className="secondary-button compact-action" onClick={() => void analyzeReviewStep()} disabled={reviewAnalysisLoading}>{reviewAnalysisLoading ? '正在分析…' : '分析当前节点'}</button>
-            {reviewAnalysis && <div className="analysis-result"><p>实战着：{reviewAnalysis.actual}</p><p>推荐着：{reviewAnalysis.recommended}</p><strong>{reviewAnalysis.comparison}</strong><button className="analysis-speak-button" onClick={() => void speakAnalysisText(reviewAnalysis.comparison)} aria-label="语音讲解复盘"><Volume2 /></button></div>}
+            <div className="review-navigation"><button onClick={() => showReviewStep(reviewStep - 1)} disabled={reviewStep === 0}>上一步</button><span>{reviewStep} / {reviewMoves().length}</span><button onClick={() => showReviewStep(reviewStep + 1)} disabled={reviewStep >= reviewMoves().length}>下一步</button></div>
+            <button className="primary-button review-analyze-button" onClick={() => { setReviewAnalysisVisible((visible) => !visible); if (!reviewAnalysisVisible) void analyzeReviewStep() }} disabled={reviewAnalysisLoading}>{reviewAnalysisLoading ? '正在分析当前局面…' : reviewAnalysisVisible ? '收起局面分析' : '分析当前局面'}</button>
+            {reviewAnalysisVisible && <div className="analysis-result">{reviewAnalysisLoading && <p>正在分析当前局面…</p>}{reviewAnalysis && <><p>实战着：{reviewAnalysis.actual}</p><p>推荐着：{reviewAnalysis.recommended}</p><strong>{reviewAnalysis.comparison}</strong></>}</div>}
           </div>}
-          <div className="battle-card engine-card"><div className="battle-side-actions"><div className="difficulty-inline" aria-label="选择棋力">{(['入门', '初级', '中级'] as const).map((item) => <button key={item} className={difficulty === item ? 'active' : ''} onClick={() => setDifficulty(item)} aria-describedby={`difficulty-${item}`} data-tooltip={difficultyDescriptions[item]}>{item}</button>)}</div><span className="visually-hidden" id="difficulty-入门">{difficultyDescriptions.入门}</span><span className="visually-hidden" id="difficulty-初级">{difficultyDescriptions.初级}</span><span className="visually-hidden" id="difficulty-中级">{difficultyDescriptions.中级}</span><button className="secondary-button battle-restart-button" onClick={restart}><RotateCcw /> 重开一局</button></div><span className="visually-hidden" aria-live="polite">{engineName}</span></div>
+          {!reviewPage && <><div className="battle-card engine-card"><div className="battle-side-actions"><div className="difficulty-inline" aria-label="选择棋力">{(['入门', '初级', '中级'] as const).map((item) => <button key={item} className={difficulty === item ? 'active' : ''} onClick={() => setDifficulty(item)} aria-describedby={`difficulty-${item}`} data-tooltip={difficultyDescriptions[item]}>{item}</button>)}</div><span className="visually-hidden" id="difficulty-入门">{difficultyDescriptions.入门}</span><span className="visually-hidden" id="difficulty-初级">{difficultyDescriptions.初级}</span><span className="visually-hidden" id="difficulty-中级">{difficultyDescriptions.中级}</span><button className="secondary-button battle-restart-button" onClick={restart}><RotateCcw /> 重开一局</button></div><span className="visually-hidden" aria-live="polite">{engineName}</span></div>
           <div className="battle-card battle-voice-card">
             {!['轮到红方走棋', `${BATTLE_RULES.brandName}正在思考…`, '轮到你继续走棋。'].includes(status) && <p className="battle-message">{status}</p>}
             <div className="coach-head compact"><div className="coach-avatar small">象</div><div><strong>语音走棋与讲解</strong><span>{voiceStateLabel(voiceState)}</span></div><span className={`connection-dot ${voiceState}`} /></div>
@@ -1357,10 +1320,9 @@ function BattlePage({ onNavigate, reviewPage = false }: { onNavigate: (page: Pag
 
           {replayStep !== null && <button className="secondary-button full" onClick={returnToCurrentPosition}>返回当前局面</button>}
           <div className="battle-actions"><button className="secondary-button" onClick={undo} disabled={thinking || history.length === 0}><RotateCcw /> 悔棋</button><button className="secondary-button" onClick={() => { if (turnReminderTimer.current !== null) window.clearTimeout(turnReminderTimer.current); turnReminderTimer.current = null; setResigned(true); setStatus(`你已认输，本局由 ${BATTLE_RULES.brandName} 获胜。`) }}>认输</button></div>
-          {engineStatus === 'pikafish' && <div className="battle-card analysis-card"><button className="secondary-button full compact-action" onClick={() => { if (analysisVisible) setAnalysisVisible(false); else { setAnalysisVisible(true); if (!analysis) void analyzePosition() } }} disabled={replayStep !== null}><Target /> {analysisLoading ? '正在分析…' : analysisVisible ? '收起局面分析' : '局面分析'}</button>{analysisVisible && (analysis || analysisLoading) && <div className="analysis-result">{analysis ? <><div className="probability-row"><span>红方 {analysis.red}%</span><span>黑方 {analysis.black}%</span></div><div className="probability-bar"><i style={{ width: `${analysis.red}%` }} /></div><div className="analysis-recommendation"><strong>推荐走法：{analysis.move}</strong><button className="analysis-speak-button" onClick={() => void speakAnalysisText(analysis.explanation)} aria-label="语音讲解推荐" title="语音讲解推荐"><Volume2 /></button></div><p>{analysis.explanation}</p></> : <p>正在分析当前局面…</p>}</div>}</div>}
-          <button className="secondary-button full review-button" onClick={() => openReview('current')} disabled={history.length === 0}><BookOpen /> 本局复盘</button>
-          <button className="secondary-button full review-button" onClick={() => openReview('classic')}><Trophy /> 经典对局</button>
+          {engineStatus === 'pikafish' && <div className="battle-card analysis-card"><button className="secondary-button full compact-action" onClick={() => { if (analysisVisible) setAnalysisVisible(false); else { setAnalysisVisible(true); if (!analysis) void analyzePosition() } }} disabled={replayStep !== null}><Target /> {analysisLoading ? '正在分析…' : analysisVisible ? '收起局面分析' : '局面分析'}</button>{analysisVisible && (analysis || analysisLoading) && <div className="analysis-result">{analysis ? <><div className="probability-row"><span>红方 {analysis.red}%</span><span>黑方 {analysis.black}%</span></div><div className="probability-bar"><i style={{ width: `${analysis.red}%` }} /></div><div className="analysis-recommendation"><strong>推荐走法：{analysis.move}</strong></div><p>{analysis.explanation}</p></> : <p>正在分析当前局面…</p>}</div>}</div>}
           {(resigned || game.current.isGameOver()) && <button className="secondary-button full review-button" onClick={reviewBattle}><Volume2 /> 语音总结</button>}
+          </>}
         </aside>
       </section>
     </div>
