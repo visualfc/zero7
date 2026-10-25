@@ -387,6 +387,16 @@ describe('ZERO7', () => {
     vi.useRealTimers()
   })
 
+  it('训练语音命中题目答案但当前局面不可走时提示合法走法', async () => {
+    const unavailableAnswer = { ...testLevels[0], answer: '马五进七', answerAliases: [] }
+    render(<App initialLevels={[unavailableAnswer]} />)
+    fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
+    fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住说走法/ })[0])
+    await act(async () => Promise.resolve())
+    act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text: '马五进七。' }))
+    expect(screen.getByRole('status')).toHaveTextContent('这步棋在当前局面不能走，请重新说合法走法')
+  })
+
   it('支持训练语音识别、失败提示和分级提示朗读', async () => {
     vi.useFakeTimers()
     render(<App initialLevels={testLevels} />)
