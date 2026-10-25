@@ -30,7 +30,7 @@ export class PikafishEngine {
     }
   }
 
-  async bestMove({ fen, level = '初级', moveTime, analysis = false }) {
+  async bestMove({ fen, level = '初级', moveTime, mateDepth, analysis = false }) {
     const task = this.queue.then(async () => {
       await this.start()
       const options = levelOptions(level)
@@ -40,9 +40,18 @@ export class PikafishEngine {
       await this.command('isready', /^readyok$/)
       await this.command(`position fen ${fen}`, null)
       const infoLines = []
-      const line = await this.command(`go movetime ${Math.max(100, Math.min(Number(moveTime) || options.moveTime, 5000))}`, /^bestmove\s+/i, 10000, (currentLine) => {
-        if (analysis && currentLine.startsWith('info ') && currentLine.includes(' score ')) infoLines.push(currentLine)
-      })
+      const search = Number.isInteger(mateDepth) && mateDepth > 0
+        ? `go mate ${Math.min(mateDepth, 20)} movetime ${Math.max(500, Math.min(Number(moveTime) || options.moveTime * 4, 5000))}`
+        : `go movetime ${Math.max(100, Math.min(Number(moveTime) || options.moveTime, 5000))}`
+      let line
+      try {
+        line = await this.command(search, /^bestmove\s+/i, 30000, (currentLine) => {
+          if ((analysis || mateDepth) && currentLine.startsWith('info ') && currentLine.includes(' score ')) infoLines.push(currentLine)
+        })
+      } catch (error) {
+        this.reset(error instanceof Error ? error : new Error('Pikafish 搜索失败'))
+        throw error
+      }
       const match = line.match(/^bestmove\s+([a-i][0-9][a-i][0-9])/i)
       const noMove = /^bestmove\s+(?:\(none\)|none|0000)/i.test(line)
       if (!match && !noMove) throw new Error(`Pikafish 没有返回有效走法：${line}`)
@@ -57,17 +66,19 @@ export class PikafishEngine {
     if (this.ready && this.process && !this.process.killed) return
     await access(this.binary)
     await access(this.model)
-    this.process = spawn(this.binary, [], {
+    const child = spawn(this.binary, [], {
       cwd: path.dirname(this.model),
       stdio: ['pipe', 'pipe', 'pipe'],
       env: { ...process.env },
     })
+    this.process = child
     this.buffer = ''
-    this.process.stdout.setEncoding('utf8')
-    this.process.stdout.on('data', (chunk) => this.consume(chunk))
-    this.process.stderr.setEncoding('utf8')
-    this.process.stderr.on('data', (chunk) => console.error(`[Pikafish] ${chunk.trim()}`))
-    this.process.on('exit', () => {
+    child.stdout.setEncoding('utf8')
+    child.stdout.on('data', (chunk) => this.consume(chunk))
+    child.stderr.setEncoding('utf8')
+    child.stderr.on('data', (chunk) => console.error(`[Pikafish] ${chunk.trim()}`))
+    child.on('exit', () => {
+      if (this.process !== child) return
       this.ready = false
       this.process = null
       this.rejectAll(new Error('Pikafish 进程已退出'))
@@ -125,11 +136,18 @@ export class PikafishEngine {
     this.waiters = []
   }
 
-  close() {
-    if (this.process?.stdin.writable) this.process.stdin.write('quit\n')
-    this.process?.kill()
+  reset(error = new Error('Pikafish 进程已重置')) {
+    const process = this.process
     this.process = null
     this.ready = false
+    this.buffer = ''
+    this.rejectAll(error)
+    process?.kill()
+  }
+
+  close() {
+    if (this.process?.stdin.writable) this.process.stdin.write('quit\n')
+    this.reset(new Error('Pikafish 进程已关闭'))
   }
 }
 

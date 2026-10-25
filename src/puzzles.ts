@@ -3,7 +3,7 @@ import type { Level, Move, Piece, PieceKind, Side } from './chess'
 
 export type PuzzleSourceId = 'wukong-xiangqi' | 'xiangqi-pwa-offline'
 export type PuzzleVerification = 'source' | 'xiangqi.js' | 'chessdb'
-export type PuzzleMode = 'mate1' | 'endgame'
+export type PuzzleMode = 'mate1' | 'mate2' | 'mate3' | 'mate4' | 'mateN' | 'endgame'
 
 export interface PuzzleSource {
   id: PuzzleSourceId
@@ -91,7 +91,7 @@ export function puzzleToLevel(record: PuzzleRecord, index: number): Level {
 }
 
 export async function fetchPuzzleLibrary(signal?: AbortSignal) {
-  const response = await fetch('/api/puzzles?limit=10000', { signal })
+  const response = await fetch('/api/puzzles?limit=20000', { signal })
   if (!response.ok) throw new Error(`题库加载失败（${response.status}）`)
   const payload = await response.json() as { items?: PuzzleRecord[] }
   if (!Array.isArray(payload.items) || payload.items.length === 0) throw new Error('题库中还没有练习题')

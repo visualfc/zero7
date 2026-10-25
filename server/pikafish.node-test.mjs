@@ -54,6 +54,37 @@ test('Pikafish UCI 输出解析 bestmove', async () => {
 })
 
 
+test('Pikafish 杀棋搜索使用时间上限', async () => {
+  const engine = new PikafishEngine({ binary: process.execPath, model: process.execPath })
+  engine.process = new FakeProcess({
+    'setoption name Skill Level value 5': [],
+    'setoption name UCI_LimitStrength value true': [],
+    'setoption name UCI_Elo value 1500': [],
+    isready: ['readyok'],
+    'position fen mate-search-fen': [],
+    'go mate 2 movetime 1800': ['info depth 8 score mate -2', 'bestmove c5a7'],
+  })
+  engine.process.stdout.setEncoding('utf8')
+  engine.process.stdout.on('data', (chunk) => engine.consume(chunk))
+  engine.ready = true
+  const result = await engine.bestMove({ fen: 'mate-search-fen', level: '初级', mateDepth: 2 })
+  assert.equal(result.move, 'c5a7')
+  assert.deepEqual(result.score, { type: 'mate', value: -2 })
+  engine.close()
+})
+
+test('Pikafish 搜索失败后重置进程以恢复后续请求', async () => {
+  const engine = new PikafishEngine({ binary: process.execPath, model: process.execPath })
+  const fakeProcess = new FakeProcess({})
+  engine.process = fakeProcess
+  engine.ready = true
+  await assert.rejects(engine.command('go mate 2', /^bestmove\s+/i, 1), /命令超时/)
+  engine.reset(new Error('搜索超时'))
+  assert.equal(fakeProcess.killed, true)
+  assert.equal(engine.process, null)
+  assert.equal(engine.ready, false)
+})
+
 test('Pikafish 将无合法应手解析为终局', async () => {
   const engine = new PikafishEngine({ binary: process.execPath, model: process.execPath })
   engine.process = new FakeProcess({

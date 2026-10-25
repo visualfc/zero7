@@ -16,13 +16,13 @@ import {
 } from 'lucide-react'
 import './App.css'
 import { LinxiVoiceClient, type LinxiState } from './linxi'
-import { isLevelMove, parseVoiceMove, sameSquare, type Level, type Piece, type Square } from './chess'
+import { parseVoiceMove, sameSquare, type Level, type Piece, type Square } from './chess'
 import { fetchPuzzleLibrary } from './puzzles'
-import { battlePieces, battleStatus, buildBattleReview, chooseAiMove, createBattle, findVoiceMove, isChessMoveTranscript, legalTargets as battleLegalTargets, squareToPoint, makeBattleMove, VoiceMoveAuthorization } from './battle'
+import { battlePieces, battleStatus, buildBattleReview, chooseAiMove, createBattle, findVoiceMove, isChessMoveTranscript, legalTargets as battleLegalTargets, squareToPoint, makeBattleMove, terminalType as getTerminalType, VoiceMoveAuthorization, type TerminalType } from './battle'
 import { Chess, type Move } from '@weshell/xiangqi.js'
 import { BATTLE_RULES, describeAiResponse, describePlayerMove } from './battle-rules'
 import { commandHelp, parseVoiceCommand, type VoiceCommand } from './voice-command'
-import { getPikafishMove, getPikafishStatus, type EngineLevel } from './pikafish'
+import { getPikafishMove, getPikafishStatus, warmupPikafish, type EngineLevel } from './pikafish'
 
 type Page = 'home' | 'lesson' | 'endgame' | 'battle' | 'progress'
 const MIN_VOICE_HOLD_MS = 350
@@ -35,6 +35,8 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
   const level = levels[levelIndex]
   const [pieces, setPieces] = useState<Piece[]>(() => initialLevels[0]?.pieces.map((piece) => ({ ...piece })) ?? [])
   const [lessonHistory, setLessonHistory] = useState<string[]>([])
+  const [lessonLastPath, setLessonLastPath] = useState<{ from: Square; to: Square; side: 'red' | 'black' } | null>(null)
+  const lessonPathTimer = useRef<number | null>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [hintLevel, setHintLevel] = useState(0)
   const [voiceState, setVoiceState] = useState<LinxiState>('idle')
@@ -42,13 +44,18 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
   const [voiceText, setVoiceText] = useState('')
   const voicePressStartedAt = useRef<number | null>(null)
   const [completed, setCompleted] = useState(false)
+  const [terminalType, setTerminalType] = useState<TerminalType>('绝杀')
   const [lessonThinking, setLessonThinking] = useState(false)
   const lessonGame = useRef<Chess | null>(initialLevels[0] ? new Chess(initialLevels[0].fen) : null)
   const lessonRequestId = useRef(0)
+  const lessonWarmup = useRef<AbortController | null>(null)
   const [toast, setToast] = useState<string | null>(null)
   const [pendingVoiceAction, setPendingVoiceAction] = useState<'undo' | 'restart' | 'resign' | null>(null)
   const voiceClient = useRef<LinxiVoiceClient | null>(null)
   const lessonSuccessVoiceClient = useRef<LinxiVoiceClient | null>(null)
+  const lessonMoveVoiceClient = useRef<LinxiVoiceClient | null>(null)
+  const lessonMoveSpeech = useRef(Promise.resolve())
+  const lessonSpeechId = useRef(0)
   const lessonHintVoiceClient = useRef<LinxiVoiceClient | null>(null)
   const voiceStateRef = useRef<LinxiState>('idle')
 
@@ -81,7 +88,10 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
   useEffect(() => () => {
     voiceClient.current?.disconnect()
     lessonSuccessVoiceClient.current?.disconnect()
+    lessonMoveVoiceClient.current?.disconnect()
     lessonHintVoiceClient.current?.disconnect()
+    lessonWarmup.current?.abort()
+    if (lessonPathTimer.current !== null) window.clearTimeout(lessonPathTimer.current)
   }, [])
 
   useEffect(() => {
@@ -142,22 +152,36 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
     setLessonThinking(false)
     const nextLevel = levels[index]
     lessonGame.current = new Chess(nextLevel.fen)
+    lessonWarmup.current?.abort()
+    const warmup = new AbortController()
+    lessonWarmup.current = warmup
+    void warmupPikafish(nextLevel.fen, warmup.signal).catch(() => {}).finally(() => {
+      if (lessonWarmup.current === warmup) lessonWarmup.current = null
+    })
     voiceClient.current?.disconnect()
+    lessonSpeechId.current += 1
+    lessonMoveVoiceClient.current?.disconnect()
+    lessonMoveVoiceClient.current = null
+    lessonMoveSpeech.current = Promise.resolve()
     lessonHintVoiceClient.current?.disconnect()
     lessonHintVoiceClient.current = null
     setLevelIndex(index)
     setPieces(battlePieces(lessonGame.current))
     setLessonHistory([])
+    setLessonLastPath(null)
+    if (lessonPathTimer.current !== null) window.clearTimeout(lessonPathTimer.current)
+    lessonPathTimer.current = null
     setSelectedId(null)
     setHintLevel(0)
     setVoiceText('')
     setCompleted(false)
+    setTerminalType('绝杀')
     updateVoiceState('idle')
   }
 
   const resetLesson = () => loadLevel(levelIndex)
 
-  const openLesson = (index = Math.max(0, levels.findIndex((item) => item.mode === 'mate1'))) => {
+  const openLesson = (index = Math.max(0, levels.findIndex((item) => item.mode !== 'endgame'))) => {
     loadLevel(index)
     setPage('lesson')
   }
@@ -182,12 +206,31 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
     loadLevel(candidates[(current + 1) % candidates.length]?.index ?? levelIndex)
   }
 
-  const speakLessonSuccess = async (notation = level.answer) => {
+  const queueLessonSpeech = (text: string) => {
+    const speechId = lessonSpeechId.current
+    lessonMoveSpeech.current = lessonMoveSpeech.current.then(async () => {
+      if (speechId !== lessonSpeechId.current) return
+      const client = new LinxiVoiceClient(() => {})
+      lessonMoveVoiceClient.current = client
+      try {
+        await client.speakText(text)
+        await client.waitForPlayback()
+      } catch (error) {
+        if (speechId === lessonSpeechId.current) setToast(error instanceof Error ? error.message : '走棋语音播放失败')
+      } finally {
+        client.disconnect()
+        if (lessonMoveVoiceClient.current === client) lessonMoveVoiceClient.current = null
+      }
+    })
+  }
+
+  const speakLessonSuccess = async (notation = level.answer, terminal = '绝杀') => {
     lessonSuccessVoiceClient.current?.disconnect()
     const client = new LinxiVoiceClient(() => {})
     lessonSuccessVoiceClient.current = client
     try {
-      await client.speakText(`${notation}，绝杀！`)
+      await lessonMoveSpeech.current
+      await client.speakText(`${notation}，${terminal}！`)
       await client.waitForPlayback()
     } catch (error) {
       setToast(error instanceof Error ? error.message : '成功讲解播放失败')
@@ -197,57 +240,103 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
     }
   }
 
-  const completeLesson = (notation = level.answer) => {
+  const completeLesson = (notation = level.answer, terminal: TerminalType = '绝杀') => {
+    setTerminalType(terminal)
     setSelectedId(null)
     setCompleted(true)
-    setVoiceText(`${notation}，绝杀！`)
-    void speakLessonSuccess(notation)
+    setVoiceText(`${notation}，${terminal}！`)
+    void speakLessonSuccess(notation, terminal)
   }
 
-  const respondToLessonMove = async (game: Chess, candidateAnswer = false) => {
+  const showLessonPath = (move: Move, untilResponse = false) => {
+    setLessonLastPath({ from: squareToPoint(move.from), to: squareToPoint(move.to), side: move.color === 'w' ? 'red' : 'black' })
+    if (lessonPathTimer.current !== null) window.clearTimeout(lessonPathTimer.current)
+    lessonPathTimer.current = untilResponse ? null : window.setTimeout(() => {
+      setLessonLastPath(null)
+      lessonPathTimer.current = null
+    }, BATTLE_RULES.movePathDisplayMs)
+  }
+
+  const respondToLessonMove = async (game: Chess, candidateAnswer = false, playerNotation?: string) => {
     const requestId = ++lessonRequestId.current
     const fen = game.fen()
     const locallyCheckmated = game.isCheckmate()
     setLessonThinking(true)
-    setVoiceText(candidateAnswer ? '正在验证对方是否还有解法…' : '这步可以走，零七正在应对…')
+    setVoiceText(candidateAnswer ? '正在验证对方是否还有解法…' : '零七正在应对…')
     try {
-      const result = await getPikafishMove(fen, '初级')
+      const mateDepth = level.mode === 'mateN' ? 20 : level.mode.match(/^mate([2-9]\d*)$/)?.[1]
+      const targetMateDepth = mateDepth ? Number(mateDepth) : undefined
+      let result
+      try {
+        result = await getPikafishMove(fen, '初级', false, targetMateDepth)
+      } catch (error) {
+        if (!targetMateDepth) throw error
+        result = await getPikafishMove(fen, '初级')
+      }
       if (requestId !== lessonRequestId.current || lessonGame.current !== game || game.fen() !== fen) return
+      if (!result.move && game.moves().length > 0 && targetMateDepth) {
+        result = await getPikafishMove(fen, '初级')
+        if (requestId !== lessonRequestId.current || lessonGame.current !== game || game.fen() !== fen) return
+      }
+      const forcedMate = result.score?.type === 'mate' && result.score.value < 0
       if (!result.move) {
-        if (locallyCheckmated && result.terminal) {
+        if (result.terminal && game.moves().length === 0) {
           const lastMove = game.history({ verbose: true }).at(-1)
-          completeLesson(lastMove?.zh ?? level.answer)
+          completeLesson(lastMove?.zh ?? level.answer, locallyCheckmated ? getTerminalType(game) : '困毙杀')
           return
         }
+        if (playerNotation) queueLessonSpeech(playerNotation)
         setVoiceText('对方没有合法应手，但当前没有形成将死。可以重新练习或继续下一题。')
+        return
+      }
+      if (playerNotation) queueLessonSpeech(playerNotation)
+      await lessonMoveSpeech.current
+      await new Promise((resolve) => window.setTimeout(resolve, BATTLE_RULES.aiThinkDelayMs))
+      if (requestId !== lessonRequestId.current || lessonGame.current !== game || game.fen() !== fen) return
+      if (candidateAnswer && forcedMate && level.mode !== 'mate1') {
+        const response = game.move(result.move)
+        if (!response) throw new Error('Pikafish 返回了无效应手')
+        setPieces(battlePieces(game))
+        setLessonHistory((game.history({ verbose: true }) as Move[]).map((move) => move.zh))
+        showLessonPath(response)
+        const responseTerminal = response.isCheckmate ? getTerminalType(game) : null
+        const responseText = responseTerminal ? `${response.zh}，${responseTerminal}！` : response.isCheck ? `${response.zh}，将军。` : response.zh
+        queueLessonSpeech(responseText)
+        setVoiceText(responseTerminal ? `${response.zh}，${responseTerminal}！` : response.isCheck ? `${response.zh}，将军。` : `零七走了${response.zh}。`)
+        setLessonThinking(false)
         return
       }
       const response = game.move(result.move)
       if (!response) throw new Error('Pikafish 返回了无效应手')
       setPieces(battlePieces(game))
       setLessonHistory((game.history({ verbose: true }) as Move[]).map((move) => move.zh))
-      setVoiceText(candidateAnswer
-        ? `这步仍有解法。零七走了${response.zh}，请继续尝试或重新练习。`
-        : `零七走了${response.zh}。继续寻找这道题的制胜方法，或点击重新练习。`)
+      showLessonPath(response)
+      const responseTerminal = response.isCheckmate ? getTerminalType(game) : null
+      const responseText = responseTerminal ? `${response.zh}，${responseTerminal}！` : response.isCheck ? `${response.zh}，将军。` : response.zh
+      queueLessonSpeech(responseText)
+      setVoiceText(responseTerminal ? `${response.zh}，${responseTerminal}！` : response.isCheck ? `${response.zh}，将军。` : `零七走了${response.zh}。`)
     } catch (error) {
       if (requestId !== lessonRequestId.current) return
-      setVoiceText(candidateAnswer ? '标准着法已走出，但引擎尚未完成验证。可以重新练习或继续下一题。' : '这步已经保留，可以重新练习或继续下一题。')
-      setToast(error instanceof Error ? error.message : 'Pikafish 暂时无法应对')
+      if (playerNotation) queueLessonSpeech(playerNotation)
+      setVoiceText('引擎连接失败，请重试。')
+      setToast(error instanceof Error ? error.message : '引擎连接失败，请重试')
     } finally {
       if (requestId === lessonRequestId.current) setLessonThinking(false)
     }
   }
 
-  const playCandidateAnswer = () => {
+  const playLessonMove = (from: Square, to: Square) => {
     const game = lessonGame.current
-    if (!game || !makeBattleMove(game, level.move.from, level.move.to)) {
-      setToast('当前局面已经变化，请重新练习后再走标准着法')
+    const move = game && makeBattleMove(game, from, to)
+    if (!game || !move) {
+      setToast('当前局面已经变化，请重新说当前局面可以走的走法')
       return
     }
     setPieces(battlePieces(game))
-    setLessonHistory((game.history({ verbose: true }) as Move[]).map((move) => move.zh))
+    setLessonHistory((game.history({ verbose: true }) as Move[]).map((historyMove) => historyMove.zh))
+    showLessonPath(move, true)
     setSelectedId(null)
-    void respondToLessonMove(game, true)
+    void respondToLessonMove(game, level.mode !== 'endgame' ? true : game.isCheckmate(), move.zh)
   }
 
   const handleSquare = (square: Square) => {
@@ -258,13 +347,13 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
 
     if (selectedPiece && legalTargets.some((target) => sameSquare(target, square))) {
       const from = { row: selectedPiece.row, col: selectedPiece.col }
-      const candidateAnswer = isLevelMove(level, selectedPiece.id, square)
       const move = makeBattleMove(game, from, square)
       if (!move) return
       setPieces(battlePieces(game))
-      setLessonHistory((game.history({ verbose: true }) as Move[]).map((move) => move.zh))
+      setLessonHistory((game.history({ verbose: true }) as Move[]).map((historyMove) => historyMove.zh))
+      showLessonPath(move, true)
       setSelectedId(null)
-      void respondToLessonMove(game, level.mode === 'mate1' ? candidateAnswer : game.isCheckmate())
+      void respondToLessonMove(game, level.mode !== 'endgame' ? true : game.isCheckmate(), move.zh)
       return
     }
 
@@ -321,13 +410,17 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
     if (executeGlobalCommand(command)) return
     if (executeLessonCommand(command)) return
     setVoiceText(`听到“${text}”`)
-    const result = parseVoiceMove(text, level)
-    if (result.matched) {
-      setVoiceText(`听到“${text}”，识别为“${result.notation}”。`)
-      window.setTimeout(playCandidateAnswer, 450)
+    const game = lessonGame.current
+    const legalMove = game && findVoiceMove(game, text)
+    if (legalMove) {
+      setVoiceText(`听到“${text}”，识别为“${legalMove.zh}”。`)
+      const from = squareToPoint(legalMove.from)
+      const to = squareToPoint(legalMove.to)
+      window.setTimeout(() => playLessonMove(from, to), 450)
       return
     }
-    setToast(`这步还没有匹配成功，可以说“${level.answer}”`)
+    const result = parseVoiceMove(text, level)
+    setToast(result.matched ? '这步棋在当前局面不能走，请重新说合法走法' : `这步还没有匹配成功，可以说“${level.answer}”`)
   }
 
   const createVoiceClient = () => {
@@ -410,8 +503,10 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
             level={level}
             levelIndex={levelIndex}
             lessonHistory={lessonHistory}
+            lastPath={lessonLastPath}
             page={page}
             completed={completed}
+            terminalType={terminalType}
             thinking={lessonThinking}
             voiceState={voiceState}
             voiceHeld={voiceHeld}
@@ -463,7 +558,7 @@ function HomePage({ levels, onStart, onEndgame, onBattle, onNavigate, completedC
           <span className="eyebrow"><Sparkles /> 训练 · 对弈 · 复盘</span>
           <h1>你好，棋友！<br /><em>今天想练哪一步？</em></h1>
           <p>和零七一起训练、对弈、复盘，轻松读懂每一步棋。</p>
-          <div className="hero-actions"><button className="primary-button" onClick={onBattle}><Swords /> 人机对战</button><button className="secondary-button" onClick={() => onStart(0)}>进入训练 <ChevronRight /></button><button className="secondary-button" onClick={onEndgame}><Award /> 残局训练</button></div>
+          <div className="hero-actions"><button className="primary-button" onClick={onBattle}><Swords /> 人机对战</button><button className="secondary-button" onClick={() => onStart(0)}>杀棋训练 <ChevronRight /></button><button className="secondary-button" onClick={onEndgame}><Award /> 残局训练</button></div>
         </div>
         <div className="hero-art" aria-hidden="true">
           <div className="sun sun-a" /><div className="sun sun-b" />
@@ -495,7 +590,7 @@ function HomePage({ levels, onStart, onEndgame, onBattle, onNavigate, completedC
         <SideNavigation active="home" onNavigate={onNavigate} />
         <div className="home-side-card"><span className="section-kicker">TODAY</span><strong>今日进度</strong><p>已完成 {completedCount} / 3</p><div className="home-progress"><i style={{ width: `${(completedCount / 3) * 100}%` }} /></div></div>
         <button className="primary-button full" onClick={onBattle}><Swords /> 对弈</button>
-        <button className="secondary-button full" onClick={() => onStart(0)}><Target /> 训练</button>
+        <button className="secondary-button full" onClick={() => onStart(0)}><Target /> 杀棋训练 <ChevronRight /></button>
         <button className="secondary-button full" onClick={onEndgame}><Award /> 残局训练</button>
         <div className="home-side-card home-tip"><div className="coach-avatar small">象</div><p>下棋不用急，先看看对方下一步想做什么。</p></div>
       </aside>
@@ -517,17 +612,28 @@ function LessonCard({ number, color, icon, title, text, tags, onClick }: { numbe
 }
 
 function LessonPage(props: {
-  pieces: Piece[]; selectedId: string | null; legalTargets: Square[]; lessonHistory: string[]; level: Level; levelIndex: number; page: Page; levels: Level[]; completed: boolean; thinking: boolean; voiceState: LinxiState; voiceHeld: boolean;
+  pieces: Piece[]; selectedId: string | null; legalTargets: Square[]; lessonHistory: string[]; lastPath: { from: Square; to: Square; side: 'red' | 'black' } | null; level: Level; levelIndex: number; page: Page; levels: Level[]; completed: boolean; terminalType: TerminalType; thinking: boolean; voiceState: LinxiState; voiceHeld: boolean;
   voiceText: string; hint: string; hintLevel: number; onSquare: (square: Square) => void; onBack: () => void;
   onVoiceStart: () => void; onVoiceStop: () => void; onHint: () => void; onReset: () => void; onContinue: () => void; onSelectLevel: (index: number) => void; onNavigate: (page: Page) => void
 }) {
+  const trainingGroups = [
+    { mode: 'mate1', label: '一步杀', numberPrefix: '1' },
+    { mode: 'mate2', label: '二步杀', numberPrefix: '2' },
+    { mode: 'mate3', label: '三步杀', numberPrefix: '3' },
+    { mode: 'mate4', label: '四步杀', numberPrefix: '4' },
+    { mode: 'mateN', label: 'N步杀', numberPrefix: '9' },
+  ] as const
+  const selectableLevels = props.levels
+    .map((item, index) => ({ item, index }))
+    .filter(({ item }) => props.page === 'endgame' ? item.mode === 'endgame' : item.mode === props.level.mode)
+
   return (
     <div className={`lesson-page unified-page ${props.page === 'endgame' ? 'endgame-page' : ''}`}>
       <div className="unified-main">
       <section className="challenge-layout">
         <div className="board-panel">
           <div className="lesson-move-rail" aria-label="残局棋谱">{Array.from({ length: Math.ceil(props.lessonHistory.length / 2) }, (_, index) => <div className="battle-move-turn" key={index}><span>{index + 1}.</span><div><span className="lesson-move">{props.lessonHistory[index * 2]}</span>{props.lessonHistory[index * 2 + 1] && <span className="lesson-move">{props.lessonHistory[index * 2 + 1]}</span>}</div></div>)}</div>
-          <ChessBoard pieces={props.pieces} selectedId={props.selectedId} legalTargets={props.legalTargets} instruction={props.level.instruction} onSquare={props.onSquare} />
+          <ChessBoard pieces={props.pieces} selectedId={props.selectedId} legalTargets={props.legalTargets} lastPath={props.lastPath} instruction={props.level.instruction} onSquare={props.onSquare} />
         </div>
       </section>
       </div>
@@ -535,7 +641,30 @@ function LessonPage(props: {
       <aside className="unified-sidebar lesson-sidebar">
         <SideNavigation active={props.page} onNavigate={props.onNavigate} />
         <div className={`coach-panel ${props.completed ? 'lesson-completed' : ''}`}>
-          <div className="lesson-picker"><label htmlFor="lesson-picker-select">选择题目</label><select id="lesson-picker-select" value={props.levelIndex} onChange={(event) => props.onSelectLevel(Number(event.target.value))}>{props.levels.map((item, index) => item.mode === props.level.mode && <option key={item.id} value={index}>{String(props.levels.slice(0, index + 1).filter((candidate) => candidate.mode === props.level.mode).length).padStart(3, '0')}</option>)}</select></div>
+          <div className="lesson-picker">
+            {props.page !== 'endgame' && (
+              <>
+                <label htmlFor="lesson-mode-select">杀棋类型</label>
+                <select
+                  id="lesson-mode-select"
+                  value={props.level.mode}
+                  onChange={(event) => {
+                    const index = props.levels.findIndex((item) => item.mode === event.target.value)
+                    if (index >= 0) props.onSelectLevel(index)
+                  }}
+                >
+                  {trainingGroups.map((group) => props.levels.some((item) => item.mode === group.mode) && <option key={group.mode} value={group.mode}>{group.label}</option>)}
+                </select>
+              </>
+            )}
+            <label htmlFor="lesson-picker-select">选择题目</label>
+            <select id="lesson-picker-select" value={props.levelIndex} onChange={(event) => props.onSelectLevel(Number(event.target.value))}>
+              {selectableLevels.map(({ item, index }, itemIndex) => {
+                const prefix = trainingGroups.find((group) => group.mode === item.mode)?.numberPrefix ?? ''
+                return <option key={item.id} value={index}>{prefix}{String(itemIndex + 1).padStart(3, '0')}</option>
+              })}
+            </select>
+          </div>
           <div className="lesson-side-description"><div className="lesson-badges"><span className="mini-badge">{props.level.category}</span><span className="mini-badge difficulty-badge">{props.level.difficulty}</span><span className="mini-badge source-badge">{props.level.source.name}</span></div><div className="puzzle-title"><h1>{props.level.title.replace(/\\\\n/g, '\n').replace(/\\n/g, '\n').split(/\r?\n/).map((line, index) => <Fragment key={`${props.level.id}-${index}`}>{index > 0 && <br />}{line}</Fragment>)}</h1></div><div className={`lesson-first-player ${props.level.fen.split(' ')[1] === 'b' ? 'black' : 'red'}`}>{props.level.fen.split(' ')[1] === 'b' ? '黑方先行' : '红方先行'}</div></div>
           {!props.completed && props.voiceText && <div className="lesson-status" aria-live="polite">{props.voiceText}</div>}
 
@@ -551,7 +680,7 @@ function LessonPage(props: {
           {props.completed && (
             <div className="success-card">
               <div className="stars"><Star /><Star /><Star /></div>
-              <h2>绝杀！</h2><p>{props.level.answer}</p>
+              <h2>{props.terminalType}！</h2><p>{props.level.answer}</p>
               <div className="reward"><Sparkles /> 获得 {props.level.reward} 颗智慧星</div>
             </div>
           )}
@@ -1007,7 +1136,7 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
       <section className="battle-layout">
         <div className="battle-board-column">
           <div className="board-panel battle-board-panel">
-            <div className="battle-move-rail" ref={moveRailRef} aria-label="对局棋谱">{history.length === 0 ? <span>暂无走法</span> : Array.from({ length: Math.ceil(history.length / 2) }, (_, index) => <div className="battle-move-turn" key={index}><span>{index + 1}.</span><div><button className={replayStep === index * 2 + 1 ? 'move-replay active' : 'move-replay'} onClick={() => replayMove(index * 2 + 1)}>{history[index * 2]}</button>{history[index * 2 + 1] && <button className={replayStep === index * 2 + 2 ? 'move-replay active' : 'move-replay'} onClick={() => replayMove(index * 2 + 2)}>{history[index * 2 + 1]}</button>}</div></div>)}</div>
+            <div className="battle-move-rail" ref={moveRailRef} aria-label="对局棋谱">{Array.from({ length: Math.ceil(history.length / 2) }, (_, index) => <div className="battle-move-turn" key={index}><span>{index + 1}.</span><div><button className={replayStep === index * 2 + 1 ? 'move-replay active' : 'move-replay'} onClick={() => replayMove(index * 2 + 1)}>{history[index * 2]}</button>{history[index * 2 + 1] && <button className={replayStep === index * 2 + 2 ? 'move-replay active' : 'move-replay'} onClick={() => replayMove(index * 2 + 2)}>{history[index * 2 + 1]}</button>}</div></div>)}</div>
             <ChessBoard pieces={pieces} selectedId={selectedPiece?.id ?? null} legalTargets={targets} lastPath={lastPath} onSquare={handleSquare} />
           </div>
           <button className={`mobile-battle-voice ${voiceHeld ? 'listening' : ''}`} onPointerDown={(event) => { event.currentTarget.setPointerCapture?.(event.pointerId); voicePressStartedAt.current = Date.now(); setVoiceHeld(true); void startBattleVoice() }} onPointerUp={() => void stopBattleVoice()} onPointerCancel={() => void stopBattleVoice()} onContextMenu={(event) => event.preventDefault()} aria-label={voiceHeld ? '松开完成' : '按住说走法'} disabled={replayStep !== null || thinking || voiceState === 'connecting' || voiceState === 'thinking' || game.current.turn() !== 'w'}><Mic /><span><strong>{voiceHeld ? '松开完成' : '按住说走法'}</strong><small>按住按钮，说完后松开</small></span></button>

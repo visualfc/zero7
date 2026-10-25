@@ -7,7 +7,7 @@ import { Chess, validateFen } from '@weshell/xiangqi.js'
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 export const puzzleDataDirectory = path.join(root, 'data', 'puzzles')
 export const defaultPuzzleDatabase = path.join(root, 'server', 'data', 'puzzles.sqlite')
-const sourceFiles = ['wukong.json', 'xiangqi-pwa-offline.json']
+const sourceFiles = ['wukong.json', 'wukong-multi.json', 'xiangqi-pwa-offline.json']
 
 export function readPuzzleFiles(dataDirectory = puzzleDataDirectory) {
   const sources = JSON.parse(fs.readFileSync(path.join(dataDirectory, 'sources.json'), 'utf8'))
@@ -21,7 +21,7 @@ export function validatePuzzle(record, sourceIds, verifications = {}) {
   const requiredStrings = ['id', 'sourceId', 'sourcePuzzleId', 'mode', 'category', 'difficulty', 'fen', 'title', 'description', 'instruction', 'successTitle', 'successText']
   for (const field of requiredStrings) if (typeof record[field] !== 'string' || !record[field].trim()) throw new Error(`${record.id || '未知题目'} 缺少 ${field}`)
   if (!sourceIds.has(record.sourceId)) throw new Error(`${record.id} 使用了未知来源 ${record.sourceId}`)
-  if (!['mate1', 'endgame'].includes(record.mode)) throw new Error(`${record.id} 使用了未知题型 ${record.mode}`)
+  if (!['mate1', 'mate2', 'mate3', 'mate4', 'mateN', 'endgame'].includes(record.mode)) throw new Error(`${record.id} 使用了未知题型 ${record.mode}`)
   const fen = validateFen(record.fen)
   if (!fen.ok) throw new Error(`${record.id}: ${fen.error}`)
   if (!Array.isArray(record.hints) || record.hints.length !== 3 || record.hints.some((hint) => typeof hint !== 'string')) throw new Error(`${record.id} 必须有三条提示`)

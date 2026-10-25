@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { BATTLE_RULES, capturedAiPieceName, capturedPieceName, describeAiResponse, describeBattleTurn, describeMove, describePlayerMove, describeResponse } from './battle-rules'
-import { battlePieces, battleStatus, buildBattleReview, chooseAiMove, createBattle, findVoiceMove, isChessMoveTranscript, legalTargets, makeBattleMove, pointToSquare, squareToPoint, VoiceMoveAuthorization } from './battle'
+import { battlePieces, battleStatus, buildBattleReview, chooseAiMove, createBattle, findVoiceMove, isChessMoveTranscript, legalTargets, makeBattleMove, pointToSquare, squareToPoint, terminalType, VoiceMoveAuthorization } from './battle'
 
 describe('完整人机对战规则', () => {
   it('正确转换棋盘坐标', () => {
@@ -74,6 +74,27 @@ describe('完整人机对战规则', () => {
     expect(buildBattleReview(game)).toContain('本局共进行1回合')
     expect(buildBattleReview(game)).toContain('最后一步是马８进７')
     expect(buildBattleReview(game, true)).toContain('你选择认输')
+  })
+
+  it('区分闷杀、绝杀和困毙杀', () => {
+    const smothered = {
+      isCheckmate: () => true,
+      turn: () => 'b',
+      board: () => [[
+        { square: 'e9', color: 'b', type: 'k' },
+        { square: 'e8', color: 'b', type: 'a' },
+        { square: 'd9', color: 'b', type: 'r' },
+        { square: 'f9', color: 'b', type: 'r' },
+      ]],
+    } as never
+    const exposed = {
+      isCheckmate: () => true,
+      turn: () => 'b',
+      board: () => [[{ square: 'e9', color: 'b', type: 'k' }]],
+    } as never
+    expect(terminalType(smothered)).toBe('闷杀')
+    expect(terminalType(exposed)).toBe('绝杀')
+    expect(terminalType({ isCheckmate: () => false } as never)).toBe('困毙杀')
   })
 
   it('返回不同终局和回合状态', () => {

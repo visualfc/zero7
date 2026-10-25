@@ -17,7 +17,7 @@ export interface Level {
   difficulty: '入门' | '初级' | '中级'
   sourceId: 'wukong-xiangqi' | 'xiangqi-pwa-offline'
   sourcePuzzleId: string
-  mode: 'mate1' | 'endgame'
+  mode: 'mate1' | 'mate2' | 'mate3' | 'mate4' | 'mateN' | 'endgame'
   fen: string
   solution: { from: string; to: string }[]
   verifiedBy: ('source' | 'xiangqi.js' | 'chessdb')[]

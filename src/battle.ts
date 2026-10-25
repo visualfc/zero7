@@ -25,6 +25,29 @@ export function pointToSquare(point: Square) {
   return `${String.fromCharCode(97 + point.col)}${9 - point.row}`
 }
 
+export type TerminalType = '闷杀' | '绝杀' | '困毙杀'
+
+export function terminalType(game: Chess): TerminalType {
+  if (!game.isCheckmate()) return '困毙杀'
+  if (typeof game.board !== 'function' || typeof game.turn !== 'function') return '绝杀'
+  const pieces = battlePieces(game)
+  const side = game.turn() === 'w' ? 'red' : 'black'
+  const general = pieces.find((piece) => piece.side === side && piece.kind === 'general')
+  if (!general) return '绝杀'
+  const palaceRows = side === 'red' ? [7, 8, 9] : [0, 1, 2]
+  const adjacent = [
+    { row: general.row - 1, col: general.col },
+    { row: general.row + 1, col: general.col },
+    { row: general.row, col: general.col - 1 },
+    { row: general.row, col: general.col + 1 },
+  ].filter((square) => palaceRows.includes(square.row) && square.col >= 3 && square.col <= 5)
+  return adjacent.length > 0 && adjacent.every((square) => pieces.some((piece) => piece.side === side && samePoint(piece, square))) ? '闷杀' : '绝杀'
+}
+
+function samePoint(left: Square, right: Square) {
+  return left.row === right.row && left.col === right.col
+}
+
 export function battlePieces(game: Chess): Piece[] {
   return game.board().flat().filter((item): item is NonNullable<typeof item> => item !== null).map((item) => {
     const point = squareToPoint(item.square)
@@ -98,7 +121,10 @@ export function chooseAiMove(game: Chess, difficulty: '入门' | '初级' | '中
 }
 
 export function battleStatus(game: Chess) {
-  if (game.isCheckmate()) return game.turn() === 'w' ? '黑方获胜，红方被将死。' : '红方获胜，黑方被将死。'
+  if (game.isCheckmate()) {
+    const result = terminalType(game)
+    return game.turn() === 'w' ? `黑方获胜，红方${result}。` : `红方获胜，黑方${result}。`
+  }
   if (game.isStalemate()) return '本局困毙，和棋。'
   if (game.isDraw()) return '本局和棋。'
   if (game.isCheck()) return game.turn() === 'w' ? '红方被将军，请先应将。' : '黑方被将军。'

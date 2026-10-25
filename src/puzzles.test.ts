@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { Chess, type Move as EngineMove } from '@weshell/xiangqi.js'
 import wukongRecords from '../data/puzzles/wukong.json'
+import wukongMultiRecords from '../data/puzzles/wukong-multi.json'
 import qiyiRecords from '../data/puzzles/xiangqi-pwa-offline.json'
 import sources from '../data/puzzles/sources.json'
 import { fetchPuzzleLibrary, puzzleToLevel, validatePuzzleRecord, type PuzzleRecord, type PuzzleSource } from './puzzles'
@@ -30,7 +31,7 @@ describe('练习题库', () => {
     }
   })
 
-  it('批量 Wukong 题目确实是唯一一步将杀', () => {
+  it('批量 Wukong 一步杀题确实是唯一将杀', () => {
     expect(wukongRecords).toHaveLength(969)
     for (const puzzle of trainingPuzzles.filter((item) => item.sourceId === 'wukong-xiangqi')) {
       const game = new Chess(puzzle.fen)
@@ -52,6 +53,10 @@ describe('练习题库', () => {
     const puzzle = trainingPuzzles[0]
     expect(puzzle.number).toBe('01')
     expect(puzzle.mode).toBe('mate1')
+    expect(wukongMultiRecords.some((record) => record.mode === 'mate2')).toBe(true)
+    expect(wukongMultiRecords.some((record) => record.mode === 'mate3')).toBe(true)
+    expect(wukongMultiRecords.some((record) => record.mode === 'mate4')).toBe(true)
+    expect(wukongMultiRecords.some((record) => record.mode === 'mateN')).toBe(true)
     expect(puzzle.answer).toBe('车五进一')
     expect(puzzle.move).toMatchObject({ pieceId: 'e7', from: { row: 2, col: 4 }, to: { row: 1, col: 4 } })
     expect(puzzle.pieces.find((piece) => piece.id === 'e7')).toMatchObject({ text: '车', side: 'red', kind: 'rook' })
@@ -78,7 +83,7 @@ describe('练习题库', () => {
     const fetchMock = vi.fn().mockResolvedValueOnce(new Response(JSON.stringify({ items: records.slice(0, 2) }), { status: 200 }))
     vi.stubGlobal('fetch', fetchMock)
     await expect(fetchPuzzleLibrary()).resolves.toHaveLength(2)
-    expect(fetchMock).toHaveBeenCalledWith('/api/puzzles?limit=10000', { signal: undefined })
+    expect(fetchMock).toHaveBeenCalledWith('/api/puzzles?limit=20000', { signal: undefined })
     fetchMock.mockResolvedValueOnce(new Response('{}', { status: 503 }))
     await expect(fetchPuzzleLibrary()).rejects.toThrow('题库加载失败（503）')
     fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({ items: [] }), { status: 200 }))

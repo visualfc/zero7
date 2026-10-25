@@ -4,7 +4,7 @@
     "name": "Wukong Xiangqi",
     "url": "https://github.com/maksimKorzh/wukong-xiangqi",
     "license": "MIT",
-    "role": "经过搜索验证的将杀局面"
+    "role": "经过搜索验证的一步至 N 步将杀局面"
   },
   {
     "id": "xiangqi-pwa-offline",

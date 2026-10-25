@@ -32,7 +32,7 @@ app.get('/api/linxi/status', (_request, response) => {
 
 app.get('/api/puzzles', (request, response) => {
   const offset = Math.max(0, Number.parseInt(String(request.query.offset ?? '0'), 10) || 0)
-  const limit = Math.min(10000, Math.max(1, Number.parseInt(String(request.query.limit ?? '50'), 10) || 50))
+  const limit = Math.min(20000, Math.max(1, Number.parseInt(String(request.query.limit ?? '50'), 10) || 50))
   response.json(puzzles.list({
     offset,
     limit,
@@ -51,14 +51,29 @@ app.get('/api/pikafish/status', async (_request, response) => {
   response.json(await pikafish.status())
 })
 
-app.post('/api/pikafish/bestmove', express.json({ limit: '16kb' }), async (request, response) => {
-  const { fen, level, moveTime, analysis } = request.body || {}
+app.post('/api/pikafish/warmup', express.json({ limit: '16kb' }), async (request, response) => {
+  const { fen } = request.body || {}
   if (typeof fen !== 'string' || fen.length > 200) {
     response.status(400).json({ error: '缺少有效的 FEN 局面' })
     return
   }
   try {
-    response.json(await pikafish.bestMove({ fen, level, moveTime, analysis: analysis === true }))
+    await pikafish.bestMove({ fen, level: '初级', moveTime: 100 })
+    response.status(204).end()
+  } catch (error) {
+    console.error(`[Pikafish] 预热失败：${error instanceof Error ? error.message : error}`)
+    response.status(503).json({ error: 'Pikafish 预热失败' })
+  }
+})
+
+app.post('/api/pikafish/bestmove', express.json({ limit: '16kb' }), async (request, response) => {
+  const { fen, level, moveTime, mateDepth, analysis } = request.body || {}
+  if (typeof fen !== 'string' || fen.length > 200) {
+    response.status(400).json({ error: '缺少有效的 FEN 局面' })
+    return
+  }
+  try {
+    response.json(await pikafish.bestMove({ fen, level, moveTime, mateDepth, analysis: analysis === true }))
   } catch (error) {
     console.error(`[Pikafish] 计算失败：${error instanceof Error ? error.message : error}`)
     response.status(503).json({ error: error instanceof Error ? error.message : 'Pikafish 计算失败' })
