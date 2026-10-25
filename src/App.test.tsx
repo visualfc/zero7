@@ -548,8 +548,8 @@ describe('ZERO7', () => {
     expect(screen.queryByText('轮到红方走棋')).not.toBeInTheDocument()
     expect(screen.getByText(/按住语音按钮，说出“/)).toBeInTheDocument()
     expect(screen.getByText('按钮或空格键均可')).toBeInTheDocument()
-    expect(screen.getAllByRole('button', { name: /按住说走法/ })).toHaveLength(2)
-    expect(screen.getAllByRole('button', { name: /按住说走法/ })[0]).toBeEnabled()
+    expect(screen.getAllByRole('button', { name: /按住语音输入/ })).toHaveLength(2)
+    expect(screen.getAllByRole('button', { name: /按住语音输入/ })[0]).toBeEnabled()
     expect(screen.getByRole('button', { name: '重开一局' })).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: '中级' }))
     fireEvent.click(screen.getByRole('button', { name: '重开一局' }))
@@ -632,7 +632,7 @@ describe('ZERO7', () => {
     vi.useFakeTimers()
     render(<App initialLevels={[alternateVoiceMoveLevel]} />)
     fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
-    fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住说走法/ })[0])
+    fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住语音输入/ })[0])
     await act(async () => Promise.resolve())
     act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text: '马五进七。' }))
     expect(screen.getByText('听到“马五进七。”，识别为“马五进七”。')).toBeInTheDocument()
@@ -646,7 +646,7 @@ describe('ZERO7', () => {
     const unavailableAnswer = { ...testLevels[0], answer: '马五进七', answerAliases: [] }
     render(<App initialLevels={[unavailableAnswer]} />)
     fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
-    fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住说走法/ })[0])
+    fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住语音输入/ })[0])
     await act(async () => Promise.resolve())
     act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text: '马五进七。' }))
     expect(screen.getByRole('status')).toHaveTextContent('这步棋在当前局面不能走，请重新说合法走法')
@@ -656,7 +656,7 @@ describe('ZERO7', () => {
     vi.useFakeTimers()
     render(<App initialLevels={testLevels} />)
     fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
-    fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住说走法/ })[0])
+    fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住语音输入/ })[0])
     await act(async () => Promise.resolve())
     act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text: '车五进一' }))
     await act(async () => { await vi.advanceTimersByTimeAsync(450); await Promise.resolve(); await Promise.resolve() })
@@ -672,7 +672,7 @@ describe('ZERO7', () => {
     voiceMock.speakError = null
 
     fireEvent.click(screen.getByRole('button', { name: '重新练习' }))
-    fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住说走法/ })[0])
+    fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住语音输入/ })[0])
     await act(async () => Promise.resolve())
     act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text: '马三进四' }))
     expect(screen.getByRole('status')).toHaveTextContent('这步还没有匹配成功')
@@ -684,7 +684,7 @@ describe('ZERO7', () => {
     voiceMock.startError = new Error('麦克风不可用')
     render(<App initialLevels={testLevels} />)
     fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
-    await act(async () => fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住说走法/ })[0]))
+    await act(async () => fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住语音输入/ })[0]))
     expect(screen.getByRole('status')).toHaveTextContent('麦克风不可用')
 
     voiceMock.speakError = new Error('播放失败')
@@ -696,11 +696,11 @@ describe('ZERO7', () => {
     vi.stubGlobal('isSecureContext', false)
     render(<App initialLevels={testLevels} />)
     fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
-    await act(async () => fireEvent.pointerDown(screen.getByRole('button', { name: /按住说走法/ })))
+    await act(async () => fireEvent.pointerDown(screen.getByRole('button', { name: /按住语音输入/ })))
     expect(screen.getByText('手机语音输入需要使用 HTTPS，请访问终端显示的 https:// 地址。')).toBeInTheDocument()
     fireEvent.click(screen.getByLabelText('返回首页'))
     fireEvent.click(screen.getAllByRole('button', { name: /人机对战/ })[0])
-    await act(async () => fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住说走法/ })[0]))
+    await act(async () => fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住语音输入/ })[0]))
     expect(screen.getByText('手机语音输入需要使用 HTTPS，请访问终端显示的 https:// 地址。')).toBeInTheDocument()
   })
 
@@ -769,12 +769,12 @@ describe('ZERO7', () => {
     }))
     render(<App initialLevels={testLevels} />)
     fireEvent.click(screen.getAllByRole('button', { name: /人机对战/ })[0])
-    await act(async () => fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住说走法/ })[0]))
+    await act(async () => fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住语音输入/ })[0]))
     act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text: '天气很好' }))
     expect(screen.getAllByText(/没听明白，请重新说/).length).toBeGreaterThan(0)
     await waitFor(() => expect(voiceMock.instances.some((client) => client.speakText.mock.calls.some(([text]) => text === '听到“天气很好”，没听明白，请重新说。'))).toBe(true))
     fireEvent.pointerUp(screen.getAllByRole('button', { name: /松开完成/ })[0])
-    await act(async () => fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住说走法/ })[0]))
+    await act(async () => fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住语音输入/ })[0]))
     act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text: '马二进五' }))
     expect(screen.getAllByText(/这步棋现在不能走，请重新说/).length).toBeGreaterThan(0)
     await waitFor(() => expect(voiceMock.instances.some((client) => client.speakText.mock.calls.some(([text]) => text === '听到“马二进五”，这步棋现在不能走，请重新说当前局面可以走的走法。'))).toBe(true))
@@ -921,7 +921,7 @@ describe('ZERO7', () => {
   it('按住和松开训练语音按钮，并处理空格快捷键', async () => {
     render(<App initialLevels={testLevels} />)
     fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
-    const lessonVoice = screen.getByRole('button', { name: /按住说走法/ })
+    const lessonVoice = screen.getByRole('button', { name: /按住语音输入/ })
     fireEvent.pointerDown(lessonVoice)
     await act(async () => Promise.resolve())
     expect(voiceMock.instances.at(-1)?.start).toHaveBeenCalled()
@@ -1026,7 +1026,7 @@ describe('ZERO7', () => {
   it('训练页语音支持帮助、提示、重开确认和下一关', async () => {
     render(<App initialLevels={testLevels} />)
     fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
-    const button = screen.getByRole('button', { name: /按住说走法/ })
+    const button = screen.getByRole('button', { name: /按住语音输入/ })
     const say = async (text: string) => {
       await act(async () => fireEvent.pointerDown(button))
       act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text }))
@@ -1093,7 +1093,7 @@ describe('ZERO7', () => {
   it('过滤重复结束语，保留正常语音回复', async () => {
     render(<App initialLevels={testLevels} />)
     fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
-    fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住说走法/ })[0])
+    fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住语音输入/ })[0])
     await act(async () => Promise.resolve())
     act(() => voiceMock.instances.at(-1)!.emit({ type: 'reply', text: '时间过得真快，期待和你下次对弈。' }))
     expect(screen.queryByText(/时间过得真快/)).not.toBeInTheDocument()
@@ -1106,7 +1106,7 @@ describe('ZERO7', () => {
     render(<App initialLevels={testLevels} />)
     fireEvent.click(screen.getAllByRole('button', { name: /人机对战/ })[0])
     await screen.findByText('基础 AI（Pikafish 未安装）')
-    const button = screen.getAllByRole('button', { name: /按住说走法/ })[0]
+    const button = screen.getAllByRole('button', { name: /按住语音输入/ })[0]
     await act(async () => fireEvent.pointerDown(button))
     act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text: '帮助' }))
     await waitFor(() => expect(screen.getByText(/你可以说棋步、悔棋/)).toBeInTheDocument())
@@ -1148,7 +1148,7 @@ describe('ZERO7', () => {
     fireEvent.click(screen.getAllByRole('button', { name: /人机对战/ })[0])
     await screen.findByText('基础 AI（Pikafish 未安装）')
     voiceMock.startError = new Error('对战麦克风不可用')
-    await act(async () => fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住说走法/ })[0]))
+    await act(async () => fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住语音输入/ })[0]))
     await waitFor(() => expect(screen.getAllByText('对战麦克风不可用').length).toBeGreaterThan(0))
   })
 
@@ -1174,7 +1174,7 @@ describe('ZERO7', () => {
     render(<App initialLevels={testLevels} />)
     fireEvent.click(screen.getAllByRole('button', { name: /人机对战/ })[0])
     await screen.findByText('基础 AI（Pikafish 未安装）')
-    const voiceButton = screen.getAllByRole('button', { name: /按住说走法/ })[0]
+    const voiceButton = screen.getAllByRole('button', { name: /按住语音输入/ })[0]
     fireEvent.pointerDown(voiceButton)
     await act(async () => Promise.resolve())
     fireEvent.pointerUp(voiceButton)
