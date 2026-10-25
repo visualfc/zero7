@@ -51,6 +51,21 @@ app.get('/api/pikafish/status', async (_request, response) => {
   response.json(await pikafish.status())
 })
 
+app.post('/api/pikafish/warmup', express.json({ limit: '16kb' }), async (request, response) => {
+  const { fen } = request.body || {}
+  if (typeof fen !== 'string' || fen.length > 200) {
+    response.status(400).json({ error: '缺少有效的 FEN 局面' })
+    return
+  }
+  try {
+    await pikafish.bestMove({ fen, level: '初级', moveTime: 100 })
+    response.status(204).end()
+  } catch (error) {
+    console.error(`[Pikafish] 预热失败：${error instanceof Error ? error.message : error}`)
+    response.status(503).json({ error: 'Pikafish 预热失败' })
+  }
+})
+
 app.post('/api/pikafish/bestmove', express.json({ limit: '16kb' }), async (request, response) => {
   const { fen, level, moveTime, mateDepth, analysis } = request.body || {}
   if (typeof fen !== 'string' || fen.length > 200) {

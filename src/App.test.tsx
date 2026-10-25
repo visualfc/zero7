@@ -92,6 +92,24 @@ describe('ZERO7', () => {
     expect(screen.getByRole('heading', { name: /残局/ })).toBeInTheDocument()
   })
 
+  it('切换题目时预热最新局面且不改变棋盘', async () => {
+    const requests: Array<{ fen: string; signal?: AbortSignal }> = []
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      if (String(input) === '/api/pikafish/warmup') {
+        requests.push({ fen: JSON.parse(String(init?.body)).fen, signal: init?.signal ?? undefined })
+        return new Response(null, { status: 204 })
+      }
+      return new Response(JSON.stringify({ move: null, terminal: true, engine: 'Pikafish Test', level: '初级', score: null }), { status: 200 })
+    }))
+    render(<App initialLevels={testLevels} />)
+    fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
+    expect(requests.at(-1)?.fen).toBe(testLevels[0].fen)
+    fireEvent.change(screen.getByLabelText('杀棋类型'), { target: { value: 'mate2' } })
+    await waitFor(() => expect(requests.at(-1)?.fen).toBe(testLevels.find((item) => item.mode === 'mate2')!.fen))
+    expect(screen.getByRole('heading', { name: /二步杀/ })).toBeInTheDocument()
+    expect(screen.getByLabelText('残局棋谱')).toBeEmptyDOMElement()
+  })
+
   it('从首页进入第一关', () => {
     render(<App initialLevels={testLevels} />)
     fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
@@ -142,7 +160,7 @@ describe('ZERO7', () => {
     fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
     solveLevel(0)
     expect(await screen.findByText('绝杀！')).toBeInTheDocument()
-    expect(engine).toHaveBeenCalledTimes(1)
+    expect(engine.mock.calls.filter(([input]) => String(input) === '/api/pikafish/bestmove')).toHaveLength(1)
   })
 
   it('从 API 加载题库后不会在走棋时重置局面', async () => {
@@ -223,9 +241,10 @@ describe('ZERO7', () => {
     clickBoardSquare(level.move.from.row, level.move.from.col)
     clickBoardSquare(level.move.to.row, level.move.to.col)
     await act(async () => new Promise((resolve) => setTimeout(resolve, BATTLE_RULES.aiThinkDelayMs + 50)))
-    expect(engine).toHaveBeenCalledTimes(2)
-    expect(JSON.parse(String(engine.mock.calls[0][1]?.body))).toMatchObject({ mateDepth: 2 })
-    expect(JSON.parse(String(engine.mock.calls[1][1]?.body))).not.toHaveProperty('mateDepth')
+    const searches = engine.mock.calls.filter(([input]) => String(input) === '/api/pikafish/bestmove')
+    expect(searches).toHaveLength(2)
+    expect(JSON.parse(String(searches[0][1]?.body))).toMatchObject({ mateDepth: 2 })
+    expect(JSON.parse(String(searches[1][1]?.body))).not.toHaveProperty('mateDepth')
     expect(screen.getByLabelText('残局棋谱')).toHaveTextContent('象３退１')
     expect(screen.getByLabelText('最近一步走子路径')).toHaveClass('black')
   })
@@ -244,7 +263,7 @@ describe('ZERO7', () => {
     clickBoardSquare(level.move.from.row, level.move.from.col)
     clickBoardSquare(level.move.to.row, level.move.to.col)
     await act(async () => new Promise((resolve) => setTimeout(resolve, BATTLE_RULES.aiThinkDelayMs + 50)))
-    expect(engine).toHaveBeenCalledTimes(2)
+    expect(engine.mock.calls.filter(([input]) => String(input) === '/api/pikafish/bestmove')).toHaveLength(2)
     expect(screen.getByLabelText('残局棋谱')).toHaveTextContent('象３退１')
   })
 

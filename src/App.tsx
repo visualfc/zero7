@@ -22,7 +22,7 @@ import { battlePieces, battleStatus, buildBattleReview, chooseAiMove, createBatt
 import { Chess, type Move } from '@weshell/xiangqi.js'
 import { BATTLE_RULES, describeAiResponse, describePlayerMove } from './battle-rules'
 import { commandHelp, parseVoiceCommand, type VoiceCommand } from './voice-command'
-import { getPikafishMove, getPikafishStatus, type EngineLevel } from './pikafish'
+import { getPikafishMove, getPikafishStatus, warmupPikafish, type EngineLevel } from './pikafish'
 
 type Page = 'home' | 'lesson' | 'endgame' | 'battle' | 'progress'
 const MIN_VOICE_HOLD_MS = 350
@@ -48,6 +48,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
   const [lessonThinking, setLessonThinking] = useState(false)
   const lessonGame = useRef<Chess | null>(initialLevels[0] ? new Chess(initialLevels[0].fen) : null)
   const lessonRequestId = useRef(0)
+  const lessonWarmup = useRef<AbortController | null>(null)
   const [toast, setToast] = useState<string | null>(null)
   const [pendingVoiceAction, setPendingVoiceAction] = useState<'undo' | 'restart' | 'resign' | null>(null)
   const voiceClient = useRef<LinxiVoiceClient | null>(null)
@@ -89,6 +90,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
     lessonSuccessVoiceClient.current?.disconnect()
     lessonMoveVoiceClient.current?.disconnect()
     lessonHintVoiceClient.current?.disconnect()
+    lessonWarmup.current?.abort()
     if (lessonPathTimer.current !== null) window.clearTimeout(lessonPathTimer.current)
   }, [])
 
@@ -150,6 +152,12 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
     setLessonThinking(false)
     const nextLevel = levels[index]
     lessonGame.current = new Chess(nextLevel.fen)
+    lessonWarmup.current?.abort()
+    const warmup = new AbortController()
+    lessonWarmup.current = warmup
+    void warmupPikafish(nextLevel.fen, warmup.signal).catch(() => {}).finally(() => {
+      if (lessonWarmup.current === warmup) lessonWarmup.current = null
+    })
     voiceClient.current?.disconnect()
     lessonSpeechId.current += 1
     lessonMoveVoiceClient.current?.disconnect()
