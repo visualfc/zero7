@@ -12,6 +12,7 @@ const testRecords = [...wukongRecords.slice(0, 4), ...['mate2', 'mate3', 'mate4'
 const qiyiSource = { id: 'xiangqi-pwa-offline', name: '棋弈江湖', url: 'https://github.com/dffge552/xiangqi-pwa-offline', license: 'MIT', role: '残局、杀法与古谱题源' } as const
 const testLevels = [...testRecords, { ...qiyiRecords[0], source: qiyiSource }].map((record, index) => puzzleToLevel(record as PuzzleRecord, index))
 const defendedCandidateLevel = puzzleToLevel({ ...testRecords[0], id: 'defended-candidate', solution: [{ from: 'c0', to: 'e2' }] }, 0)
+const alternateVoiceMoveLevel = puzzleToLevel({ ...wukongRecords[11], source: wukongSource } as PuzzleRecord, 0)
 const puzzleMock = vi.hoisted(() => ({ fetch: vi.fn() }))
 
 vi.mock('./puzzles', async (importOriginal) => ({ ...await importOriginal<typeof import('./puzzles')>(), fetchPuzzleLibrary: puzzleMock.fetch }))
@@ -370,6 +371,20 @@ describe('ZERO7', () => {
     await act(async () => { resolveMove(new Response(JSON.stringify({ move: 'h9g7', engine: 'Pikafish Test', level: '初级' }), { status: 200 })); await new Promise((resolve) => setTimeout(resolve, 1600)) })
     expect(screen.getByLabelText('对局棋谱')).toBeEmptyDOMElement()
     expect(screen.queryByText('轮到红方走棋')).not.toBeInTheDocument()
+  })
+
+  it('训练语音可以执行带句号的非标准合法着', async () => {
+    vi.useFakeTimers()
+    render(<App initialLevels={[alternateVoiceMoveLevel]} />)
+    fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
+    fireEvent.pointerDown(screen.getAllByRole('button', { name: /按住说走法/ })[0])
+    await act(async () => Promise.resolve())
+    act(() => voiceMock.instances.at(-1)!.emit({ type: 'transcript', text: '马五进七。' }))
+    expect(screen.getByText('听到“马五进七。”，识别为“马五进七”。')).toBeInTheDocument()
+    await act(async () => { await vi.advanceTimersByTimeAsync(450); await Promise.resolve(); await Promise.resolve() })
+    expect(screen.getByLabelText('残局棋谱')).toHaveTextContent('马五进七')
+    expect(fetch).toHaveBeenCalledWith('/api/pikafish/bestmove', expect.objectContaining({ method: 'POST' }))
+    vi.useRealTimers()
   })
 
   it('支持训练语音识别、失败提示和分级提示朗读', async () => {

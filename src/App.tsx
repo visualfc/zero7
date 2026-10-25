@@ -285,17 +285,17 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
     }
   }
 
-  const playCandidateAnswer = () => {
+  const playLessonMove = (from: Square, to: Square) => {
     const game = lessonGame.current
-    const move = game && makeBattleMove(game, level.move.from, level.move.to)
+    const move = game && makeBattleMove(game, from, to)
     if (!game || !move) {
-      setToast('当前局面已经变化，请重新练习后再走标准着法')
+      setToast('当前局面已经变化，请重新说当前局面可以走的走法')
       return
     }
     setPieces(battlePieces(game))
-    setLessonHistory((game.history({ verbose: true }) as Move[]).map((move) => move.zh))
+    setLessonHistory((game.history({ verbose: true }) as Move[]).map((historyMove) => historyMove.zh))
     setSelectedId(null)
-    void respondToLessonMove(game, true, move.zh)
+    void respondToLessonMove(game, level.mode !== 'endgame' ? true : game.isCheckmate(), move.zh)
   }
 
   const handleSquare = (square: Square) => {
@@ -368,13 +368,17 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
     if (executeGlobalCommand(command)) return
     if (executeLessonCommand(command)) return
     setVoiceText(`听到“${text}”`)
-    const result = parseVoiceMove(text, level)
-    if (result.matched) {
-      setVoiceText(`听到“${text}”，识别为“${result.notation}”。`)
-      window.setTimeout(playCandidateAnswer, 450)
+    const game = lessonGame.current
+    const legalMove = game && findVoiceMove(game, text)
+    if (legalMove) {
+      setVoiceText(`听到“${text}”，识别为“${legalMove.zh}”。`)
+      const from = squareToPoint(legalMove.from)
+      const to = squareToPoint(legalMove.to)
+      window.setTimeout(() => playLessonMove(from, to), 450)
       return
     }
-    setToast(`这步还没有匹配成功，可以说“${level.answer}”`)
+    const result = parseVoiceMove(text, level)
+    setToast(result.matched ? '这步棋在当前局面不能走，请重新说合法走法' : `这步还没有匹配成功，可以说“${level.answer}”`)
   }
 
   const createVoiceClient = () => {
