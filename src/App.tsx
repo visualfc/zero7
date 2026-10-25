@@ -184,7 +184,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
     lessonPathTimer.current = null
     setSelectedId(null)
     setHintLevel(0)
-    setVoiceText('')
+    setVoiceText(lessonVoicePrompt(lessonGame.current))
     setCompleted(false)
     setTerminalType('绝杀')
     setEndgameAnalysis(null)
@@ -752,12 +752,12 @@ function LessonPage(props: {
           </div>
           <div className="lesson-side-description"><div className="lesson-badges"><span className="mini-badge">{props.level.category}</span><span className="mini-badge difficulty-badge">{props.level.difficulty}</span><span className={`mini-badge source-badge ${props.level.fen.split(' ')[1] === 'b' ? 'black' : 'red'}`}>{props.level.fen.split(' ')[1] === 'b' ? '黑方先行' : '红方先行'}</span></div><div className="puzzle-title"><h1>{props.level.title.replace(/\\\\n/g, '\n').replace(/\\n/g, '\n').split(/\r?\n/).map((line, index) => <Fragment key={`${props.level.id}-${index}`}>{index > 0 && <br />}{line}</Fragment>)}</h1></div></div>
           </div>
-          {!props.completed && props.voiceText && <div className="lesson-status" aria-live="polite">{props.voiceText}</div>}
-
           {!props.completed && (
+
             <>
-              <div className="lesson-card lesson-voice-card">
+              <div className="lesson-card lesson-voice-card battle-voice-card">
               <div className="coach-head compact"><div className="coach-avatar small">象</div><div><strong>语音走棋与讲解</strong><span>{voiceStateLabel(props.voiceState)}</span></div><span className={`connection-dot ${props.voiceState}`} /></div>
+              <p>{props.voiceText}</p>
               <button className={props.voiceHeld ? 'voice-button listening' : 'voice-button'} onPointerDown={(event) => { event.currentTarget.setPointerCapture?.(event.pointerId); props.onVoiceStart() }} onPointerUp={props.onVoiceStop} onPointerCancel={props.onVoiceStop} onPointerLeave={(event) => { if (event.currentTarget.hasPointerCapture(event.pointerId)) props.onVoiceStop() }} disabled={props.thinking || props.voiceState === 'connecting' || props.voiceState === 'thinking'}>
                 <span><Mic /></span><strong>{props.voiceHeld ? '松开完成' : '按住语音输入'}</strong><small>（按住按钮/空格，说完后松开）</small>
               </button>
@@ -809,7 +809,6 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const [lastPath, setLastPath] = useState<{ from: Square; to: Square; side: 'red' | 'black' } | null>(null)
   const pathTimer = useRef<number | null>(null)
   const turnReminderTimer = useRef<number | null>(null)
-  const lastTurnReminderKey = useRef<string | null>(null)
   const moveRailRef = useRef<HTMLDivElement | null>(null)
   const [replayStep, setReplayStep] = useState<number | null>(null)
   const [reviewOpen, setReviewOpen] = useState(false)
@@ -887,7 +886,6 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
       setEngineStatus('fallback')
       setEngineName('基础 AI（Pikafish 连接失败）')
     })
-    scheduleTurnReminder()
     return () => {
       aiRequestId.current += 1
       authorization.cancel()
@@ -909,23 +907,6 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
     else rail.scrollTop = rail.scrollHeight
   }, [history, replayStep])
 
-  const scheduleTurnReminder = () => {
-    if (turnReminderTimer.current !== null) window.clearTimeout(turnReminderTimer.current)
-    turnReminderTimer.current = null
-    const moves = game.current.history({ verbose: true }) as Move[]
-    const reminderKey = moves.map((move) => move.lan).join('|')
-    if (reviewOpen || game.current.isGameOver() || game.current.turn() !== 'w' || moves.at(-1)?.color !== 'b' || replayStep !== null || thinking || resigned || lastTurnReminderKey.current === reminderKey) return
-    turnReminderTimer.current = window.setTimeout(() => {
-      turnReminderTimer.current = null
-      const currentMoves = game.current.history({ verbose: true }) as Move[]
-      if (reviewOpen || game.current.isGameOver() || game.current.turn() !== 'w' || currentMoves.at(-1)?.color !== 'b' || replayStep !== null || thinking || resigned) return
-      const inCheck = game.current.isCheck()
-      const reminder = inCheck ? '将军，请先应将。' : '轮到你继续走棋。'
-      lastTurnReminderKey.current = reminderKey
-      void speakBattleText(reminder, inCheck)
-    }, BATTLE_RULES.turnReminderDelayMs)
-  }
-
   const refresh = (lastMove?: Move) => {
     setLastPath(lastMove ? { from: squareToPoint(lastMove.from), to: squareToPoint(lastMove.to), side: lastMove.color === 'w' ? 'red' : 'black' } : null)
     if (pathTimer.current !== null) window.clearTimeout(pathTimer.current)
@@ -935,7 +916,6 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
     sessionStorage.setItem('zero7-battle-moves', JSON.stringify(game.current.history()))
     setReplayStep(null)
     setStatus(battleStatus(game.current))
-    scheduleTurnReminder()
   }
 
   const prepareBattleSpeech = () => {
@@ -1234,7 +1214,6 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
     setPieces(battlePieces(game.current))
     setLastPath(null)
     setStatus(battleStatus(game.current))
-    window.setTimeout(scheduleTurnReminder, 0)
   }
 
   const reviewMoves = (mode = reviewMode, gameId = classicGameId) => mode === 'classic'
@@ -1417,7 +1396,6 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
     battleVoiceClient.current?.disconnect()
     updateBattleVoiceState('idle')
     setVoiceText(battleVoicePrompt(game.current))
-    scheduleTurnReminder()
   }
 
   const undo = () => {
@@ -1435,7 +1413,6 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
     setPieces(battlePieces(game.current))
     setHistory((game.current.history({ verbose: true }) as Move[]).map((move) => move.zh))
     setThinking(false)
-    scheduleTurnReminder()
   }
 
   startBattleVoiceRef.current = startBattleVoice
@@ -1510,6 +1487,13 @@ function isTextInput(target: EventTarget | null) {
 
 function isRepeatedClosingReply(text: string) {
   return /时间过得真快|期待和你下次对弈|期待和你下次再对弈/.test(text)
+}
+
+function lessonVoicePrompt(game: Chess) {
+  const firstMove = (game.moves({ verbose: true }) as Move[])[0]
+  return firstMove
+    ? `按住语音按钮，说出“${firstMove.zh}”，松开后完成识别。`
+    : '按住语音按钮，说出当前局面可以走的中文棋谱，松开后完成识别。'
 }
 
 function battleVoicePrompt(game: Chess) {
