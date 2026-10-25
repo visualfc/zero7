@@ -70,11 +70,11 @@ function solveLevel(index: number) {
 }
 
 describe('ZERO7', () => {
-  it('导航顺序为首页、对战、训练、残局、成长', () => {
+  it('导航顺序为首页、对战、复盘、训练、残局、成长', () => {
     render(<App initialLevels={testLevels} />)
     const navigation = screen.getAllByRole('navigation', { name: '主导航' })[0]
     const labels = navigation.querySelectorAll('.nav-button span')
-    expect([...labels].map((label) => label.textContent)).toEqual(['对战', '训练', '残局', '成长'])
+    expect([...labels].map((label) => label.textContent)).toEqual(['对战', '复盘', '训练', '残局', '成长'])
     expect(navigation.querySelector('.battle-side-brand')).toHaveAttribute('aria-label', '返回首页')
   })
 
