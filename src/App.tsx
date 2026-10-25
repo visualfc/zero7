@@ -292,7 +292,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
         setLessonHistory((game.history({ verbose: true }) as Move[]).map((move) => move.zh))
         showLessonPath(response)
         queueLessonSpeech(response.zh)
-        setVoiceText(`零七走了${response.zh}，继续完成${level.category}。`)
+        setVoiceText(`零七走了${response.zh}。`)
         setLessonThinking(false)
         return
       }
@@ -302,9 +302,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
       setLessonHistory((game.history({ verbose: true }) as Move[]).map((move) => move.zh))
       showLessonPath(response)
       queueLessonSpeech(response.zh)
-      setVoiceText(candidateAnswer
-        ? `这步仍有解法。零七走了${response.zh}，请继续尝试或重新练习。`
-        : `零七走了${response.zh}。继续寻找这道题的制胜方法，或点击重新练习。`)
+      setVoiceText(`零七走了${response.zh}。`)
     } catch (error) {
       if (requestId !== lessonRequestId.current) return
       if (playerNotation) queueLessonSpeech(playerNotation)

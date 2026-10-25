@@ -200,7 +200,8 @@ describe('ZERO7', () => {
     clickBoardSquare(level.move.from.row, level.move.from.col)
     clickBoardSquare(level.move.to.row, level.move.to.col)
     await act(async () => new Promise((resolve) => setTimeout(resolve, BATTLE_RULES.aiThinkDelayMs + 50)))
-    expect(screen.getByText(/零七走了象３退１，继续完成二步杀/)).toBeInTheDocument()
+    expect(screen.getByText('零七走了象３退１。')).toBeInTheDocument()
+    expect(screen.queryByText(/这步仍有解法|继续尝试|继续完成/)).not.toBeInTheDocument()
     await waitFor(() => {
       expect(voiceMock.instances.some((client) => client.speakText.mock.calls.some(([text]) => text === level.answer))).toBe(true)
       expect(voiceMock.instances.some((client) => client.speakText.mock.calls.some(([text]) => text === '象３退１'))).toBe(true)
