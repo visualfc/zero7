@@ -8,8 +8,11 @@ describe('经典完整对局', () => {
     for (const game of classicGames) {
       expect(game.id).toMatch(/^classic-/)
       expect(game.event).toBeTruthy()
+      expect(game.event).toMatch(/^[\u4e00-\u9fff\d年第五六七八九十零一二三四]+/)
       expect(game.red).toBeTruthy()
       expect(game.black).toBeTruthy()
+      expect(game.red).toMatch(/^[\u4e00-\u9fff]+$/)
+      expect(game.black).toMatch(/^[\u4e00-\u9fff]+$/)
       expect(game.redOriginal).toBeTruthy()
       expect(game.blackOriginal).toBeTruthy()
       expect(game.redOriginal).toBe(game.red === '刘殿中' ? 'LIU DianZhong' : game.redOriginal)

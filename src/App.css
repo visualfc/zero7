@@ -245,7 +245,7 @@
 .battle-page { width: 100%; max-width: none; height: 100%; min-height: 0; padding: var(--desktop-page-inset) 10px 0; }
 .battle-heading { justify-self: center; display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--ink); margin: 0; } .battle-heading svg { width: 18px; color: var(--coral); }
 .battle-layout { width: 100%; height: 100%; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 10px; align-items: stretch; } .battle-shell .topbar { height: 58px; } .battle-shell .topbar .brand-mark { width: 34px; height: 34px; } .battle-shell .topbar .brand-name { font-size: 16px; } .battle-shell .topbar .nav-button { padding: 7px 10px; font-size: 11px; } .battle-shell .topbar .nav-button svg { width: 16px; height: 16px; }
-.battle-move-rail { position: absolute; top: 8px; bottom: 18px; left: calc(50% - min(310px, 50%, (100dvh - 55px) * .45) - 196px); width: 190px; min-height: 0; padding: 2px; display: none; flex-direction: column; align-items: stretch; gap: 4px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+.battle-move-rail { position: absolute; top: 8px; bottom: 18px; left: calc(50% - min(310px, 50%, (100dvh - 55px) * .45) - 196px); width: 190px; min-height: 0; padding: 2px; display: none; flex-direction: column; align-items: stretch; gap: 4px; overflow: visible; overscroll-behavior: contain; scrollbar-width: thin; }
 .battle-move-rail > span { margin-top: 8px; color: var(--muted); font-size: 11px; text-align: center; }
 .battle-move-turn { display: grid; grid-template-columns: 16px minmax(0, 1fr); gap: 1px; align-items: start; color: var(--muted); font-size: 10px; }
 .battle-move-turn > span { padding-top: 5px; text-align: right; }
