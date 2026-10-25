@@ -245,7 +245,7 @@
 .battle-page { width: 100%; max-width: none; height: 100%; min-height: 0; padding: var(--desktop-page-inset) 10px 0; }
 .battle-heading { justify-self: center; display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--ink); margin: 0; } .battle-heading svg { width: 18px; color: var(--coral); }
 .battle-layout { width: 100%; height: 100%; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 10px; align-items: stretch; } .battle-shell .topbar { height: 58px; } .battle-shell .topbar .brand-mark { width: 34px; height: 34px; } .battle-shell .topbar .brand-name { font-size: 16px; } .battle-shell .topbar .nav-button { padding: 7px 10px; font-size: 11px; } .battle-shell .topbar .nav-button svg { width: 16px; height: 16px; }
-.battle-move-rail { position: absolute; top: 8px; bottom: 18px; left: calc(50% - min(310px, 50%, (100dvh - 55px) * .45) - 196px); width: 190px; min-height: 0; padding: 2px; display: none; flex-direction: column; align-items: stretch; gap: 4px; overflow: visible; overscroll-behavior: contain; scrollbar-width: thin; }
+.battle-move-rail { position: absolute; top: 8px; bottom: 18px; left: calc(50% - min(310px, 50%, (100dvh - 55px) * .45) - 196px); width: 190px; min-height: 0; padding: 2px; display: none; flex-direction: column; align-items: stretch; gap: 4px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
 .battle-move-rail > span { margin-top: 8px; color: var(--muted); font-size: 11px; text-align: center; }
 .battle-move-turn { display: grid; grid-template-columns: 16px minmax(0, 1fr); gap: 1px; align-items: start; color: var(--muted); font-size: 10px; }
 .battle-move-turn > span { padding-top: 5px; text-align: right; }
@@ -267,14 +267,29 @@
   .battle-board-panel .board-wrap { width: min(540px, calc(100% - 110px), calc((100dvh - 55px) * .9)); transform: translateX(50px); }
 }
 .battle-review-panel { width: min(620px,100%); margin: 4px auto; padding: 10px; display: grid; gap: 8px; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); }
-.battle-review-rail { position: static; width: 100%; min-height: 0; margin: 0; max-height: 360px; overflow-y: auto; align-content: start; }
+.battle-review-rail { position: static; width: 100%; min-height: 0; margin: 0; max-height: none; overflow: visible; align-content: start; }
 .battle-review-rail .review-head, .battle-review-rail .review-tabs { align-items: flex-start; flex-wrap: wrap; }
-.battle-review-rail .review-navigation { flex-wrap: wrap; justify-content: flex-start; }
-.battle-review-rail .review-navigation span { width: 100%; order: -1; text-align: center; }
+.battle-review-rail .review-navigation { display: flex; align-items: center; justify-content: space-between; gap: 5px; }
+.battle-review-rail .review-navigation strong { flex: 0 0 auto; text-align: center; font-size: 10px; white-space: nowrap; }
+.review-navigation-buttons { min-width: 0; display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
+.battle-review-rail .review-navigation button { width: 25px; height: 25px; flex: 0 0 25px; min-width: 0; padding: 0; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; }
+.battle-review-rail .review-navigation button span { display: none; }
+.battle-review-rail .review-navigation button svg { width: 14px; height: 14px; flex: 0 0 14px; }
 .battle-review-rail .compact-action, .battle-review-rail .review-analyze-button { width: 100%; }
 .review-analyze-button { min-height: 42px; font-weight: 800; }
+.review-global-button { width: 100%; }
+.review-analysis-card, .review-global-card { display: grid; gap: 6px; padding-top: 8px; border-top: 1px solid var(--line); }
+.review-analysis-result { position: relative; min-height: 168px; align-content: start; }
+.review-analysis-card > strong, .review-global-card > strong, .review-analysis-heading strong { font-size: 12px; }
+.review-analysis-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.review-analysis-heading span { color: var(--muted); font-size: 10px; }
+.global-analysis-result { display: grid; gap: 5px; padding-top: 6px; border-top: 1px solid var(--line); }
+.global-analysis-item { display: grid; gap: 2px; padding: 7px 8px; text-align: left; border: 1px solid var(--line); border-radius: 8px; background: white; color: var(--ink); cursor: pointer; }
+.global-analysis-item small { color: var(--muted); }
 .battle-review-rail .analysis-result { font-size: 11px; }
 .battle-move-rail.review-hidden { display: none; }
+.battle-key-rail { position: absolute; top: 8px; bottom: 18px; left: calc(50% + min(310px, 50%, (100dvh - 55px) * .45) + 6px); width: 190px; min-height: 0; padding: 2px; display: flex; flex-direction: column; gap: 5px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+.battle-key-rail > strong { padding: 4px 6px; font-size: 12px; }
 .review-head, .review-navigation, .review-tabs { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
 .review-tabs button, .review-navigation button { border: 1px solid var(--line); border-radius: 8px; padding: 5px 9px; background: white; color: var(--muted); cursor: pointer; }
 .review-tabs button.active { background: var(--coral); color: white; border-color: var(--coral); }
@@ -288,7 +303,7 @@
 .mobile-battle-voice { display: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: none; }
 .battle-status { width: min(520px,100%); margin: 0 auto 16px; padding: 11px 16px; border-radius: 12px; background: #edf3f2; color: #52606c; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; }
 .thinking-dot { width: 8px; height: 8px; border-radius: 50%; background: #5aa987; } .thinking-dot.active { background: var(--gold); animation: dot-pulse 1s infinite; }
-.battle-sidebar { min-height: 0; align-self: start; display: flex; flex-direction: column; gap: 5px; overflow: hidden; }
+.battle-sidebar { min-height: 0; align-self: start; display: flex; flex-direction: column; gap: 5px; overflow: visible; }
 .battle-side-nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 5px 7px; border: 1px solid var(--border); border-radius: 14px; background: var(--panel); }
 .battle-side-brand { gap: 6px; }
 .battle-side-brand .brand-mark { width: 30px; height: 30px; }
@@ -379,7 +394,7 @@
   .battle-page { width: 100%; padding: 4px 3px 0; }
   .battle-page { width: 100%; }
   .battle-layout { display: flex; flex-direction: column; width: 100%; height: 100%; gap: 3px; }
-  .battle-move-rail { display: none; }
+  .battle-move-rail, .battle-key-rail { display: none; }
   .battle-board-column { order: 2; width: 100%; min-height: 0; padding: 0 3px; }
   .board-panel { padding: 22px 12px 18px; }
   .battle-board-panel { width: 100%; padding: 4px 2px 21px; }
@@ -387,7 +402,7 @@
   .mobile-battle-voice { position: static; width: 100%; margin-top: 4px; }
   .battle-review-panel { padding: 8px; gap: 6px; }
   .battle-review-rail { max-height: none; margin: 4px auto; }
-  .review-navigation { flex-wrap: wrap; }
+  .review-navigation { flex-wrap: nowrap; }
   .review-navigation button { padding: 5px 7px; font-size: 10px; }
   .battle-status { min-height: 24px; margin-bottom: 3px; padding: 4px 6px; border-radius: 8px; font-size: 10px; }
   .battle-board-panel .board-tip { margin-top: 19px; font-size: 9px; }

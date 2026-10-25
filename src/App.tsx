@@ -2,11 +2,15 @@ import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Award,
   BookOpen,
+  ChevronLeft,
   ChevronRight,
   Home,
-  History,
+  SkipBack,
+  SkipForward,
   Lightbulb,
   Mic,
+  Pause,
+  Play,
   RotateCcw,
   Sparkles,
   Star,
@@ -25,7 +29,7 @@ import { BATTLE_RULES, describeAiResponse, describePlayerMove } from './battle-r
 import { commandHelp, parseVoiceCommand, type VoiceCommand, type VoicePage } from './voice-command'
 import { getPikafishMove, getPikafishStatus, warmupPikafish, type EngineLevel } from './pikafish'
 
-type Page = 'home' | 'lesson' | 'endgame' | 'battle' | 'review' | 'progress'
+type Page = 'home' | 'lesson' | 'endgame' | 'battle' | 'progress'
 type ClassicGame = { id: string; event: string; red: string; redOriginal: string; black: string; blackOriginal: string; moves?: string[]; source: string }
 const MIN_VOICE_HOLD_MS = 350
 const EMPTY_LEVELS: Level[] = []
@@ -107,7 +111,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
     const handleSpaceDown = (event: KeyboardEvent) => {
       if (event.code !== 'Space') return
       event.preventDefault()
-      if (event.repeat || page === 'battle' || page === 'review' || isTextInput(event.target) || voicePressStartedAt.current !== null) return
+      if (event.repeat || page === 'battle' || isTextInput(event.target) || voicePressStartedAt.current !== null) return
       if (document.activeElement instanceof HTMLButtonElement) document.activeElement.blur()
       voicePressStartedAt.current = Date.now()
       setVoiceHeld(true)
@@ -116,7 +120,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
     const handleSpaceUp = (event: KeyboardEvent) => {
       if (event.code !== 'Space') return
       event.preventDefault()
-      if (page === 'battle' || page === 'review' || voicePressStartedAt.current === null) return
+      if (page === 'battle' || voicePressStartedAt.current === null) return
       setVoiceHeld(false)
       void stopVoice()
     }
@@ -131,7 +135,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
       window.removeEventListener('keypress', blockSpace, true)
       window.removeEventListener('keydown', handleSpaceDown, true)
       window.removeEventListener('keyup', handleSpaceUp, true)
-      if (page !== 'battle' && page !== 'review') voiceClient.current?.disconnect()
+      if (page !== 'battle') voiceClient.current?.disconnect()
     }
   }, [page])
 
@@ -437,7 +441,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
   }
 
   const executeGlobalCommand = (command: VoiceCommand) => {
-    if (command.type === 'help') { setVoiceText(commandHelp((page === 'review' ? 'battle' : page) as VoicePage)); return true }
+    if (command.type === 'help') { setVoiceText(commandHelp(page as VoicePage)); return true }
     if (command.type === 'navigation.home') { setPage('home'); return true }
     if (command.type === 'battle.start' && (page === 'home' || page === 'progress')) { setPage('battle'); return true }
     if (command.type === 'training.start' && (page === 'home' || page === 'progress')) { openLesson(); return true }
@@ -542,7 +546,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
   if (!level) return <div className="app-shell puzzle-loading"><main><div className="loading-card">正在加载练习题库…</div></main>{toast && <div className="toast" role="status"><Volume2 /> {toast}</div>}</div>
 
   return (
-    <div className={`app-shell ${page === 'battle' || page === 'review' ? 'battle-shell' : ''} ${page === 'home' ? 'home-shell' : ''} ${page === 'lesson' || page === 'endgame' || page === 'progress' ? 'content-shell' : ''}`}>
+    <div className={`app-shell ${page === 'battle' ? 'battle-shell' : ''} ${page === 'home' ? 'home-shell' : ''} ${page === 'lesson' || page === 'endgame' || page === 'progress' ? 'content-shell' : ''}`}>
       <main>
         {page === 'home' && <HomePage levels={levels} onStart={openLesson} onEndgame={openEndgame} onBattle={() => setPage('battle')} onNavigate={navigate} completedCount={levelIndex} />}
         {(page === 'lesson' || page === 'endgame') && (
@@ -579,7 +583,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
             onNavigate={navigate}
           />
         )}
-        {(page === 'battle' || page === 'review') && <BattlePage onNavigate={navigate} reviewPage={page === 'review'} />}
+        {page === 'battle' && <BattlePage onNavigate={navigate} />}
         {page === 'progress' && <ProgressPage onLesson={openLesson} onNavigate={navigate} />}
       </main>
 
@@ -588,7 +592,6 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
       <nav className="mobile-nav" aria-label="移动端主导航">
         <NavButton active={page === 'home'} icon={<Home />} label="首页" onClick={() => setPage('home')} />
         <NavButton active={page === 'battle'} icon={<Swords />} label="对战" onClick={() => setPage('battle')} />
-        <NavButton active={page === 'review'} icon={<History />} label="AI复盘" onClick={() => setPage('review')} />
         <NavButton active={page === 'lesson'} icon={<BookOpen />} label="训练" onClick={() => openLesson()} />
         <NavButton active={page === 'endgame'} icon={<Target />} label="残局" onClick={openEndgame} />
         <NavButton active={page === 'progress'} icon={<Trophy />} label="成长" onClick={() => setPage('progress')} />
@@ -602,7 +605,7 @@ function NavButton({ active, icon, label, onClick }: { active: boolean; icon: Re
 }
 
 function SideNavigation({ active, onNavigate }: { active: Page; onNavigate: (page: Page) => void }) {
-  return <nav className="battle-side-nav unified-side-nav" aria-label="主导航"><button className="brand battle-side-brand" onClick={() => onNavigate('home')} aria-label="返回首页"><span className="brand-mark"><span>象</span></span><span className="brand-name">零七 <small>ZERO7</small></span></button><div className="battle-side-nav-buttons"><NavButton active={active === 'battle'} icon={<Swords />} label="对战" onClick={() => onNavigate('battle')} /><NavButton active={active === 'review'} icon={<History />} label="AI复盘" onClick={() => onNavigate('review')} /><NavButton active={active === 'lesson'} icon={<BookOpen />} label="训练" onClick={() => onNavigate('lesson')} /><NavButton active={active === 'endgame'} icon={<Target />} label="残局" onClick={() => onNavigate('endgame')} /><NavButton active={active === 'progress'} icon={<Trophy />} label="成长" onClick={() => onNavigate('progress')} /></div></nav>
+  return <nav className="battle-side-nav unified-side-nav" aria-label="主导航"><button className="brand battle-side-brand" onClick={() => onNavigate('home')} aria-label="返回首页"><span className="brand-mark"><span>象</span></span><span className="brand-name">零七 <small>ZERO7</small></span></button><div className="battle-side-nav-buttons"><NavButton active={active === 'battle'} icon={<Swords />} label="对战" onClick={() => onNavigate('battle')} /><NavButton active={active === 'lesson'} icon={<BookOpen />} label="训练" onClick={() => onNavigate('lesson')} /><NavButton active={active === 'endgame'} icon={<Target />} label="残局" onClick={() => onNavigate('endgame')} /><NavButton active={active === 'progress'} icon={<Trophy />} label="成长" onClick={() => onNavigate('progress')} /></div></nav>
 }
 
 function HomePage({ levels, onStart, onEndgame, onBattle, onNavigate, completedCount }: { levels: Level[]; onStart: (index?: number) => void; onEndgame: () => void; onBattle: () => void; onNavigate: (page: Page) => void; completedCount: number }) {
@@ -775,30 +778,44 @@ function LessonPage(props: {
   )
 }
 
-function BattlePage({ onNavigate, reviewPage = false }: { onNavigate: (page: Page) => void; reviewPage?: boolean }) {
-  const initialGame = useMemo(() => createBattle(), [])
+function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
+  const initialGame = useMemo(() => {
+    const restored = createBattle()
+    try {
+      const savedMoves = JSON.parse(sessionStorage.getItem('zero7-battle-moves') ?? '[]') as string[]
+      savedMoves.forEach((move) => restored.move(move))
+    } catch {
+      sessionStorage.removeItem('zero7-battle-moves')
+    }
+    return restored
+  }, [])
   const game = useRef<Chess>(initialGame)
   const [pieces, setPieces] = useState(() => battlePieces(initialGame))
   const [selected, setSelected] = useState<Square | null>(null)
   const [targets, setTargets] = useState<Square[]>([])
-  const [history, setHistory] = useState<string[]>([])
+  const [history, setHistory] = useState<string[]>(() => (initialGame.history({ verbose: true }) as Move[]).map((move) => move.zh))
   const [reviewHistory, setReviewHistory] = useState<string[]>([])
   const [lastPath, setLastPath] = useState<{ from: Square; to: Square; side: 'red' | 'black' } | null>(null)
   const pathTimer = useRef<number | null>(null)
   const turnReminderTimer = useRef<number | null>(null)
   const moveRailRef = useRef<HTMLDivElement | null>(null)
   const [replayStep, setReplayStep] = useState<number | null>(null)
-  const reviewOpen = reviewPage
+  const [reviewOpen, setReviewOpen] = useState(false)
   const reviewMode = 'classic' as const
   const [classicGames, setClassicGames] = useState<ClassicGame[]>([])
   const [classicQuery, setClassicQuery] = useState('')
   const [classicLoading, setClassicLoading] = useState(false)
-  const [classicGameId, setClassicGameId] = useState('')
-  const [reviewStep, setReviewStep] = useState(0)
-  const [reviewAnalysis, setReviewAnalysis] = useState<{ actual: string; recommended: string; comparison: string } | null>(null)
-  const [reviewAnalysisVisible, setReviewAnalysisVisible] = useState(false)
+  const [classicGameId, setClassicGameId] = useState(() => sessionStorage.getItem('zero7-review-game') ?? '')
+  const [reviewStep, setReviewStep] = useState(() => Number(sessionStorage.getItem('zero7-review-step') ?? 0))
+  const [reviewPlaying, setReviewPlaying] = useState(false)
+  const [reviewAnalysis, setReviewAnalysis] = useState<{ actual: string; recommended: string; actualPurpose: string; recommendedPurpose: string; sameMove: boolean; red: number; black: number } | null>(() => { try { return JSON.parse(sessionStorage.getItem('zero7-review-analysis') ?? 'null') } catch { return null } })
+  const [reviewAnalysisVisible, setReviewAnalysisVisible] = useState(() => sessionStorage.getItem('zero7-review-analysis-visible') === 'true')
   const [reviewAnalysisLoading, setReviewAnalysisLoading] = useState(false)
-  const reviewRequestId = useRef(0)
+  const [globalAnalysis, setGlobalAnalysis] = useState<{ step: number; move: string; redBefore: number; redAfter: number; swing: number; judgment: string }[]>([])
+  const [globalAnalysisLoading, setGlobalAnalysisLoading] = useState(false)
+  const [globalAnalysisProgress, setGlobalAnalysisProgress] = useState('')
+  const reviewPositionRequestId = useRef(0)
+  const reviewGlobalRequestId = useRef(0)
   const [status, setStatus] = useState('轮到红方走棋')
   const [difficulty, setDifficulty] = useState<EngineLevel>('初级')
   const difficultyDescriptions = { 入门: '皮卡鱼 2026-01-31\n入门 · 约 1280 Elo', 初级: '皮卡鱼 2026-01-31\n初级 · 约 1500 Elo', 中级: '皮卡鱼 2026-01-31\n中级 · 约 1900 Elo' } as const
@@ -808,7 +825,7 @@ function BattlePage({ onNavigate, reviewPage = false }: { onNavigate: (page: Pag
     setClassicLoading(true)
     fetch(`/api/classic-games?limit=50&q=${encodeURIComponent(classicQuery)}`, { signal: controller.signal })
       .then((response) => response.json() as Promise<{ items?: ClassicGame[] }>)
-      .then((payload) => { const items = payload.items ?? []; setClassicGames(items); if (items[0]) { const nextId = items.some((item) => item.id === classicGameId) ? classicGameId : items[0].id; setClassicGameId(nextId); const selected = items.find((item) => item.id === nextId); if (selected?.moves) showReviewStep(0, 'classic', nextId, selected.moves) } })
+      .then((payload) => { const items = payload.items ?? []; setClassicGames(items); if (items[0]) { const nextId = items.some((item) => item.id === classicGameId) ? classicGameId : items[0].id; setClassicGameId(nextId); const selected = items.find((item) => item.id === nextId); if (selected?.moves) showReviewStep(nextId === classicGameId ? reviewStep : 0, 'classic', nextId, selected.moves, nextId === classicGameId) } })
       .catch(() => undefined)
       .finally(() => setClassicLoading(false))
     return () => controller.abort()
@@ -816,14 +833,14 @@ function BattlePage({ onNavigate, reviewPage = false }: { onNavigate: (page: Pag
   useEffect(() => {
     if (!reviewOpen || reviewMode !== 'classic' || !classicGameId) return
     const selected = classicGames.find((item) => item.id === classicGameId)
-    if (selected?.moves) { showReviewStep(0, 'classic', classicGameId); return }
+    if (selected?.moves) { showReviewStep(reviewStep, 'classic', classicGameId, selected.moves, true); return }
     fetch(`/api/classic-games/${classicGameId}`)
       .then((response) => response.json() as Promise<ClassicGame>)
-      .then((game) => { setClassicGames((items) => items.map((item) => item.id === game.id ? game : item)); showReviewStep(0, 'classic', game.id, game.moves) })
+      .then((game) => { const sameGame = game.id === sessionStorage.getItem('zero7-review-game'); setClassicGames((items) => items.map((item) => item.id === game.id ? game : item)); showReviewStep(sameGame ? reviewStep : 0, 'classic', game.id, game.moves, sameGame) })
       .catch(() => setStatus('经典棋局加载失败，请稍后重试。'))
   }, [classicGameId, reviewOpen, reviewMode])
   const [thinking, setThinking] = useState(false)
-  const [resigned, setResigned] = useState(false)
+  const [resigned, setResigned] = useState(() => sessionStorage.getItem('zero7-battle-resigned') === 'true')
   const [analysis, setAnalysis] = useState<{ red: number; black: number; move: string; explanation: string } | null>(null)
   const [analysisVisible, setAnalysisVisible] = useState(false)
   const [analysisLoading, setAnalysisLoading] = useState(false)
@@ -879,11 +896,11 @@ function BattlePage({ onNavigate, reviewPage = false }: { onNavigate: (page: Pag
     if (turnReminderTimer.current !== null) window.clearTimeout(turnReminderTimer.current)
     turnReminderTimer.current = null
     const moves = game.current.history({ verbose: true }) as Move[]
-    if (game.current.isGameOver() || game.current.turn() !== 'w' || moves.at(-1)?.color !== 'b' || replayStep !== null || thinking || resigned) return
+    if (reviewOpen || game.current.isGameOver() || game.current.turn() !== 'w' || moves.at(-1)?.color !== 'b' || replayStep !== null || thinking || resigned) return
     turnReminderTimer.current = window.setTimeout(() => {
       turnReminderTimer.current = null
       const currentMoves = game.current.history({ verbose: true }) as Move[]
-      if (game.current.isGameOver() || game.current.turn() !== 'w' || currentMoves.at(-1)?.color !== 'b' || replayStep !== null || thinking || resigned) return
+      if (reviewOpen || game.current.isGameOver() || game.current.turn() !== 'w' || currentMoves.at(-1)?.color !== 'b' || replayStep !== null || thinking || resigned) return
       const inCheck = game.current.isCheck()
       const reminder = inCheck ? '将军，请先应将。' : '轮到你继续走棋。'
       void speakBattleText(reminder, inCheck)
@@ -896,6 +913,7 @@ function BattlePage({ onNavigate, reviewPage = false }: { onNavigate: (page: Pag
     pathTimer.current = lastMove ? window.setTimeout(() => { setLastPath(null); pathTimer.current = null }, BATTLE_RULES.movePathDisplayMs) : null
     setPieces(battlePieces(game.current))
     setHistory((game.current.history({ verbose: true }) as Move[]).map((move) => move.zh))
+    sessionStorage.setItem('zero7-battle-moves', JSON.stringify(game.current.history()))
     setReplayStep(null)
     setStatus(battleStatus(game.current))
     scheduleTurnReminder()
@@ -1006,7 +1024,7 @@ function BattlePage({ onNavigate, reviewPage = false }: { onNavigate: (page: Pag
       if (command.type === 'cancel') { setVoiceText('已取消。'); return true }
       if (action === 'undo') undo()
       if (action === 'restart') restart()
-      if (action === 'resign') { if (turnReminderTimer.current !== null) window.clearTimeout(turnReminderTimer.current); turnReminderTimer.current = null; setResigned(true); setStatus(`你已认输，本局由 ${BATTLE_RULES.brandName} 获胜。`) }
+      if (action === 'resign') { if (turnReminderTimer.current !== null) window.clearTimeout(turnReminderTimer.current); turnReminderTimer.current = null; setResigned(true); sessionStorage.setItem('zero7-battle-resigned', 'true'); setStatus(`你已认输，本局由 ${BATTLE_RULES.brandName} 获胜。`) }
       setVoiceText('已确认。')
       return true
     }
@@ -1152,7 +1170,16 @@ function BattlePage({ onNavigate, reviewPage = false }: { onNavigate: (page: Pag
       const analysisGame = new Chess(game.current.fen())
       const recommendedMove = result.move ? analysisGame.move(result.move) : null
       const move = recommendedMove?.zh ?? '当前无合法着法'
-      const explanation = `推荐${move}，因为它能改善当前局面的子力协调和先手。`
+      let purpose = '改善子力位置，争取后续主动。'
+      if (recommendedMove) {
+        if (analysisGame.isCheckmate()) purpose = '形成绝杀，立即结束对局。'
+        else if (analysisGame.isCheck()) purpose = '直接将军，迫使对方应将。'
+        else if (recommendedMove.captured) purpose = `吃掉对方${recommendedMove.captured}，取得子力收益。`
+        else if (/^[a-i][09]$/.test(recommendedMove.from)) purpose = '调动底线子力，使棋子更快参与进攻和防守。'
+        else if (['d', 'e', 'f'].includes(recommendedMove.to[0])) purpose = '加强中路控制，限制对方子力活动。'
+        else purpose = '调整子力位置，同时改善进攻和防守的协调。'
+      }
+      const explanation = `这步的目的：${purpose}`
       setAnalysis({ red, black: 100 - red, move, explanation })
     } catch {
       setAnalysis(null)
@@ -1162,12 +1189,36 @@ function BattlePage({ onNavigate, reviewPage = false }: { onNavigate: (page: Pag
     }
   }
 
+  const openReview = () => {
+    if (turnReminderTimer.current !== null) window.clearTimeout(turnReminderTimer.current)
+    turnReminderTimer.current = null
+    battleVoiceClient.current?.disconnect()
+    voiceMoveAuthorization.current.cancel()
+    setVoiceHeld(false)
+    setSelected(null)
+    setTargets([])
+    setReviewOpen(true)
+  }
+
+  const closeReview = () => {
+    reviewPositionRequestId.current += 1
+    reviewGlobalRequestId.current += 1
+    setReviewOpen(false)
+    setReviewPlaying(false)
+    setReviewAnalysisLoading(false)
+    setGlobalAnalysisLoading(false)
+    setPieces(battlePieces(game.current))
+    setLastPath(null)
+    setStatus(battleStatus(game.current))
+    window.setTimeout(scheduleTurnReminder, 0)
+  }
+
   const reviewMoves = (mode = reviewMode, gameId = classicGameId) => mode === 'classic'
     ? (classicGames.find((item) => item.id === gameId) ?? classicGames[0])?.moves ?? []
     : (game.current.history({ verbose: true }) as Move[]).map((move) => `${move.from}${move.to}`)
 
-  const showReviewStep = (step: number, mode = reviewMode, gameId = classicGameId, suppliedMoves?: string[]) => {
-    reviewRequestId.current += 1
+  const showReviewStep = (step: number, mode = reviewMode, gameId = classicGameId, suppliedMoves?: string[], preserveAnalysis = false) => {
+    reviewPositionRequestId.current += 1
     const moves = suppliedMoves ?? reviewMoves(mode, gameId)
     const nextStep = Math.max(0, Math.min(step, moves.length))
     const replayGame = createBattle()
@@ -1180,14 +1231,18 @@ function BattlePage({ onNavigate, reviewPage = false }: { onNavigate: (page: Pag
     setPieces(battlePieces(replayGame))
     setLastPath(lastMove ? { from: squareToPoint(lastMove.from), to: squareToPoint(lastMove.to), side: lastMove.color === 'w' ? 'red' : 'black' } : null)
     setReviewStep(nextStep)
+    sessionStorage.setItem('zero7-review-step', String(nextStep))
+    if (gameId) sessionStorage.setItem('zero7-review-game', gameId)
     setReviewHistory(fullVerbose.map((move) => move.zh))
-    setReviewAnalysis(null)
-    setReviewAnalysisLoading(false)
+    if (!reviewAnalysisVisible && !preserveAnalysis) {
+      setReviewAnalysis(null)
+      sessionStorage.removeItem('zero7-review-analysis')
+    }
     setStatus(`复盘第 ${nextStep} 步，共 ${moves.length} 步`)
   }
 
   const analyzeReviewStep = async () => {
-    const requestId = ++reviewRequestId.current
+    const requestId = ++reviewPositionRequestId.current
     const moves = reviewMoves()
     const reviewGame = createBattle()
     moves.slice(0, reviewStep).forEach((move) => reviewGame.move(move))
@@ -1195,27 +1250,118 @@ function BattlePage({ onNavigate, reviewPage = false }: { onNavigate: (page: Pag
     setReviewAnalysisLoading(true)
     try {
       const result = await getPikafishMove(fen, '中级', true)
-      if (requestId !== reviewRequestId.current) return
+      if (requestId !== reviewPositionRequestId.current) return
       const actualGame = new Chess(fen)
       const recommendedMove = result.move ? actualGame.move(result.move) : null
       const actualUci = moves[reviewStep]
-      const actualMove = actualUci ? new Chess(fen).move(actualUci) : null
+      const actualLine = new Chess(fen)
+      const actualMove = actualUci ? actualLine.move(actualUci) : null
       const recommended = recommendedMove?.zh ?? '当前没有合法着法'
       const actual = actualMove?.zh ?? '对局已经结束'
-      const comparison = actualUci && result.move === actualUci
-        ? '实战着与引擎首选一致。'
-        : actualUci ? `实战选择${actual}，引擎更推荐${recommended}。` : '当前已经到达本局终点。'
-      setReviewAnalysis({ actual, recommended, comparison })
+      const inferPurpose = (line: Chess, move: Move | null) => {
+        if (!move) return '当前没有可分析的后续着法。'
+        const pieceNames: Record<string, string> = { k: '将', a: '士', b: '象', n: '马', r: '车', c: '炮', p: '兵' }
+        if (line.isCheckmate()) return '形成绝杀，立即结束对局。'
+        if (line.isCheck()) return '直接将军，迫使对方应将。'
+        if (move.captured) return `吃掉对方${pieceNames[move.captured] ?? '棋子'}，取得子力收益。`
+        if (/^[a-i][09]$/.test(move.from)) return '调动底线子力，使棋子更快参与进攻和防守。'
+        if (['d', 'e', 'f'].includes(move.to[0])) return '加强中路控制，限制对方子力活动。'
+        return '调整子力位置，同时改善进攻和防守的协调。'
+      }
+      const actualPurpose = inferPurpose(actualLine, actualMove)
+      const recommendedPurpose = inferPurpose(actualGame, recommendedMove)
+      const score = result.score?.type === 'mate' ? (result.score.value > 0 ? 10000 : -10000) : (result.score?.value ?? 0)
+      const redScore = reviewGame.turn() === 'w' ? score : -score
+      const red = Math.round(100 / (1 + Math.exp(-redScore / 180)))
+      const analysis = { actual, recommended, actualPurpose, recommendedPurpose, sameMove: Boolean(actualUci && result.move === actualUci), red, black: 100 - red }
+      setReviewAnalysis(analysis)
+      sessionStorage.setItem('zero7-review-analysis', JSON.stringify(analysis))
     } catch {
       setStatus('当前复盘局面分析失败，请稍后重试。')
     } finally {
-      if (requestId === reviewRequestId.current) setReviewAnalysisLoading(false)
+      if (requestId === reviewPositionRequestId.current) setReviewAnalysisLoading(false)
     }
   }
 
   useEffect(() => {
-    if (reviewPage && reviewAnalysisVisible) void analyzeReviewStep()
-  }, [reviewStep, reviewAnalysisVisible, classicGameId])
+    if (reviewOpen && reviewAnalysisVisible) void analyzeReviewStep()
+  }, [reviewOpen, reviewAnalysisVisible, reviewStep, classicGameId])
+  useEffect(() => {
+    if (!reviewPlaying) return
+    const total = reviewMoves().length
+    if (reviewStep >= total) { setReviewPlaying(false); return }
+    const timer = window.setTimeout(() => {
+      const nextStep = reviewStep + 1
+      showReviewStep(nextStep)
+      const notation = reviewHistory[nextStep - 1]
+      if (notation) void speakBattleText(notation, false)
+    }, 5_000)
+    return () => window.clearTimeout(timer)
+  }, [reviewPlaying, reviewStep, classicGameId])
+
+  const analyzeGlobalReview = async () => {
+    const moves = reviewMoves()
+    if (moves.length === 0) return
+    const requestId = ++reviewGlobalRequestId.current
+    const deadline = performance.now() + 29_000
+    const probability = (result: Awaited<ReturnType<typeof getPikafishMove>>, turn: 'w' | 'b') => {
+      const score = result.score?.type === 'mate' ? (result.score.value > 0 ? 10000 : -10000) : (result.score?.value ?? 0)
+      const redScore = turn === 'w' ? score : -score
+      return Math.round(100 / (1 + Math.exp(-redScore / 180)))
+    }
+    setGlobalAnalysisLoading(true)
+    setGlobalAnalysisProgress('快速扫描 0%')
+    try {
+      const positions: { fen: string; turn: 'w' | 'b' }[] = []
+      const replay = createBattle()
+      const moveNames: string[] = []
+      for (let step = 0; step <= moves.length; step += 1) {
+        positions.push({ fen: replay.fen(), turn: replay.turn() })
+        if (step < moves.length) {
+          const move = replay.move(moves[step])
+          moveNames.push(move?.zh ?? moves[step])
+        }
+      }
+      const fastTime = Math.max(100, Math.min(220, Math.floor(18_000 / positions.length)))
+      const evaluations: number[] = []
+      for (let step = 0; step < positions.length; step += 1) {
+        if (performance.now() >= deadline) break
+        const position = positions[step]
+        const result = await getPikafishMove(position.fen, '中级', true, undefined, fastTime)
+        if (requestId !== reviewGlobalRequestId.current) return
+        evaluations.push(probability(result, position.turn))
+        setGlobalAnalysisProgress(`快速扫描 ${Math.round(((step + 1) / positions.length) * 100)}%`)
+      }
+      const candidates = moves.slice(0, Math.max(0, evaluations.length - 1)).map((move, index) => ({
+        step: index + 1, move: moveNames[index] ?? move, redBefore: evaluations[index], redAfter: evaluations[index + 1], swing: Math.abs(evaluations[index + 1] - evaluations[index]),
+      })).sort((a, b) => b.swing - a.swing).slice(0, 6)
+      setGlobalAnalysisProgress('深度复核关键步')
+      const refined = []
+      for (const candidate of candidates) {
+        if (performance.now() + 1_200 >= deadline) break
+        const beforePosition = positions[candidate.step - 1]
+        const afterPosition = positions[candidate.step]
+        const [before, after] = await Promise.all([
+          getPikafishMove(beforePosition.fen, '中级', true, undefined, 450),
+          getPikafishMove(afterPosition.fen, '中级', true, undefined, 450),
+        ])
+        if (requestId !== reviewGlobalRequestId.current) return
+        const redBefore = probability(before, beforePosition.turn)
+        const redAfter = probability(after, afterPosition.turn)
+        const swing = Math.abs(redAfter - redBefore)
+        refined.push({ ...candidate, redBefore, redAfter, swing, judgment: swing >= 15 ? '关键转折' : swing >= 8 ? '局势变化' : '局面波动' })
+      }
+      const result = refined.sort((a, b) => b.swing - a.swing).filter((item) => item.swing >= 5).slice(0, 8).sort((a, b) => a.step - b.step)
+      const fallback = candidates.slice(0, 5).map((item) => ({ ...item, judgment: item.swing >= 8 ? '局势变化' : '局面波动' })).sort((a, b) => a.step - b.step)
+      setGlobalAnalysis(result.length > 0 ? result : fallback)
+      setGlobalAnalysisProgress('')
+    } catch {
+      setStatus('全局分析失败，请稍后重试。')
+      setGlobalAnalysisProgress('')
+    } finally {
+      if (requestId === reviewGlobalRequestId.current) setGlobalAnalysisLoading(false)
+    }
+  }
 
   const reviewBattle = () => {
     void speakBattleText(buildBattleReview(game.current, resigned))
@@ -1223,12 +1369,15 @@ function BattlePage({ onNavigate, reviewPage = false }: { onNavigate: (page: Pag
 
   const restart = () => {
     aiRequestId.current += 1
-    reviewRequestId.current += 1
+    reviewPositionRequestId.current += 1
+    reviewGlobalRequestId.current += 1
     setReviewAnalysis(null)
     setReviewAnalysisLoading(false)
     game.current = createBattle()
     setPieces(battlePieces(game.current))
     setHistory([])
+    sessionStorage.removeItem('zero7-battle-moves')
+    sessionStorage.removeItem('zero7-battle-resigned')
     setLastPath(null)
     if (pathTimer.current !== null) window.clearTimeout(pathTimer.current)
     pathTimer.current = null
@@ -1292,25 +1441,26 @@ function BattlePage({ onNavigate, reviewPage = false }: { onNavigate: (page: Pag
 
   const selectedPiece = selected ? pieces.find((item) => sameSquare(item, selected)) : undefined
   return (
-    <div className={`battle-page page-wrap ${reviewPage ? 'review-page' : ''}`}>
+    <div className={`battle-page page-wrap ${reviewOpen ? 'review-page' : ''}`}>
       <section className="battle-layout">
         <div className="battle-board-column">
           <div className="board-panel battle-board-panel">
             <div className="battle-move-rail" ref={moveRailRef} aria-label="对局棋谱">{Array.from({ length: Math.ceil((reviewOpen ? reviewHistory.length : history.length) / 2) }, (_, index) => <div className="battle-move-turn" key={index}><span>{index + 1}.</span><div><button className={replayStep === index * 2 + 1 ? 'move-replay active' : 'move-replay'} onClick={() => reviewOpen ? showReviewStep(index * 2 + 1) : replayMove(index * 2 + 1)}>{(reviewOpen ? reviewHistory : history)[index * 2]}</button>{(reviewOpen ? reviewHistory : history)[index * 2 + 1] && <button className={replayStep === index * 2 + 2 ? 'move-replay active' : 'move-replay'} onClick={() => reviewOpen ? showReviewStep(index * 2 + 2) : replayMove(index * 2 + 2)}>{(reviewOpen ? reviewHistory : history)[index * 2 + 1]}</button>}</div></div>)}</div>
             <ChessBoard pieces={pieces} selectedId={selectedPiece?.id ?? null} legalTargets={targets} lastPath={lastPath} onSquare={handleSquare} />
+            {reviewOpen && globalAnalysis.length > 0 && <div className="battle-key-rail" aria-label="全局分析关键步"><strong>关键步</strong>{globalAnalysis.map((item) => <button key={item.step} className="global-analysis-item" onClick={() => showReviewStep(item.step)}><span>第{item.step}步 · {item.move}</span><small>{item.judgment} · 红方 {item.redBefore}% → {item.redAfter}%</small></button>)}</div>}
           </div>
           <button className={`mobile-battle-voice ${voiceHeld ? 'listening' : ''}`} onPointerDown={(event) => { event.currentTarget.setPointerCapture?.(event.pointerId); voicePressStartedAt.current = Date.now(); setVoiceHeld(true); void startBattleVoice() }} onPointerUp={() => void stopBattleVoice()} onPointerCancel={() => void stopBattleVoice()} onContextMenu={(event) => event.preventDefault()} aria-label={voiceHeld ? '松开完成' : '按住说走法'} disabled={reviewOpen || replayStep !== null || thinking || voiceState === 'connecting' || voiceState === 'thinking' || game.current.turn() !== 'w'}><Mic /><span><strong>{voiceHeld ? '松开完成' : '按住说走法'}</strong><small>按住按钮，说完后松开</small></span></button>
         </div>
         <aside className="battle-sidebar">
-          <SideNavigation active={reviewPage ? 'review' : 'battle'} onNavigate={onNavigate} />
+          <SideNavigation active="battle" onNavigate={onNavigate} />
           {reviewOpen && <div className="battle-review-panel battle-review-rail" aria-label="复盘控制">
-            <div className="review-head"><strong>AI复盘 · 经典对局</strong></div>
-            {reviewMode === 'classic' && <><input aria-label="搜索经典对局" placeholder="搜索赛事或棋手" value={classicQuery} onChange={(event) => setClassicQuery(event.target.value)} /><select aria-label="选择经典对局" value={classicGameId} disabled={classicLoading || classicGames.length === 0} onChange={(event) => { setClassicGameId(event.target.value); setReviewHistory([]); setReviewStep(0) }}>{classicGames.map((item) => <option key={item.id} value={item.id}>{item.event} · {item.red} vs {item.black}</option>)}</select></>}
-            <div className="review-navigation"><button onClick={() => showReviewStep(reviewStep - 1)} disabled={reviewStep === 0}>上一步</button><span>{reviewStep} / {reviewMoves().length}</span><button onClick={() => showReviewStep(reviewStep + 1)} disabled={reviewStep >= reviewMoves().length}>下一步</button></div>
-            <button className="primary-button review-analyze-button" onClick={() => { setReviewAnalysisVisible((visible) => !visible); if (!reviewAnalysisVisible) void analyzeReviewStep() }} disabled={reviewAnalysisLoading}>{reviewAnalysisLoading ? '正在分析当前局面…' : reviewAnalysisVisible ? '收起局面分析' : '分析当前局面'}</button>
-            {reviewAnalysisVisible && <div className="analysis-result">{reviewAnalysisLoading && <p>正在分析当前局面…</p>}{reviewAnalysis && <><p>实战着：{reviewAnalysis.actual}</p><p>推荐着：{reviewAnalysis.recommended}</p><strong>{reviewAnalysis.comparison}</strong></>}</div>}
+            <div className="review-head"><strong>AI复盘 · 经典对局</strong><button className="secondary-button compact-action" onClick={closeReview}>返回对战</button></div>
+            {reviewMode === 'classic' && <><input aria-label="搜索经典对局" placeholder="搜索赛事或棋手" value={classicQuery} onChange={(event) => setClassicQuery(event.target.value)} /><select aria-label="选择经典对局" value={classicGameId} disabled={classicLoading || classicGames.length === 0} onChange={(event) => { setReviewPlaying(false); reviewGlobalRequestId.current += 1; setGlobalAnalysisLoading(false); setGlobalAnalysis([]); setClassicGameId(event.target.value); setReviewHistory([]); setReviewStep(0) }}>{classicGames.map((item) => <option key={item.id} value={item.id}>{item.event} · {item.red} vs {item.black}</option>)}</select></>}
+            <div className="review-navigation"><strong>{reviewStep} / {reviewMoves().length}</strong><div className="review-navigation-buttons"><button onClick={() => { setReviewPlaying(false); showReviewStep(0) }} disabled={reviewStep === 0} aria-label="开局" title="开局"><SkipBack /></button><button onClick={() => { setReviewPlaying(false); showReviewStep(reviewStep - 1) }} disabled={reviewStep === 0} aria-label="上一步" title="上一步"><ChevronLeft /></button><button onClick={() => { setReviewPlaying(false); showReviewStep(reviewStep + 1) }} disabled={reviewStep >= reviewMoves().length} aria-label="下一步" title="下一步"><ChevronRight /></button><button onClick={() => { setReviewPlaying(false); showReviewStep(reviewMoves().length) }} disabled={reviewStep >= reviewMoves().length} aria-label="终局" title="终局"><SkipForward /></button><button onClick={() => setReviewPlaying((playing) => !playing)} disabled={reviewStep >= reviewMoves().length} aria-label={reviewPlaying ? '停止自动播放' : '自动播放'} title={reviewPlaying ? '停止自动播放' : '自动播放'}>{reviewPlaying ? <Pause /> : <Play />}</button></div></div>
+            <div className="review-analysis-card"><div className="review-analysis-heading"><strong>局面分析</strong>{reviewAnalysisLoading && <span>正在更新分析…</span>}</div><button className="primary-button review-analyze-button" onClick={() => { const visible = !reviewAnalysisVisible; setReviewAnalysisVisible(visible); sessionStorage.setItem('zero7-review-analysis-visible', String(visible)) }} >{reviewAnalysisVisible ? '收起局面分析' : '展开局面分析'}</button>{reviewAnalysisVisible && <div className="analysis-result review-analysis-result">{reviewAnalysis && <><div className="probability-row"><span>红方 {reviewAnalysis.red}%</span><span>黑方 {reviewAnalysis.black}%</span></div><div className="probability-bar"><i style={{ width: `${reviewAnalysis.red}%` }} /></div><p>实战着：{reviewAnalysis.actual}</p><p>实战目的：{reviewAnalysis.actualPurpose}</p>{reviewStep >= 2 && !reviewAnalysis.sameMove && <><p>推荐着：{reviewAnalysis.recommended}</p><p>推荐目的：{reviewAnalysis.recommendedPurpose}</p></>}</>}</div>}</div>
+            <div className="review-global-card"><strong>全局分析</strong><button className="secondary-button review-global-button" onClick={() => void analyzeGlobalReview()} disabled={globalAnalysisLoading}>{globalAnalysisLoading ? (globalAnalysisProgress || '正在进行全局分析…') : '分析关键步'}</button></div>
           </div>}
-          {!reviewPage && <><div className="battle-card engine-card"><div className="battle-side-actions"><div className="difficulty-inline" aria-label="选择棋力">{(['入门', '初级', '中级'] as const).map((item) => <button key={item} className={difficulty === item ? 'active' : ''} onClick={() => setDifficulty(item)} aria-describedby={`difficulty-${item}`} data-tooltip={difficultyDescriptions[item]}>{item}</button>)}</div><span className="visually-hidden" id="difficulty-入门">{difficultyDescriptions.入门}</span><span className="visually-hidden" id="difficulty-初级">{difficultyDescriptions.初级}</span><span className="visually-hidden" id="difficulty-中级">{difficultyDescriptions.中级}</span><button className="secondary-button battle-restart-button" onClick={restart}><RotateCcw /> 重开一局</button></div><span className="visually-hidden" aria-live="polite">{engineName}</span></div>
+          {!reviewOpen && <><div className="battle-card engine-card"><div className="battle-side-actions"><div className="difficulty-inline" aria-label="选择棋力">{(['入门', '初级', '中级'] as const).map((item) => <button key={item} className={difficulty === item ? 'active' : ''} onClick={() => setDifficulty(item)} aria-describedby={`difficulty-${item}`} data-tooltip={difficultyDescriptions[item]}>{item}</button>)}</div><span className="visually-hidden" id="difficulty-入门">{difficultyDescriptions.入门}</span><span className="visually-hidden" id="difficulty-初级">{difficultyDescriptions.初级}</span><span className="visually-hidden" id="difficulty-中级">{difficultyDescriptions.中级}</span><button className="secondary-button battle-restart-button" onClick={restart}><RotateCcw /> 重开一局</button></div><span className="visually-hidden" aria-live="polite">{engineName}</span></div>
           <div className="battle-card battle-voice-card">
             {!['轮到红方走棋', `${BATTLE_RULES.brandName}正在思考…`, '轮到你继续走棋。'].includes(status) && <p className="battle-message">{status}</p>}
             <div className="coach-head compact"><div className="coach-avatar small">象</div><div><strong>语音走棋与讲解</strong><span>{voiceStateLabel(voiceState)}</span></div><span className={`connection-dot ${voiceState}`} /></div>
@@ -1319,9 +1469,10 @@ function BattlePage({ onNavigate, reviewPage = false }: { onNavigate: (page: Pag
           </div>
 
           {replayStep !== null && <button className="secondary-button full" onClick={returnToCurrentPosition}>返回当前局面</button>}
-          <div className="battle-actions"><button className="secondary-button" onClick={undo} disabled={thinking || history.length === 0}><RotateCcw /> 悔棋</button><button className="secondary-button" onClick={() => { if (turnReminderTimer.current !== null) window.clearTimeout(turnReminderTimer.current); turnReminderTimer.current = null; setResigned(true); setStatus(`你已认输，本局由 ${BATTLE_RULES.brandName} 获胜。`) }}>认输</button></div>
-          {engineStatus === 'pikafish' && <div className="battle-card analysis-card"><button className="secondary-button full compact-action" onClick={() => { if (analysisVisible) setAnalysisVisible(false); else { setAnalysisVisible(true); if (!analysis) void analyzePosition() } }} disabled={replayStep !== null}><Target /> {analysisLoading ? '正在分析…' : analysisVisible ? '收起局面分析' : '局面分析'}</button>{analysisVisible && (analysis || analysisLoading) && <div className="analysis-result">{analysis ? <><div className="probability-row"><span>红方 {analysis.red}%</span><span>黑方 {analysis.black}%</span></div><div className="probability-bar"><i style={{ width: `${analysis.red}%` }} /></div><div className="analysis-recommendation"><strong>推荐走法：{analysis.move}</strong></div><p>{analysis.explanation}</p></> : <p>正在分析当前局面…</p>}</div>}</div>}
+          <div className="battle-actions"><button className="secondary-button" onClick={undo} disabled={thinking || history.length === 0}><RotateCcw /> 悔棋</button><button className="secondary-button" onClick={() => { if (turnReminderTimer.current !== null) window.clearTimeout(turnReminderTimer.current); turnReminderTimer.current = null; setResigned(true); sessionStorage.setItem('zero7-battle-resigned', 'true'); setStatus(`你已认输，本局由 ${BATTLE_RULES.brandName} 获胜。`) }}>认输</button></div>
+          {!reviewOpen && engineStatus === 'pikafish' && <div className="battle-card analysis-card"><button className="secondary-button full compact-action" onClick={() => { if (analysisVisible) setAnalysisVisible(false); else { setAnalysisVisible(true); if (!analysis) void analyzePosition() } }} disabled={replayStep !== null}><Target /> {analysisLoading ? '正在分析…' : analysisVisible ? '收起局面分析' : '局面分析'}</button>{analysisVisible && (analysis || analysisLoading) && <div className="analysis-result">{analysis ? <><div className="probability-row"><span>红方 {analysis.red}%</span><span>黑方 {analysis.black}%</span></div><div className="probability-bar"><i style={{ width: `${analysis.red}%` }} /></div><div className="analysis-recommendation"><strong>推荐走法：{analysis.move}</strong></div><p>{analysis.explanation}</p></> : <p>正在分析当前局面…</p>}</div>}</div>}
           {(resigned || game.current.isGameOver()) && <button className="secondary-button full review-button" onClick={reviewBattle}><Volume2 /> 语音总结</button>}
+          <button className="secondary-button full review-button" onClick={openReview}><BookOpen /> AI复盘</button>
           </>}
         </aside>
       </section>
