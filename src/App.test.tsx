@@ -175,6 +175,51 @@ describe('ZERO7', () => {
     expect(screen.getByRole('button', { name: '跳过这题' })).toBeEnabled()
   })
 
+  it('多步杀使用目标深度验证并朗读双方走法', async () => {
+    const engine = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      expect(JSON.parse(String(init?.body))).toMatchObject({ mateDepth: 2 })
+      return new Response(JSON.stringify({ move: 'c5a7', terminal: false, engine: 'Pikafish Test', level: '初级', score: { type: 'mate', value: -2 } }), { status: 200 })
+    })
+    vi.stubGlobal('fetch', engine)
+    render(<App initialLevels={testLevels} />)
+    fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
+    fireEvent.change(screen.getByLabelText('杀棋类型'), { target: { value: 'mate2' } })
+    const level = testLevels.find((item) => item.mode === 'mate2')!
+    clickBoardSquare(level.move.from.row, level.move.from.col)
+    clickBoardSquare(level.move.to.row, level.move.to.col)
+    expect(await screen.findByText(/零七走了象３退１，继续完成二步杀/)).toBeInTheDocument()
+    await waitFor(() => {
+      expect(voiceMock.instances.some((client) => client.speakText.mock.calls.some(([text]) => text === level.answer))).toBe(true)
+      expect(voiceMock.instances.some((client) => client.speakText.mock.calls.some(([text]) => text === '象３退１'))).toBe(true)
+    })
+  })
+
+  it('N步杀使用二十步搜索上限', async () => {
+    const engine = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      expect(JSON.parse(String(init?.body))).toMatchObject({ mateDepth: 20 })
+      return new Response(JSON.stringify({ move: null, terminal: true, engine: 'Pikafish Test', level: '初级', score: null }), { status: 200 })
+    })
+    vi.stubGlobal('fetch', engine)
+    render(<App initialLevels={testLevels} />)
+    fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
+    fireEvent.change(screen.getByLabelText('杀棋类型'), { target: { value: 'mateN' } })
+    const level = testLevels.find((item) => item.mode === 'mateN')!
+    clickBoardSquare(level.move.from.row, level.move.from.col)
+    clickBoardSquare(level.move.to.row, level.move.to.col)
+    await waitFor(() => expect(engine).toHaveBeenCalled())
+  })
+
+  it('走棋 TTS 失败时保留棋局并显示错误', async () => {
+    voiceMock.speakError = new Error('走棋朗读失败')
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ move: 'g2g1', terminal: false, engine: 'Pikafish Test', level: '初级', score: null }), { status: 200 })))
+    render(<App initialLevels={testLevels} />)
+    fireEvent.click(screen.getAllByRole('button', { name: /杀棋训练/ })[0])
+    clickBoardSquare(9, 2)
+    clickBoardSquare(7, 4)
+    expect(await screen.findByRole('status')).toHaveTextContent('走棋朗读失败')
+    expect(screen.getByLabelText('残局棋谱')).toHaveTextContent('相七进五')
+  })
+
   it('候选答案有合法应手时让引擎应对并继续棋局', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ move: 'g2g1', terminal: false, engine: 'Pikafish Test', level: '初级', score: null }), { status: 200 })))
     render(<App initialLevels={[defendedCandidateLevel, ...testLevels.slice(1)]} />)
