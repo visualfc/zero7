@@ -547,7 +547,7 @@ describe('ZERO7', () => {
     expect(await screen.findByText('基础 AI（Pikafish 未安装）')).toBeInTheDocument()
     expect(screen.queryByText('轮到红方走棋')).not.toBeInTheDocument()
     expect(screen.getByText(/按住语音按钮，说出“/)).toBeInTheDocument()
-    expect(screen.getByText('也可以按住空格键进行语音输入')).toBeInTheDocument()
+    expect(screen.getByText('按钮或空格键均可')).toBeInTheDocument()
     expect(screen.getAllByRole('button', { name: /按住说走法/ })).toHaveLength(2)
     expect(screen.getAllByRole('button', { name: /按住说走法/ })[0]).toBeEnabled()
     expect(screen.getByRole('button', { name: '重开一局' })).toBeInTheDocument()
