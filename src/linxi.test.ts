@@ -127,6 +127,20 @@ describe('灵矽语音客户端', () => {
     expect(socket.close).toHaveBeenCalled()
   })
 
+  it('自动断开时停止结束语和后续音频', async () => {
+    const events: LinxiEvent[] = []
+    const client = new LinxiVoiceClient((event) => events.push(event))
+    const starting = client.start(); await ready(); await starting
+    const socket = FakeWebSocket.instances[0]
+    socket.message(JSON.stringify({ type: 'tts', state: 'start' }))
+    socket.message(JSON.stringify({ type: 'tts', state: 'sentence_start', text: '时间过得真快，转眼间又到了告别的时候。' }))
+    socket.message(new Int16Array([1, 2]).buffer)
+    socket.message(JSON.stringify({ type: 'disconnected' }))
+    await Promise.resolve()
+    expect(events.some((event) => event.type === 'reply')).toBe(false)
+    expect(events).toContainEqual({ type: 'error', text: '灵矽连接已断开，请重新按住语音按钮' })
+  })
+
   it('报告服务端错误和断线', async () => {
     const events: LinxiEvent[] = []
     const client = new LinxiVoiceClient((event) => events.push(event))

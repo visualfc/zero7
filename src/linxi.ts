@@ -29,6 +29,7 @@ export class LinxiVoiceClient {
   private state: LinxiState = 'idle'
   private playbackDone: Promise<void> | null = null
   private resolvePlaybackDone: (() => void) | null = null
+  private suppressCurrentSpeech = false
   private readonly emit: (event: LinxiEvent) => void
 
   constructor(emit: (event: LinxiEvent) => void) {
@@ -91,6 +92,7 @@ export class LinxiVoiceClient {
 
   disconnect() {
     this.clearRecognitionTimeout()
+    this.suppressCurrentSpeech = true
     this.stopCapture()
     void this.player.dispose()
     this.socket?.close()
@@ -111,6 +113,7 @@ export class LinxiVoiceClient {
 
       socket.onmessage = (event) => {
         if (event.data instanceof ArrayBuffer) {
+          if (this.suppressCurrentSpeech) return
           void this.player.enqueue(event.data).catch(() => {
             this.emit({ type: 'error', text: '零七的语音播放失败，请重试' })
           })
@@ -129,11 +132,21 @@ export class LinxiVoiceClient {
         } else if (message.type === 'tts') {
           if (message.state === 'start') {
             this.clearRecognitionTimeout()
+            this.suppressCurrentSpeech = false
             this.setState('speaking')
             void this.player.startStream()
           }
           if (message.state === 'sentence_start' && message.text) {
-            this.emit({ type: 'reply', text: message.text })
+            if (/时间过得真快|转眼间|期待和你下次对弈|期待和你下次再对弈/.test(message.text)) {
+              this.suppressCurrentSpeech = true
+              void this.player.stop()
+              this.resolvePlaybackDone?.()
+              this.resolvePlaybackDone = null
+              this.playbackDone = null
+              this.setState('ready')
+            } else if (!this.suppressCurrentSpeech) {
+              this.emit({ type: 'reply', text: message.text })
+            }
           }
           if (message.state === 'stop') {
             this.clearRecognitionTimeout()
@@ -153,11 +166,21 @@ export class LinxiVoiceClient {
           this.emit({ type: 'error', text: error.message })
           reject(error)
         } else if (message.type === 'disconnected') {
+          this.suppressCurrentSpeech = true
+          void this.player.stop()
+          this.resolvePlaybackDone?.()
+          this.resolvePlaybackDone = null
+          this.playbackDone = null
           this.setState('error')
           this.emit({ type: 'error', text: '灵矽连接已断开，请重新按住语音按钮' })
         }
       }
       socket.onclose = () => {
+        this.suppressCurrentSpeech = true
+        void this.player.stop()
+        this.resolvePlaybackDone?.()
+        this.resolvePlaybackDone = null
+        this.playbackDone = null
         if (this.state !== 'idle') {
           this.setState('error')
           this.emit({ type: 'error', text: '灵矽连接已断开，请重新按住语音按钮' })
