@@ -9,7 +9,7 @@
 ## 棋盘预览
 
 <p align="center">
-  <img src="./docs/images/board-desktop.png" alt="零七杀棋训练棋盘" width="720" />
+  <img src="./docs/images/board-mobile.jpg" alt="零七移动端棋盘与语音输入" width="360" />
 </p>
 
 ## 核心功能
