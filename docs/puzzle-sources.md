@@ -26,6 +26,12 @@ ChessDB 使用独立的 `chessdb-verifications.json` 离线报告。运行 `npm 
 
 `data/puzzles/*.json` 是受 Git 管理的唯一源数据，用于审查、追溯和重新导入。`npm run puzzles:import` 校验全部 FEN 和答案后生成 `server/data/puzzles.sqlite`。SQLite 是忽略提交的运行时产物，后端也会在数据库缺失或 JSON 更新时自动重建。浏览器通过 `/api/puzzles` 分页查询 SQLite，不直接打包 JSON 数据。
 
+## 数据生命周期
+
+新增题库或经典棋局时，先保存原始文件和许可证信息，再通过导入器完成格式、合法着、身份和重复记录校验。SQLite 只作为可重建的运行时索引；任何人工修正都必须回到 JSON 源数据，不能直接修改 SQLite。
+
+题库导入和经典棋局导入都应保留可复现的验证步骤。验证失败的记录进入报告并停止发布，不能通过删除字段或猜测姓名来绕过校验。未来新增来源的评估标准和导入顺序记录在 [路线图](./roadmap.md) 中。
+
 ## 数据要求
 
 每道题必须满足：

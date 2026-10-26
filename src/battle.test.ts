@@ -29,9 +29,11 @@ describe('完整人机对战规则', () => {
     const game = createBattle()
     expect(findVoiceMove(game, '我走马二进三。')?.lan).toBe('h0g2')
     expect(findVoiceMove(game, '马二进三。')?.lan).toBe('h0g2')
+    expect(findVoiceMove(game, '去一进二')?.lan).toBe('i0i2')
+    expect(findVoiceMove(game, '车1进2')?.lan).toBe('i0i2')
     expect(findVoiceMove(game, '马二进五')).toBeNull()
     expect(isChessMoveTranscript('马二进五')).toBe(true)
-    expect(isChessMoveTranscript('去2借5')).toBe(false)
+    expect(isChessMoveTranscript('天气很好')).toBe(false)
   })
 
   it('每次语音授权只允许消费一个识别结果', () => {
