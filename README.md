@@ -9,7 +9,8 @@
 ## 棋盘预览
 
 <p align="center">
-  <img src="./docs/images/board-mobile.jpg" alt="零七移动端棋盘与语音输入" width="360" />
+  <img src="./docs/images/board-desktop.png" alt="零七桌面端棋盘与语音输入" width="640" />
+  <img src="./docs/images/board-mobile.jpg" alt="零七移动端棋盘与语音输入" width="180" />
 </p>
 
 ## 核心功能
