@@ -770,7 +770,7 @@ function LessonPage(props: {
               </div>
               {props.page === 'endgame' ? (
                 <div className="lesson-card hint-card endgame-analysis-card">
-                  <button className="secondary-button compact-action" onClick={props.onToggleEndgameAnalysis}><Target /> {props.endgameAnalysisVisible ? '收起引擎讲解' : '展开引擎讲解'}</button>
+                  <button className="secondary-button compact-action" onClick={props.onToggleEndgameAnalysis} onKeyDown={(event) => { if (event.code === 'Space') event.preventDefault() }} onKeyUp={(event) => { if (event.code === 'Space') event.preventDefault() }}><Target /> {props.endgameAnalysisVisible ? '收起引擎讲解' : '展开引擎讲解'}</button>
                   {props.endgameAnalysisVisible && (props.endgameAnalysisLoading || props.endgameAnalysis) && (
                     <div className="analysis-result">
                       {props.endgameAnalysis ? <><div className="analysis-recommendation"><strong>推荐走法：{props.endgameAnalysis.move}</strong><button className="analysis-speak-button" onClick={props.onSpeakEndgameAnalysis} aria-label="语音讲解残局推荐" title="语音讲解残局推荐"><Volume2 /></button></div><p>{props.endgameAnalysis.evaluation}</p><p>{props.endgameAnalysis.explanation}</p></> : <p>正在分析当前残局…</p>}

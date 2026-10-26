@@ -187,7 +187,7 @@ describe('ZERO7', () => {
     expect(screen.getByRole('button', { name: /收起引擎讲解/ })).toBeInTheDocument()
     expect(document.activeElement).not.toBe(collapse)
     expect(screen.getAllByRole('button', { name: /松开完成/ })[0]).toBeInTheDocument()
-    fireEvent.keyUp(window, { code: 'Space', key: ' ' })
+    fireEvent.keyUp(collapse, { code: 'Space', key: ' ' })
     expect(screen.getByRole('button', { name: /收起引擎讲解/ })).toBeInTheDocument()
   })
 
