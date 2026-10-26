@@ -14,6 +14,14 @@
   <img src="./docs/images/board-mobile.jpg" alt="零七移动端棋盘与语音输入" width="180" />
 </p>
 
+## 演示视频
+
+<p align="center">
+  <a href="./docs/movie/demo.mov">▶ 点击观看 ZERO7 操作演示</a>
+</p>
+
+> GitHub 无法在 README 中直接播放 `.mov` 时，请点击链接打开或下载视频。
+
 ## 核心功能
 
 ### 人机对战
