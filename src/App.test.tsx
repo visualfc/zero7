@@ -22,7 +22,7 @@ const puzzleMock = vi.hoisted(() => ({ fetch: vi.fn() }))
 vi.mock('./puzzles', async (importOriginal) => ({ ...await importOriginal<typeof import('./puzzles')>(), fetchPuzzleLibrary: puzzleMock.fetch }))
 
 const voiceMock = vi.hoisted(() => ({
-  instances: [] as Array<{ emit: (event: { type: string; state?: string; text?: string }) => void; currentState: string; start: ReturnType<typeof vi.fn>; stop: ReturnType<typeof vi.fn>; speakText: ReturnType<typeof vi.fn>; waitForPlayback: ReturnType<typeof vi.fn>; disconnect: ReturnType<typeof vi.fn> }>,
+  instances: [] as Array<{ emit: (event: { type: string; state?: string; text?: string }) => void; currentState: string; isConnected: boolean; start: ReturnType<typeof vi.fn>; stop: ReturnType<typeof vi.fn>; speakText: ReturnType<typeof vi.fn>; waitForPlayback: ReturnType<typeof vi.fn>; disconnect: ReturnType<typeof vi.fn> }>,
   startError: null as Error | null,
   speakError: null as Error | null,
   playbackHangs: false,
@@ -31,12 +31,13 @@ const voiceMock = vi.hoisted(() => ({
 vi.mock('./linxi', () => ({
   LinxiVoiceClient: class {
     currentState = 'idle'
-    start = vi.fn(async () => { if (voiceMock.startError) throw voiceMock.startError; this.currentState = 'listening'; this.emit({ type: 'state', state: 'listening' }) })
+    isConnected = false
+    start = vi.fn(async () => { if (voiceMock.startError) throw voiceMock.startError; this.currentState = 'listening'; this.isConnected = true; this.emit({ type: 'state', state: 'listening' }) })
     stop = vi.fn(async () => { this.currentState = 'thinking'; this.emit({ type: 'state', state: 'thinking' }) })
     prepareAudio = vi.fn(async () => undefined)
     speakText = vi.fn(async () => { if (voiceMock.speakError) throw voiceMock.speakError })
     waitForPlayback = vi.fn(async () => { if (voiceMock.playbackHangs) await new Promise(() => {}) })
-    disconnect = vi.fn(() => { this.currentState = 'idle' })
+    disconnect = vi.fn(() => { this.currentState = 'idle'; this.isConnected = false })
     emit: (event: { type: string; state?: string; text?: string }) => void
     constructor(emit: (event: { type: string; state?: string; text?: string }) => void) { this.emit = emit; voiceMock.instances.push(this) }
   },
@@ -133,8 +134,8 @@ describe('ZERO7', () => {
   it('残局页面使用 Pikafish 显示并朗读当前局面讲解', async () => {
     vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       if (String(input).endsWith('/warmup')) return new Response(null, { status: 204 })
-      expect(JSON.parse(String(init?.body))).toMatchObject({ level: '中级', analysis: true })
-      return new Response(JSON.stringify({ move: 'h0e0', engine: 'Pikafish Test', level: '中级', score: { type: 'cp', value: 180 } }), { status: 200 })
+      expect(JSON.parse(String(init?.body))).toMatchObject({ level: '大师', analysis: true })
+      return new Response(JSON.stringify({ move: 'h0e0', engine: 'Pikafish Test', level: '大师', score: { type: 'cp', value: 180 } }), { status: 200 })
     }))
     render(<App initialLevels={testLevels} />)
     fireEvent.click(screen.getAllByRole('button', { name: '残局训练' })[0])
@@ -187,7 +188,7 @@ describe('ZERO7', () => {
     expect(screen.getByRole('button', { name: /收起引擎讲解/ })).toBeInTheDocument()
     expect(document.activeElement).not.toBe(collapse)
     expect(screen.getAllByRole('button', { name: /松开完成/ })[0]).toBeInTheDocument()
-    fireEvent.keyUp(window, { code: 'Space', key: ' ' })
+    fireEvent.keyUp(collapse, { code: 'Space', key: ' ' })
     expect(screen.getByRole('button', { name: /收起引擎讲解/ })).toBeInTheDocument()
   })
 
@@ -786,7 +787,8 @@ describe('ZERO7', () => {
     vi.stubGlobal('fetch', vi.fn(async (input: string | URL | Request, options?: RequestInit) => {
       if (String(input).includes('/status')) return new Response(JSON.stringify({ available: true, name: 'Pikafish Test' }), { status: 200 })
       expect(options?.body).toContain('"analysis":true')
-      return new Response(JSON.stringify({ move: 'h0g2', score: { type: 'cp', value: 180 }, engine: 'Pikafish Test', level: '初级' }), { status: 200 })
+      expect(options?.body).toContain('"level":"大师"')
+      return new Response(JSON.stringify({ move: 'h0g2', score: { type: 'cp', value: 180 }, engine: 'Pikafish Test', level: '大师' }), { status: 200 })
     }))
     render(<App initialLevels={testLevels} />)
     fireEvent.click(screen.getAllByRole('button', { name: /人机对战/ })[0])

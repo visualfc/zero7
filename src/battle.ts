@@ -1,6 +1,7 @@
 import { Chess, type Move, type Square as EngineSquare } from '@weshell/xiangqi.js'
-import { normalizeMoveText, type Piece, type PieceKind, type Square } from './chess'
+import { looksLikeChessMove, normalizeMoveText, notationMatchesSpeech, type Piece, type PieceKind, type Square } from './chess'
 import { BATTLE_RULES } from './battle-rules'
+import type { EngineLevel } from './pikafish'
 
 const pieceNames = {
   w: { k: '帅', a: '仕', b: '相', n: '马', r: '车', c: '炮', p: '兵' },
@@ -75,17 +76,19 @@ export function makeBattleMove(game: Chess, from: Square, to: Square) {
 }
 
 export function findVoiceMove(game: Chess, transcript: string) {
-  const normalized = normalizeMoveText(transcript)
   const moves = game.moves({ verbose: true }) as Move[]
-  return moves.find((move) => {
+  const matches = moves.filter((move) => notationMatchesSpeech(transcript, move.zh))
+  if (matches.length === 1) return matches[0]
+  if (matches.length === 0) return null
+  const normalized = normalizeMoveText(transcript)
+  return matches.find((move) => {
     const notation = normalizeMoveText(move.zh)
     return normalized === notation || normalized.includes(notation)
   }) ?? null
 }
 
 export function isChessMoveTranscript(transcript: string) {
-  const normalized = normalizeMoveText(transcript)
-  return /^[车马炮兵卒相象仕士帅将进退平一二三四五六七八九前后中左右上下到]/.test(normalized)
+  return looksLikeChessMove(transcript)
 }
 
 export class VoiceMoveAuthorization {
@@ -106,17 +109,18 @@ export class VoiceMoveAuthorization {
   }
 }
 
-export function chooseAiMove(game: Chess, difficulty: '入门' | '初级' | '中级' = '初级') {
+export function chooseAiMove(game: Chess, difficulty: EngineLevel = '初级') {
   const moves = game.moves({ verbose: true }) as Move[]
   if (moves.length === 0) return null
-  if (difficulty === '入门') return moves[Math.floor(Math.random() * moves.length)]
+  if (difficulty === '初级') return moves[Math.floor(Math.random() * moves.length)]
 
+  const noise = difficulty === '大师' ? 0 : difficulty === '高级' ? 30 : 180
   const scored = moves.map((move) => ({
     move,
-    score: (move.captured ? values[move.captured] : 0) + (move.isCheckmate ? 100000 : 0) + (move.isCheck ? 500 : 0) + Math.random() * (difficulty === '中级' ? 30 : 180),
+    score: (move.captured ? values[move.captured] : 0) + (move.isCheckmate ? 100000 : 0) + (move.isCheck ? 500 : 0) + Math.random() * noise,
   }))
   scored.sort((left, right) => right.score - left.score)
-  const range = difficulty === '中级' ? 2 : Math.min(5, scored.length)
+  const range = difficulty === '大师' ? 1 : difficulty === '高级' ? 2 : Math.min(5, scored.length)
   return scored[Math.floor(Math.random() * range)].move
 }
 

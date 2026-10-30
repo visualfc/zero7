@@ -16,6 +16,8 @@ interface LinxiMessage {
   is_aborted?: boolean
 }
 
+const PLAYBACK_WATCHDOG_MS = 12000
+
 export class LinxiVoiceClient {
   private socket: WebSocket | null = null
   private stream: MediaStream | null = null
@@ -26,23 +28,26 @@ export class LinxiVoiceClient {
   private frameBuffer = new PcmFrameBuffer(320)
   private player = new LingxiAudioPlayer()
   private recognitionTimer: number | null = null
+  private playbackTimer: number | null = null
+  private ttsStreamReady: Promise<void> = Promise.resolve()
   private state: LinxiState = 'idle'
   private playbackDone: Promise<void> | null = null
   private resolvePlaybackDone: (() => void) | null = null
+  private suppressCurrentSpeech = false
+  private acceptTranscript = false
   private readonly emit: (event: LinxiEvent) => void
 
   constructor(emit: (event: LinxiEvent) => void) {
     this.emit = emit
-    this.player.setPlaybackEndHandler(() => {
-      this.resolvePlaybackDone?.()
-      this.resolvePlaybackDone = null
-      this.playbackDone = null
-      if (this.state === 'speaking') this.setState('ready')
-    })
+    this.player.setPlaybackEndHandler(() => this.endPlayback())
   }
 
   get currentState() {
     return this.state
+  }
+
+  get isConnected() {
+    return this.socket?.readyState === WebSocket.OPEN
   }
 
   async start() {
@@ -55,8 +60,10 @@ export class LinxiVoiceClient {
       audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true, autoGainControl: true },
     })
 
+    await this.player.prepare()
     await this.connect()
     await this.startCapture()
+    this.acceptTranscript = true
     this.socket?.send(JSON.stringify({ type: 'listen', state: 'start' }))
     this.setState('listening')
   }
@@ -67,11 +74,16 @@ export class LinxiVoiceClient {
 
   async speakText(text: string) {
     await this.prepareAudio()
+    this.acceptTranscript = false
+    this.suppressCurrentSpeech = false
+    this.endPlayback()
+    if (this.socket && this.socket.readyState !== WebSocket.OPEN) this.abandonSocket(this.socket)
     if (this.socket?.readyState !== WebSocket.OPEN) {
       this.setState('connecting')
       await this.connect()
     }
     this.playbackDone = new Promise<void>((resolve) => { this.resolvePlaybackDone = resolve })
+    this.startPlaybackWatchdog()
     this.socket?.send(JSON.stringify({ type: 'speak', text }))
   }
 
@@ -91,15 +103,18 @@ export class LinxiVoiceClient {
 
   disconnect() {
     this.clearRecognitionTimeout()
+    this.clearPlaybackWatchdog()
+    this.suppressCurrentSpeech = true
     this.stopCapture()
     void this.player.dispose()
-    this.socket?.close()
-    this.socket = null
+    this.endPlayback()
+    this.abandonSocket(this.socket)
     this.setState('idle')
   }
 
   private connect() {
     return new Promise<void>((resolve, reject) => {
+      this.abandonSocket(this.socket)
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
       const socket = new WebSocket(`${protocol}//${window.location.host}/linxi`)
       socket.binaryType = 'arraybuffer'
@@ -110,7 +125,9 @@ export class LinxiVoiceClient {
       }, 10000)
 
       socket.onmessage = (event) => {
+        if (this.socket !== socket) return
         if (event.data instanceof ArrayBuffer) {
+          if (this.suppressCurrentSpeech) return
           void this.player.enqueue(event.data).catch(() => {
             this.emit({ type: 'error', text: '零七的语音播放失败，请重试' })
           })
@@ -123,29 +140,39 @@ export class LinxiVoiceClient {
           this.setState('ready')
           resolve()
         } else if (message.type === 'stt' && message.text) {
+          if (!this.acceptTranscript) return
+          this.acceptTranscript = false
           this.clearRecognitionTimeout()
           this.setState('thinking')
           this.emit({ type: 'transcript', text: message.text })
         } else if (message.type === 'tts') {
           if (message.state === 'start') {
             this.clearRecognitionTimeout()
+            this.suppressCurrentSpeech = false
             this.setState('speaking')
-            void this.player.startStream()
+            this.ttsStreamReady = this.player.startStream()
           }
           if (message.state === 'sentence_start' && message.text) {
-            this.emit({ type: 'reply', text: message.text })
+            if (/时间过得真快|转眼间|期待和你下次对弈|期待和你下次再对弈/.test(message.text)) {
+              this.suppressCurrentSpeech = true
+              void this.player.stop()
+              this.endPlayback()
+            } else if (!this.suppressCurrentSpeech) {
+              this.emit({ type: 'reply', text: message.text })
+            }
           }
           if (message.state === 'stop') {
             this.clearRecognitionTimeout()
-            if (message.is_aborted) {
-              void this.player.stop()
-              this.resolvePlaybackDone?.()
-              this.resolvePlaybackDone = null
-              this.playbackDone = null
-              this.setState('ready')
-            } else {
-              this.player.finishStream()
-            }
+            const aborted = message.is_aborted === true
+            void this.ttsStreamReady.then(() => {
+              if (this.socket !== socket) return
+              if (aborted) {
+                void this.player.stop()
+                this.endPlayback()
+              } else {
+                this.player.finishStream()
+              }
+            })
           }
         } else if (message.type === 'error') {
           this.clearRecognitionTimeout()
@@ -153,11 +180,18 @@ export class LinxiVoiceClient {
           this.emit({ type: 'error', text: error.message })
           reject(error)
         } else if (message.type === 'disconnected') {
+          this.suppressCurrentSpeech = true
+          void this.player.stop()
+          this.endPlayback()
           this.setState('error')
           this.emit({ type: 'error', text: '灵矽连接已断开，请重新按住语音按钮' })
         }
       }
       socket.onclose = () => {
+        if (this.socket !== socket) return
+        this.suppressCurrentSpeech = true
+        void this.player.stop()
+        this.endPlayback()
         if (this.state !== 'idle') {
           this.setState('error')
           this.emit({ type: 'error', text: '灵矽连接已断开，请重新按住语音按钮' })
@@ -168,6 +202,41 @@ export class LinxiVoiceClient {
         reject(new Error('无法连接本地灵矽桥接服务'))
       }
     })
+  }
+
+  private abandonSocket(socket: WebSocket | null) {
+    if (!socket) {
+      this.socket = null
+      return
+    }
+    socket.onclose = null
+    socket.onmessage = null
+    socket.onerror = null
+    socket.close()
+    if (this.socket === socket) this.socket = null
+  }
+
+  private endPlayback() {
+    this.clearPlaybackWatchdog()
+    const resolve = this.resolvePlaybackDone
+    this.resolvePlaybackDone = null
+    this.playbackDone = null
+    resolve?.()
+    if (this.state === 'speaking') this.setState('ready')
+  }
+
+  private startPlaybackWatchdog() {
+    this.clearPlaybackWatchdog()
+    this.playbackTimer = window.setTimeout(() => {
+      this.playbackTimer = null
+      this.player.finishStream()
+      this.endPlayback()
+    }, PLAYBACK_WATCHDOG_MS)
+  }
+
+  private clearPlaybackWatchdog() {
+    if (this.playbackTimer !== null) window.clearTimeout(this.playbackTimer)
+    this.playbackTimer = null
   }
 
   private async startCapture() {

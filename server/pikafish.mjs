@@ -158,7 +158,8 @@ function parseAnalysisScore(lines) {
 }
 
 function levelOptions(level) {
-  if (level === '入门') return { skill: 0, limitStrength: 'true', elo: 1280, moveTime: 250 }
+  if (level === '大师') return { skill: 20, limitStrength: 'false', moveTime: 3000 }
+  if (level === '高级') return { skill: 15, limitStrength: 'true', elo: 2600, moveTime: 2000 }
   if (level === '中级') return { skill: 10, limitStrength: 'true', elo: 1900, moveTime: 800 }
   return { skill: 5, limitStrength: 'true', elo: 1500, moveTime: 450 }
 }

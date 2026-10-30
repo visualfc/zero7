@@ -4,9 +4,10 @@ import { commandHelp, normalizeVoiceCommandText, parseVoiceCommand } from './voi
 describe('全局语音指令', () => {
   it('解析页面和对战指令', () => {
     expect(parseVoiceCommand('开始人机对战')).toEqual({ type: 'battle.start' })
-    expect(parseVoiceCommand('换成入门')).toEqual({ type: 'battle.start', level: '入门' })
     expect(parseVoiceCommand('换成初级')).toEqual({ type: 'battle.start', level: '初级' })
     expect(parseVoiceCommand('换成中级')).toEqual({ type: 'battle.start', level: '中级' })
+    expect(parseVoiceCommand('换成高级')).toEqual({ type: 'battle.start', level: '高级' })
+    expect(parseVoiceCommand('换成大师')).toEqual({ type: 'battle.start', level: '大师' })
     expect(parseVoiceCommand('悔棋')).toEqual({ type: 'battle.undo' })
     expect(parseVoiceCommand('重开一局')).toEqual({ type: 'battle.restart' })
     expect(parseVoiceCommand('认输')).toEqual({ type: 'battle.resign' })
@@ -34,6 +35,8 @@ describe('全局语音指令', () => {
   it('解析棋步、帮助和未知内容', () => {
     expect(parseVoiceCommand('马二进三。')).toEqual({ type: 'move', text: '马二进三。' })
     expect(parseVoiceCommand('车一平二')).toEqual({ type: 'move', text: '车一平二' })
+    expect(parseVoiceCommand('泡五瓶二。')).toEqual({ type: 'move', text: '泡五瓶二。' })
+    expect(parseVoiceCommand('居酒平吧。')).toEqual({ type: 'move', text: '居酒平吧。' })
     expect(parseVoiceCommand('我可以说什么')).toEqual({ type: 'help' })
     expect(parseVoiceCommand('去2借5')).toEqual({ type: 'move', text: '去2借5' })
     expect(normalizeVoiceCommandText('  返回首页！ ')).toBe('返回首页')

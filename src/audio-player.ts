@@ -8,7 +8,11 @@ export class LingxiAudioPlayer {
 
   async prepare() {
     if (!this.context) this.context = new AudioContext({ latencyHint: 'interactive' })
-    if (this.context.state === 'suspended') await this.context.resume()
+    if (this.context.state !== 'suspended') return
+    await Promise.race([
+      this.context.resume(),
+      new Promise<void>((resolve) => window.setTimeout(resolve, 1000)),
+    ])
   }
 
   setPlaybackEndHandler(handler: () => void) {
