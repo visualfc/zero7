@@ -1,4 +1,6 @@
-export type EngineLevel = '入门' | '初级' | '中级'
+export const ENGINE_LEVELS = ['初级', '中级', '高级', '大师'] as const
+export type EngineLevel = (typeof ENGINE_LEVELS)[number]
+export const ANALYSIS_LEVEL: EngineLevel = '大师'
 
 export interface PikafishStatus {
   available: boolean

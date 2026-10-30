@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { BATTLE_RULES, capturedAiPieceName, capturedPieceName, describeAiResponse, describeBattleTurn, describeMove, describePlayerMove, describeResponse } from './battle-rules'
 import { battlePieces, battleStatus, buildBattleReview, chooseAiMove, createBattle, findVoiceMove, isChessMoveTranscript, legalTargets, makeBattleMove, pointToSquare, squareToPoint, terminalType, VoiceMoveAuthorization } from './battle'
+import { normalizeMoveText } from './chess'
 
 describe('完整人机对战规则', () => {
   it('正确转换棋盘坐标', () => {
@@ -31,9 +32,36 @@ describe('完整人机对战规则', () => {
     expect(findVoiceMove(game, '马二进三。')?.lan).toBe('h0g2')
     expect(findVoiceMove(game, '去一进二')?.lan).toBe('i0i2')
     expect(findVoiceMove(game, '车1进2')?.lan).toBe('i0i2')
+    expect(findVoiceMove(game, '吗二进三')?.lan).toBe('h0g2')
+    expect(findVoiceMove(game, '向七敬酒。')?.zh).toBe('相七进九')
     expect(findVoiceMove(game, '马二进五')).toBeNull()
     expect(isChessMoveTranscript('马二进五')).toBe(true)
+    expect(isChessMoveTranscript('泡五瓶二。')).toBe(true)
+    expect(isChessMoveTranscript('居酒平吧。')).toBe(true)
     expect(isChessMoveTranscript('天气很好')).toBe(false)
+  })
+
+  it('按拼音和当前合法着识别同音棋步，数字也按读音匹配', () => {
+    const game = createBattle()
+    game.move('h2e2')
+    game.move('a6a5')
+    expect(findVoiceMove(game, '泡五瓶二。')?.zh).toBe('炮五平二')
+    expect(findVoiceMove(game, '袍五苹二')?.lan).toBe('e2h2')
+    expect(findVoiceMove(game, '司四进五')?.zh).toBe('仕四进五')
+    expect(findVoiceMove(game, '像三进一')?.zh).toBe('相三进一')
+    expect(findVoiceMove(game, '摔五进一')?.zh).toBe('帅五进一')
+    expect(findVoiceMove(game, '兵五进一')?.zh).toBe('兵五进一')
+    expect(findVoiceMove(game, '泡五瓶九')).toBeNull()
+    const rook = createBattle()
+    rook.move('b0c2')
+    rook.move('a6a5')
+    expect(findVoiceMove(rook, '居酒平吧。')?.zh).toBe('车九平八')
+    const black = createBattle()
+    black.move('h2e2')
+    expect(normalizeMoveText(findVoiceMove(black, '族五进一')?.zh ?? '')).toBe('卒五进一')
+    expect(normalizeMoveText(findVoiceMove(black, '象三进五')?.zh ?? '')).toBe('象三进五')
+    expect(normalizeMoveText(findVoiceMove(black, '士四进五')?.zh ?? '')).toBe('士四进五')
+    expect(normalizeMoveText(findVoiceMove(black, '将五进一')?.zh ?? '')).toBe('将五进一')
   })
 
   it('每次语音授权只允许消费一个识别结果', () => {
@@ -114,10 +142,12 @@ describe('完整人机对战规则', () => {
     expect(status({ isCheckmate: () => true, turn: () => 'b' })).toContain('红方获胜')
   })
 
-  it('AI 支持入门随机着和中级评分着', () => {
+  it('AI 支持初级随机着和大师评分着', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0)
     const game = createBattle()
-    expect(chooseAiMove(game, '入门')).toBeTruthy()
+    expect(chooseAiMove(game, '初级')).toBeTruthy()
+    expect(chooseAiMove(game, '高级')).toBeTruthy()
+    expect(chooseAiMove(game, '大师')).toBeTruthy()
     expect(chooseAiMove(game, '中级')).toBeTruthy()
     expect(chooseAiMove({ moves: () => [] } as never, '初级')).toBeNull()
   })

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import wukongRecords from '../data/puzzles/wukong.json'
-import { applyMove, hasFacingGenerals, isLegalMove, normalizeMoveText, parseVoiceMove } from './chess'
+import { applyMove, hasFacingGenerals, isLegalMove, looksLikeChessMove, normalizeMoveText, notationMatchesSpeech, parseVoiceMove } from './chess'
 import { puzzleToLevel, type PuzzleRecord } from './puzzles'
 
 const source = { id: 'wukong-xiangqi', name: 'Wukong Xiangqi', url: 'https://github.com/maksimKorzh/wukong-xiangqi', license: 'MIT', role: '经过搜索验证的将杀局面' } as const
@@ -49,5 +49,28 @@ describe('语音棋谱解析', () => {
     expect(normalizeMoveText('去一进二')).toBe('车一进二')
     expect(normalizeMoveText('跑 5 近 5！')).toBe('炮五进五')
     expect(normalizeMoveText('车2坪山')).toBe('车二平三')
+  })
+
+  it('按拼音匹配棋子、进退平和数字', () => {
+    expect(notationMatchesSpeech('泡五瓶二。', '炮五平二')).toBe(true)
+    expect(notationMatchesSpeech('袍五苹二', '炮五平二')).toBe(true)
+    expect(notationMatchesSpeech('居酒平吧。', '车九平八')).toBe(true)
+    expect(notationMatchesSpeech('向七敬酒。', '相七进九')).toBe(true)
+    expect(notationMatchesSpeech('吗二近三', '马二进三')).toBe(true)
+    expect(notationMatchesSpeech('司四进五', '仕四进五')).toBe(true)
+    expect(notationMatchesSpeech('像七进五', '象七进五')).toBe(true)
+    expect(notationMatchesSpeech('摔五进一', '帅五进一')).toBe(true)
+    expect(notationMatchesSpeech('将五进一', '将五进一')).toBe(true)
+    expect(notationMatchesSpeech('兵五进一', '兵五进一')).toBe(true)
+    expect(notationMatchesSpeech('族五进一', '卒五进一')).toBe(true)
+    expect(notationMatchesSpeech('我走泡五瓶二', '炮五平二')).toBe(true)
+    expect(notationMatchesSpeech('泡五瓶三', '炮五平二')).toBe(false)
+    expect(notationMatchesSpeech('炮五进二', '炮五平二')).toBe(false)
+    expect(parseVoiceMove('袍三苹四', levels[1]).matched).toBe(true)
+    expect(parseVoiceMove('炮三平五', levels[1]).matched).toBe(false)
+    expect(looksLikeChessMove('泡五瓶二。')).toBe(true)
+    expect(looksLikeChessMove('居酒平吧。')).toBe(true)
+    expect(looksLikeChessMove('向七敬酒。')).toBe(true)
+    expect(looksLikeChessMove('天气很好')).toBe(false)
   })
 })

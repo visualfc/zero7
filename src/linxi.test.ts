@@ -119,12 +119,57 @@ describe('灵矽语音客户端', () => {
     const socket = FakeWebSocket.instances[0]
     expect(socket.sent).toContain(JSON.stringify({ type: 'speak', text: '提示内容' }))
     socket.message(JSON.stringify({ type: 'tts', state: 'start' }))
+    await Promise.resolve()
+    await Promise.resolve()
     socket.message(JSON.stringify({ type: 'tts', state: 'stop', is_aborted: true }))
+    await Promise.resolve()
+    await Promise.resolve()
     await speaking
     expect(events.at(-1)).toEqual({ type: 'state', state: 'ready' })
     client.disconnect()
     expect(client.currentState).toBe('idle')
     expect(socket.close).toHaveBeenCalled()
+  })
+
+  it('识别后在同一连接上朗读，并忽略 TTS 回声识别', async () => {
+    const events: LinxiEvent[] = []
+    const client = new LinxiVoiceClient((event) => events.push(event))
+    const starting = client.start()
+    await ready()
+    await starting
+    await client.stop()
+    const socket = FakeWebSocket.instances[0]
+    socket.message(JSON.stringify({ type: 'stt', text: '居酒平吧。' }))
+    await client.speakText('你走车九平八。')
+    expect(FakeWebSocket.instances).toHaveLength(1)
+    expect(socket.sent).toContain(JSON.stringify({ type: 'speak', text: '你走车九平八。' }))
+    socket.message(JSON.stringify({ type: 'stt', text: '你走车九平八。' }))
+    expect(events.filter((event) => event.type === 'transcript')).toEqual([{ type: 'transcript', text: '居酒平吧。' }])
+  })
+
+  it('TTS 没有 stop 时也会结束等待，不卡住后续朗读', async () => {
+    const client = new LinxiVoiceClient(vi.fn())
+    const speaking = client.speakText('你走马二进三。')
+    await ready()
+    await speaking
+    const waiting = client.waitForPlayback()
+    await vi.advanceTimersByTimeAsync(12000)
+    await waiting
+    expect(client.currentState).toBe('ready')
+  })
+
+  it('先收到 TTS stop 再完成 startStream 时仍会结束播放', async () => {
+    const client = new LinxiVoiceClient(vi.fn())
+    const speaking = client.speakText('你走炮二平五。')
+    const socket = await ready()
+    await speaking
+    socket.message(JSON.stringify({ type: 'tts', state: 'start' }))
+    socket.message(JSON.stringify({ type: 'tts', state: 'stop' }))
+    await Promise.resolve()
+    await Promise.resolve()
+    await Promise.resolve()
+    await vi.advanceTimersByTimeAsync(200)
+    expect(client.currentState).toBe('ready')
   })
 
   it('自动断开时停止结束语和后续音频', async () => {

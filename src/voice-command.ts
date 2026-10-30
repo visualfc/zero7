@@ -1,11 +1,12 @@
-import { normalizeMoveText } from './chess'
+import { looksLikeChessMove, normalizeMoveText } from './chess'
+import type { EngineLevel } from './pikafish'
 
 export type VoicePage = 'home' | 'lesson' | 'endgame' | 'battle' | 'progress' | 'profile'
 
 export type VoiceCommand =
   | { type: 'move'; text: string }
   | { type: 'navigation.home' }
-  | { type: 'battle.start'; level?: '入门' | '初级' | '中级' }
+  | { type: 'battle.start'; level?: EngineLevel }
   | { type: 'battle.undo' }
   | { type: 'battle.restart' }
   | { type: 'battle.resign' }
@@ -28,7 +29,7 @@ type CommandFactory = (first?: string, second?: string) => VoiceCommand
 const commandPatterns: Array<[RegExp, CommandFactory]> = [
   [/^(返回首页|回首页|回到首页)$/, () => ({ type: 'navigation.home' })],
   [/^(开始人机对战|进入人机对战|开始对弈)$/, () => ({ type: 'battle.start' })],
-  [/^换成(入门|初级|中级)$/, (level) => ({ type: 'battle.start', level: level as '入门' | '初级' | '中级' })],
+  [/^换成(初级|中级|高级|大师)$/, (level) => ({ type: 'battle.start', level: level as EngineLevel })],
   [/^悔棋$/, () => ({ type: 'battle.undo' })],
   [/^(重开一局|重新开始|重开)$/, () => ({ type: 'battle.restart' })],
   [/^认输$/, () => ({ type: 'battle.resign' })],
@@ -57,7 +58,7 @@ export function parseVoiceCommand(text: string): VoiceCommand {
     const match = normalized.match(pattern)
     if (match) return create(match[1], match[2])
   }
-  if (/^[车马炮兵卒相象仕士帅将进退平一二三四五六七八九前后中左右上下到]/.test(normalized)) {
+  if (looksLikeChessMove(normalized)) {
     return { type: 'move', text }
   }
   return { type: 'unknown', text }

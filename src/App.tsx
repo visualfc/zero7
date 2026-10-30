@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
+import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import {
   Award,
   BookOpen,
@@ -27,7 +27,7 @@ import { battlePieces, battleStatus, buildBattleReview, chooseAiMove, createBatt
 import { Chess, type Move } from '@weshell/xiangqi.js'
 import { BATTLE_RULES, describeAiResponse, describePlayerMove } from './battle-rules'
 import { commandHelp, parseVoiceCommand, type VoiceCommand, type VoicePage } from './voice-command'
-import { getPikafishMove, getPikafishStatus, warmupPikafish, type EngineLevel } from './pikafish'
+import { ANALYSIS_LEVEL, ENGINE_LEVELS, getPikafishMove, getPikafishStatus, warmupPikafish, type EngineLevel } from './pikafish'
 
 type Page = 'home' | 'lesson' | 'endgame' | 'battle'
 type ClassicGame = { id: string; event: string; red: string; redOriginal: string; black: string; blackOriginal: string; moves?: string[]; source: string }
@@ -229,8 +229,9 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
     const speechId = lessonSpeechId.current
     lessonMoveSpeech.current = lessonMoveSpeech.current.then(async () => {
       if (speechId !== lessonSpeechId.current) return
-      const client = lessonMoveVoiceClient.current ?? new LinxiVoiceClient(() => {})
-      lessonMoveVoiceClient.current = client
+      const live = voiceClient.current
+      const client = live?.isConnected ? live : (lessonMoveVoiceClient.current ?? new LinxiVoiceClient(() => {}))
+      if (client !== live) lessonMoveVoiceClient.current = client
       try {
         await client.speakText(text)
         await client.waitForPlayback()
@@ -285,14 +286,14 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
       const targetMateDepth = mateDepth ? Number(mateDepth) : undefined
       let result
       try {
-        result = await getPikafishMove(fen, '初级', false, targetMateDepth)
+        result = await getPikafishMove(fen, ANALYSIS_LEVEL, false, targetMateDepth)
       } catch (error) {
         if (!targetMateDepth) throw error
-        result = await getPikafishMove(fen, '初级')
+        result = await getPikafishMove(fen, ANALYSIS_LEVEL)
       }
       if (requestId !== lessonRequestId.current || lessonGame.current !== game || game.fen() !== fen) return
       if (!result.move && game.moves().length > 0 && targetMateDepth) {
-        result = await getPikafishMove(fen, '初级')
+        result = await getPikafishMove(fen, ANALYSIS_LEVEL)
         if (requestId !== lessonRequestId.current || lessonGame.current !== game || game.fen() !== fen) return
       }
       const forcedMate = result.score?.type === 'mate' && result.score.value < 0
@@ -350,7 +351,7 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
     const fen = game.fen()
     setEndgameAnalysisLoading(true)
     try {
-      const result = await getPikafishMove(fen, '中级', true)
+      const result = await getPikafishMove(fen, ANALYSIS_LEVEL, true)
       if (requestId !== endgameAnalysisRequestId.current || lessonGame.current !== game || game.fen() !== fen) return
       const analysisGame = new Chess(fen)
       const recommended = result.move ? analysisGame.move(result.move) : null
@@ -454,7 +455,6 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
   }
 
   const handleTranscript = (text: string) => {
-    voiceClient.current?.disconnect()
     const command = parseVoiceCommand(text)
     if (pendingVoiceAction && (command.type === 'confirm' || command.type === 'cancel')) {
       if (command.type === 'cancel') { setPendingVoiceAction(null); setVoiceText('已取消。'); return }
@@ -759,17 +759,17 @@ function LessonPage(props: {
           <div className="lesson-side-description"><div className="lesson-badges"><span className="mini-badge">{props.level.category}</span><span className="mini-badge difficulty-badge">{props.level.difficulty}</span><span className={`mini-badge source-badge ${props.level.fen.split(' ')[1] === 'b' ? 'black' : 'red'}`}>{props.level.fen.split(' ')[1] === 'b' ? '黑方先行' : '红方先行'}</span></div><div className="puzzle-title"><h1>{props.level.title.replace(/\\\\n/g, '\n').replace(/\\n/g, '\n').split(/\r?\n/).map((line, index) => <Fragment key={`${props.level.id}-${index}`}>{index > 0 && <br />}{line}</Fragment>)}</h1></div></div>
           </div>
           {!props.completed && (
-
-            <>
-              <div className="lesson-card lesson-voice-card battle-voice-card">
-              <div className="coach-head compact"><div className="coach-avatar small">象</div><div><strong>语音走棋与讲解</strong><span>{voiceStateLabel(props.voiceState)}</span></div><span className={`connection-dot ${props.voiceState}`} /></div>
-              <p>{props.voiceText}</p>
-              <button className={props.voiceHeld ? 'voice-button listening' : 'voice-button'} onPointerDown={(event) => { event.currentTarget.setPointerCapture?.(event.pointerId); props.onVoiceStart() }} onPointerUp={props.onVoiceStop} onPointerCancel={props.onVoiceStop} onPointerLeave={(event) => { if (event.currentTarget.hasPointerCapture(event.pointerId)) props.onVoiceStop() }} disabled={props.thinking || props.voiceState === 'connecting' || props.voiceState === 'thinking'}>
-                <span><Mic /></span><strong>{props.voiceHeld ? '松开完成' : '按住语音输入'}</strong><small>（按住按钮/空格，说完后松开）</small>
-              </button>
-              </div>
+            <VoiceCoachPanel
+              className="lesson-card lesson-voice-card battle-voice-card"
+              voiceState={props.voiceState}
+              voiceText={props.voiceText}
+              voiceHeld={props.voiceHeld}
+              disabled={props.thinking || props.voiceState === 'connecting' || props.voiceState === 'thinking'}
+              onVoiceStart={props.onVoiceStart}
+              onVoiceStop={props.onVoiceStop}
+            >
               {props.page === 'endgame' ? (
-                <div className="lesson-card hint-card endgame-analysis-card">
+                <div className="hint-card endgame-analysis-card">
                   <button className="secondary-button compact-action" onClick={props.onToggleEndgameAnalysis} onKeyDown={(event) => { if (event.code === 'Space') event.preventDefault() }} onKeyUp={(event) => { if (event.code === 'Space') event.preventDefault() }}><Target /> {props.endgameAnalysisVisible ? '收起引擎讲解' : '展开引擎讲解'}</button>
                   {props.endgameAnalysisVisible && (props.endgameAnalysisLoading || props.endgameAnalysis) && (
                     <div className="analysis-result">
@@ -777,8 +777,14 @@ function LessonPage(props: {
                     </div>
                   )}
                 </div>
-              ) : <div className="lesson-card hint-card"><div><Lightbulb /><strong>分级提示</strong><span>{props.hintLevel}/3</span></div><p>{props.hint}</p><button className="secondary-button compact-action" onClick={props.onHint} disabled={props.hintLevel >= 3}>{props.hintLevel >= 3 ? '已显示完整提示' : '再给我一点提示'}</button></div>}
-            </>
+              ) : (
+                <div className="hint-card">
+                  <div><Lightbulb /><strong>分级提示</strong><span>{props.hintLevel}/3</span></div>
+                  <p>{props.hint}</p>
+                  <button className="secondary-button compact-action" onClick={props.onHint} disabled={props.hintLevel >= 3}>{props.hintLevel >= 3 ? '已显示完整提示' : '再给我一点提示'}</button>
+                </div>
+              )}
+            </VoiceCoachPanel>
           )}
 
           {props.completed && (
@@ -837,7 +843,12 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const reviewGlobalRequestId = useRef(0)
   const [status, setStatus] = useState('轮到红方走棋')
   const [difficulty, setDifficulty] = useState<EngineLevel>('初级')
-  const difficultyDescriptions = { 入门: '皮卡鱼 2026-01-31\n入门 · 约 1280 Elo', 初级: '皮卡鱼 2026-01-31\n初级 · 约 1500 Elo', 中级: '皮卡鱼 2026-01-31\n中级 · 约 1900 Elo' } as const
+  const difficultyDescriptions = {
+    初级: '皮卡鱼 2026-01-31\n初级 · Skill 5 · 约 1500 Elo',
+    中级: '皮卡鱼 2026-01-31\n中级 · Skill 10 · 约 1900 Elo',
+    高级: '皮卡鱼 2026-01-31\n高级 · Skill 15 · 约 2600 Elo',
+    大师: '皮卡鱼 2026-01-31\n大师 · Skill 20 · 满棋力',
+  } as const
   useEffect(() => {
     if (!reviewOpen || reviewMode !== 'classic') return
     const controller = new AbortController()
@@ -939,8 +950,9 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const speakBattleText = (text: string, showText = true) => {
     if (showText) setVoiceText(text)
     battleSpeechQueue.current = battleSpeechQueue.current.then(async () => {
-      const client = battleSpeechClient.current ?? new LinxiVoiceClient(() => {})
-      battleSpeechClient.current = client
+      const live = battleVoiceClient.current
+      const client = live?.isConnected ? live : (battleSpeechClient.current ?? new LinxiVoiceClient(() => {}))
+      if (client !== live) battleSpeechClient.current = client
       try {
         await client.speakText(text)
         await client.waitForPlayback()
@@ -1064,7 +1076,6 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
     if (reviewOpen || replayStep !== null || thinking || game.current.isGameOver() || game.current.turn() !== 'w') return
     const move = findVoiceMove(game.current, text)
     if (!move) {
-      battleVoiceClient.current?.disconnect()
       updateBattleVoiceState('idle')
       ignoreBattleReplies.current = true
       const message = isChessMoveTranscript(text)
@@ -1075,7 +1086,6 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
       void speakBattleText(message)
       return
     }
-    battleVoiceClient.current?.disconnect()
     playBattleMove(game.current.move({ from: move.from, to: move.to }))
   }
 
@@ -1179,7 +1189,7 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
     if (analysisLoading || replayStep !== null || engineStatus !== 'pikafish') return
     setAnalysisLoading(true)
     try {
-      const result = await getPikafishMove(game.current.fen(), difficulty, true)
+      const result = await getPikafishMove(game.current.fen(), ANALYSIS_LEVEL, true)
       const score = result.score?.type === 'mate' ? (result.score.value > 0 ? 10000 : -10000) : (result.score?.value ?? 0)
       const red = Math.round(100 / (1 + Math.exp(-score / 180)))
       const analysisGame = new Chess(game.current.fen())
@@ -1263,7 +1273,7 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
     const fen = reviewGame.fen()
     setReviewAnalysisLoading(true)
     try {
-      const result = await getPikafishMove(fen, '中级', true)
+      const result = await getPikafishMove(fen, ANALYSIS_LEVEL, true)
       if (requestId !== reviewPositionRequestId.current) return
       const actualGame = new Chess(fen)
       const recommendedMove = result.move ? actualGame.move(result.move) : null
@@ -1341,7 +1351,7 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
       for (let step = 0; step < positions.length; step += 1) {
         if (performance.now() >= deadline) break
         const position = positions[step]
-        const result = await getPikafishMove(position.fen, '中级', true, undefined, fastTime)
+        const result = await getPikafishMove(position.fen, ANALYSIS_LEVEL, true, undefined, fastTime)
         if (requestId !== reviewGlobalRequestId.current) return
         evaluations.push(probability(result, position.turn))
         setGlobalAnalysisProgress(`快速扫描 ${Math.round(((step + 1) / positions.length) * 100)}%`)
@@ -1356,8 +1366,8 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
         const beforePosition = positions[candidate.step - 1]
         const afterPosition = positions[candidate.step]
         const [before, after] = await Promise.all([
-          getPikafishMove(beforePosition.fen, '中级', true, undefined, 450),
-          getPikafishMove(afterPosition.fen, '中级', true, undefined, 450),
+          getPikafishMove(beforePosition.fen, ANALYSIS_LEVEL, true, undefined, 450),
+          getPikafishMove(afterPosition.fen, ANALYSIS_LEVEL, true, undefined, 450),
         ])
         if (requestId !== reviewGlobalRequestId.current) return
         const redBefore = probability(before, beforePosition.turn)
@@ -1476,16 +1486,26 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
             <div className="review-analysis-card"><div className="review-analysis-heading"><strong>局面分析</strong>{reviewAnalysisLoading && <span>正在更新分析…</span>}</div><button className="primary-button review-analyze-button" onClick={() => { const visible = !reviewAnalysisVisible; setReviewAnalysisVisible(visible); sessionStorage.setItem('zero7-review-analysis-visible', String(visible)) }} >{reviewAnalysisVisible ? '收起局面分析' : '展开局面分析'}</button>{reviewAnalysisVisible && <div className="analysis-result review-analysis-result">{reviewAnalysis && <><div className="probability-row"><span>红方 {reviewAnalysis.red}%</span><span>黑方 {reviewAnalysis.black}%</span></div><div className="probability-bar"><i style={{ width: `${reviewAnalysis.red}%` }} /></div><p>实战着：{reviewAnalysis.actual}</p><p>实战目的：{reviewAnalysis.actualPurpose}</p>{reviewStep >= 2 && !reviewAnalysis.sameMove && <><p>推荐着：{reviewAnalysis.recommended}</p><p>推荐目的：{reviewAnalysis.recommendedPurpose}</p></>}</>}</div>}</div>
             <div className="review-global-card"><strong>全局分析</strong><button className="secondary-button review-global-button" onClick={() => void analyzeGlobalReview()} disabled={globalAnalysisLoading}>{globalAnalysisLoading ? (globalAnalysisProgress || '正在进行全局分析…') : '分析关键步'}</button></div>
           </div>}
-          {!reviewOpen && <><div className="battle-card engine-card"><div className="battle-side-actions"><div className="difficulty-inline" aria-label="选择棋力">{(['入门', '初级', '中级'] as const).map((item) => <button key={item} className={difficulty === item ? 'active' : ''} onClick={() => setDifficulty(item)} aria-describedby={`difficulty-${item}`} data-tooltip={difficultyDescriptions[item]}>{item}</button>)}</div><span className="visually-hidden" id="difficulty-入门">{difficultyDescriptions.入门}</span><span className="visually-hidden" id="difficulty-初级">{difficultyDescriptions.初级}</span><span className="visually-hidden" id="difficulty-中级">{difficultyDescriptions.中级}</span><button className="secondary-button battle-restart-button" onClick={restart}><RotateCcw /> 重开一局</button></div><span className="visually-hidden" aria-live="polite">{engineName}</span></div>
-          <div className="battle-card battle-voice-card">
-            {!['轮到红方走棋', `${BATTLE_RULES.brandName}正在思考…`, '轮到你继续走棋。'].includes(status) && <p className="battle-message">{status}</p>}
-            <div className="coach-head compact"><div className="coach-avatar small">象</div><div><strong>语音走棋与讲解</strong><span>{voiceStateLabel(voiceState)}</span></div><span className={`connection-dot ${voiceState}`} /></div>
-            <p>{voiceText}</p>
-            <button className={voiceHeld ? 'voice-button listening' : 'voice-button'} onPointerDown={(event) => { event.currentTarget.setPointerCapture?.(event.pointerId); voicePressStartedAt.current = Date.now(); setVoiceHeld(true); void startBattleVoice() }} onPointerUp={() => void stopBattleVoice()} onPointerCancel={() => void stopBattleVoice()} disabled={reviewOpen || replayStep !== null || thinking || voiceState === 'connecting' || voiceState === 'thinking' || game.current.turn() !== 'w'}><span><Mic /></span><strong>{voiceHeld ? '松开完成' : '按住语音输入'}</strong><small>（按住按钮/空格，说完后松开）</small></button>
-          </div>
+          {!reviewOpen && <><div className="battle-card engine-card"><div className="battle-side-actions"><div className="difficulty-inline" aria-label="选择棋力">{ENGINE_LEVELS.map((item) => <button key={item} className={difficulty === item ? 'active' : ''} onClick={() => setDifficulty(item)} aria-describedby={`difficulty-${item}`} data-tooltip={difficultyDescriptions[item]}>{item}</button>)}</div>{ENGINE_LEVELS.map((item) => <span className="visually-hidden" id={`difficulty-${item}`} key={item}>{difficultyDescriptions[item]}</span>)}<button className="secondary-button battle-restart-button" onClick={restart}><RotateCcw /> 重开一局</button></div><span className="visually-hidden" aria-live="polite">{engineName}</span></div>
+          <VoiceCoachPanel
+            className="battle-card battle-voice-card"
+            message={!['轮到红方走棋', `${BATTLE_RULES.brandName}正在思考…`, '轮到你继续走棋。'].includes(status) ? <p className="battle-message">{status}</p> : undefined}
+            voiceState={voiceState}
+            voiceText={voiceText}
+            voiceHeld={voiceHeld}
+            disabled={reviewOpen || replayStep !== null || thinking || voiceState === 'connecting' || voiceState === 'thinking' || game.current.turn() !== 'w'}
+            onVoiceStart={() => { voicePressStartedAt.current = Date.now(); setVoiceHeld(true); void startBattleVoice() }}
+            onVoiceStop={() => void stopBattleVoice()}
+          >
+            {engineStatus === 'pikafish' && (
+              <div className="analysis-card">
+                <button className="secondary-button full compact-action desktop-analysis-button" onClick={() => { if (analysisVisible) setAnalysisVisible(false); else { setAnalysisVisible(true); if (!analysis) void analyzePosition() } }} disabled={replayStep !== null}><Target /> {analysisLoading ? '正在分析…' : analysisVisible ? '收起局面分析' : '局面分析'}</button>
+                {analysisVisible && (analysis || analysisLoading) && <div className="analysis-result">{analysis ? <><div className="probability-row"><span>红方 {analysis.red}%</span><span>黑方 {analysis.black}%</span></div><div className="probability-bar"><i style={{ width: `${analysis.red}%` }} /></div><div className="analysis-recommendation"><strong>推荐走法：{analysis.move}</strong></div><p>{analysis.explanation}</p></> : <p>正在分析当前局面…</p>}</div>}
+              </div>
+            )}
+          </VoiceCoachPanel>
 
           {replayStep !== null && <button className="secondary-button full" onClick={returnToCurrentPosition}>返回当前局面</button>}
-          {!reviewOpen && engineStatus === 'pikafish' && <div className="battle-card analysis-card"><button className="secondary-button full compact-action desktop-analysis-button" onClick={() => { if (analysisVisible) setAnalysisVisible(false); else { setAnalysisVisible(true); if (!analysis) void analyzePosition() } }} disabled={replayStep !== null}><Target /> {analysisLoading ? '正在分析…' : analysisVisible ? '收起局面分析' : '局面分析'}</button>{analysisVisible && (analysis || analysisLoading) && <div className="analysis-result">{analysis ? <><div className="probability-row"><span>红方 {analysis.red}%</span><span>黑方 {analysis.black}%</span></div><div className="probability-bar"><i style={{ width: `${analysis.red}%` }} /></div><div className="analysis-recommendation"><strong>推荐走法：{analysis.move}</strong></div><p>{analysis.explanation}</p></> : <p>正在分析当前局面…</p>}</div>}</div>}
           <div className="battle-actions"><button className="secondary-button" onClick={undo} disabled={thinking || history.length === 0} aria-disabled={thinking || history.length === 0}><RotateCcw /> 悔棋</button><button className="secondary-button" onClick={() => { if (turnReminderTimer.current !== null) window.clearTimeout(turnReminderTimer.current); turnReminderTimer.current = null; setResigned(true); sessionStorage.setItem('zero7-battle-resigned', 'true'); setStatus(`你已认输，本局由 ${BATTLE_RULES.brandName} 获胜。`) }}>认输</button></div>
           {(resigned || game.current.isGameOver()) && <button className="secondary-button full review-button" onClick={reviewBattle}><Volume2 /> 语音总结</button>}
           {engineStatus === 'pikafish' && <button className="secondary-button full review-button mobile-analysis-button" onClick={() => { if (analysisVisible) setAnalysisVisible(false); else { setAnalysisVisible(true); if (!analysis) void analyzePosition() } }} disabled={replayStep !== null}><Target /> {analysisLoading ? '正在分析…' : analysisVisible ? '收起局面分析' : '局面分析'}</button>}
@@ -1493,6 +1513,40 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
           </>}
         </aside>
       </section>
+    </div>
+  )
+}
+
+function VoiceCoachPanel({
+  className,
+  message,
+  voiceState,
+  voiceText,
+  voiceHeld,
+  disabled,
+  onVoiceStart,
+  onVoiceStop,
+  children,
+}: {
+  className: string
+  message?: ReactNode
+  voiceState: LinxiState
+  voiceText: string
+  voiceHeld: boolean
+  disabled?: boolean
+  onVoiceStart: () => void
+  onVoiceStop: () => void
+  children?: ReactNode
+}) {
+  return (
+    <div className={className}>
+      {message}
+      <div className="coach-head compact"><div className="coach-avatar small">象</div><div><strong>语音走棋与讲解</strong><span>{voiceStateLabel(voiceState)}</span></div><span className={`connection-dot ${voiceState}`} /></div>
+      <p>{voiceText}</p>
+      <button className={voiceHeld ? 'voice-button listening' : 'voice-button'} onPointerDown={(event) => { event.currentTarget.setPointerCapture?.(event.pointerId); onVoiceStart() }} onPointerUp={onVoiceStop} onPointerCancel={onVoiceStop} onPointerLeave={(event) => { if (event.currentTarget.hasPointerCapture(event.pointerId)) onVoiceStop() }} disabled={disabled}>
+        <span><Mic /></span><strong>{voiceHeld ? '松开完成' : '按住语音输入'}</strong><small>（按住按钮/空格，说完后松开）</small>
+      </button>
+      {children}
     </div>
   )
 }
