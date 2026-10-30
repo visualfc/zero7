@@ -194,10 +194,9 @@ describe('ZERO7', () => {
 
   it('残局 TTS 播放卡住时黑棋仍按时应对', async () => {
     voiceMock.playbackHangs = true
-    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
       if (String(input).endsWith('/warmup')) return new Response(null, { status: 204 })
-      if (JSON.parse(String(init?.body)).analysis) return new Response(JSON.stringify({ move: 'h0e0', engine: 'Pikafish Test', level: '中级', score: { type: 'cp', value: 80 } }), { status: 200 })
-      return new Response(JSON.stringify({ move: 'e9f9', engine: 'Pikafish Test', level: '初级', score: null }), { status: 200 })
+      return new Response(JSON.stringify({ move: 'e9f9', engine: 'Pikafish Test', level: '大师', score: null }), { status: 200 })
     }))
     render(<App initialLevels={testLevels} />)
     fireEvent.click(screen.getAllByRole('button', { name: '残局训练' })[0])
@@ -216,9 +215,10 @@ describe('ZERO7', () => {
       const request = JSON.parse(String(init?.body))
       if (request.analysis) {
         analysisCount += 1
-        return new Response(JSON.stringify({ move: analysisCount === 1 ? 'h0e0' : 'd2e1', engine: 'Pikafish Test', level: '中级', score: { type: 'cp', value: 80 } }), { status: 200 })
+        if (analysisCount === 2) return new Response(JSON.stringify({ move: 'e9f9', engine: 'Pikafish Test', level: '大师', score: null }), { status: 200 })
+        return new Response(JSON.stringify({ move: analysisCount === 1 ? 'h0e0' : 'd2e1', engine: 'Pikafish Test', level: '大师', score: { type: 'cp', value: 80 } }), { status: 200 })
       }
-      return new Response(JSON.stringify({ move: 'e9f9', engine: 'Pikafish Test', level: '初级', score: null }), { status: 200 })
+      return new Response(JSON.stringify({ move: 'e9f9', engine: 'Pikafish Test', level: '大师', score: null }), { status: 200 })
     }))
     render(<App initialLevels={testLevels} />)
     fireEvent.click(screen.getAllByRole('button', { name: '残局训练' })[0])
