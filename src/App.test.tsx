@@ -194,7 +194,7 @@ describe('ZERO7', () => {
 
   it('残局 TTS 播放卡住时黑棋仍按时应对', async () => {
     voiceMock.playbackHangs = true
-    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
       if (String(input).endsWith('/warmup')) return new Response(null, { status: 204 })
       return new Response(JSON.stringify({ move: 'e9f9', engine: 'Pikafish Test', level: '大师', score: null }), { status: 200 })
     }))
