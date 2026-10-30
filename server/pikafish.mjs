@@ -34,15 +34,22 @@ export class PikafishEngine {
     const task = this.queue.then(async () => {
       await this.start()
       const options = levelOptions(level)
-      await this.command(`setoption name Skill Level value ${options.skill}`, null)
-      await this.command(`setoption name UCI_LimitStrength value ${options.limitStrength}`, null)
-      if (options.elo) await this.command(`setoption name UCI_Elo value ${options.elo}`, null)
+      if (analysis) {
+        await this.command('ucinewgame', null)
+        await this.command('setoption name Skill Level value 20', null)
+        await this.command('setoption name UCI_LimitStrength value false', null)
+        await this.command('setoption name MultiPV value 1', null)
+      } else {
+        await this.command(`setoption name Skill Level value ${options.skill}`, null)
+        await this.command(`setoption name UCI_LimitStrength value ${options.limitStrength}`, null)
+        if (options.elo) await this.command(`setoption name UCI_Elo value ${options.elo}`, null)
+      }
       await this.command('isready', /^readyok$/)
       await this.command(`position fen ${fen}`, null)
       const infoLines = []
       const search = Number.isInteger(mateDepth) && mateDepth > 0
         ? `go mate ${Math.min(mateDepth, 20)} movetime ${Math.max(500, Math.min(Number(moveTime) || options.moveTime * 4, 5000))}`
-        : `go movetime ${Math.max(100, Math.min(Number(moveTime) || options.moveTime, 5000))}`
+        : `go movetime ${searchTime(options.moveTime, moveTime, analysis)}`
       let line
       try {
         line = await this.command(search, /^bestmove\s+/i, 30000, (currentLine) => {
@@ -55,8 +62,10 @@ export class PikafishEngine {
       const match = line.match(/^bestmove\s+([a-i][0-9][a-i][0-9])/i)
       const noMove = /^bestmove\s+(?:\(none\)|none|0000)/i.test(line)
       if (!match && !noMove) throw new Error(`Pikafish 没有返回有效走法：${line}`)
-      const score = parseAnalysisScore(infoLines.at(-1))
-      return { move: match?.[1].toLowerCase() ?? null, terminal: noMove, score, engine: this.name || 'Pikafish', level }
+      const analysisLine = analysis ? completeAnalysisLine(infoLines) : infoLines.at(-1)
+      const score = parseAnalysisScore(analysisLine)
+      const pvMove = analysis ? parsePvMove(analysisLine) : null
+      return { move: pvMove ?? match?.[1].toLowerCase() ?? null, terminal: noMove, score, engine: this.name || 'Pikafish', level }
     })
     this.queue = task.catch(() => undefined)
     return task
@@ -155,6 +164,27 @@ function parseAnalysisScore(lines) {
   const match = lines?.match(/score\s+(cp|mate)\s+(-?\d+)/i)
   if (!match) return null
   return { type: match[1].toLowerCase(), value: Number(match[2]) }
+}
+
+function isCompleteInfo(line) {
+  return line.startsWith('info ')
+    && /\sscore\s+(cp|mate)\s+-?\d+/i.test(line)
+    && /\spv\s+[a-i][0-9][a-i][0-9]/i.test(line)
+    && !/\b(?:upperbound|lowerbound)\b/i.test(line)
+}
+
+function completeAnalysisLine(infoLines) {
+  return infoLines.findLast((line) => isCompleteInfo(line)) ?? infoLines.at(-1)
+}
+
+function parsePvMove(line) {
+  return line?.match(/\spv\s+([a-i][0-9][a-i][0-9])/i)?.[1]?.toLowerCase() ?? null
+}
+
+function searchTime(levelMoveTime, moveTime, analysis) {
+  if (Number(moveTime)) return Math.max(100, Math.min(Number(moveTime), analysis ? 15000 : 5000))
+  if (analysis) return Math.max(levelMoveTime, 8000)
+  return Math.max(100, Math.min(levelMoveTime, 5000))
 }
 
 function levelOptions(level) {

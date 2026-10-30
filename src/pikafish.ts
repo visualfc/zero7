@@ -28,7 +28,7 @@ export async function getPikafishMove(fen: string, level: EngineLevel, analysis 
   const response = await fetch('/api/pikafish/bestmove', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(analysis ? { fen, level, analysis: true, ...(moveTime ? { moveTime } : {}) } : { fen, level, ...(mateDepth ? { mateDepth } : {}), ...(moveTime ? { moveTime } : {}) }),
+    body: JSON.stringify({ fen, level, ...(analysis ? { analysis: true } : {}), ...(mateDepth ? { mateDepth } : {}), ...(moveTime ? { moveTime } : {}) }),
   })
   const result = await response.json()
   if (!response.ok) throw new Error(result.error || `Pikafish 请求失败（${response.status}）`)

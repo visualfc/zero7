@@ -286,14 +286,14 @@ function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
       const targetMateDepth = mateDepth ? Number(mateDepth) : undefined
       let result
       try {
-        result = await getPikafishMove(fen, ANALYSIS_LEVEL, false, targetMateDepth)
+        result = await getPikafishMove(fen, ANALYSIS_LEVEL, true, targetMateDepth)
       } catch (error) {
         if (!targetMateDepth) throw error
-        result = await getPikafishMove(fen, ANALYSIS_LEVEL)
+        result = await getPikafishMove(fen, ANALYSIS_LEVEL, true)
       }
       if (requestId !== lessonRequestId.current || lessonGame.current !== game || game.fen() !== fen) return
       if (!result.move && game.moves().length > 0 && targetMateDepth) {
-        result = await getPikafishMove(fen, ANALYSIS_LEVEL)
+        result = await getPikafishMove(fen, ANALYSIS_LEVEL, true)
         if (requestId !== lessonRequestId.current || lessonGame.current !== game || game.fen() !== fen) return
       }
       const forcedMate = result.score?.type === 'mate' && result.score.value < 0
