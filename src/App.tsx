@@ -24,7 +24,7 @@ import './App.css'
 import { LinxiVoiceClient, type LinxiState } from './linxi'
 import { parseVoiceMove, sameSquare, type Level, type Piece, type Square } from './chess'
 import { endgameCategories, fetchPuzzleLibrary, getEndgameCategory } from './puzzles'
-import { battlePieces, battleStatus, buildBattleReview, chooseAiMove, createBattle, findVoiceMove, isChessMoveTranscript, legalTargets as battleLegalTargets, squareToPoint, makeBattleMove, terminalType as getTerminalType, VoiceMoveAuthorization, type TerminalType } from './battle'
+import { battlePieces, battleStatus, chooseAiMove, createBattle, findVoiceMove, isChessMoveTranscript, legalTargets as battleLegalTargets, squareToPoint, makeBattleMove, terminalType as getTerminalType, VoiceMoveAuthorization, type TerminalType } from './battle'
 import { Chess, type Move } from '@weshell/xiangqi.js'
 import { BATTLE_RULES, describeAiResponse, describePlayerMove } from './battle-rules'
 import { commandHelp, parseVoiceCommand, type VoiceCommand, type VoicePage } from './voice-command'
@@ -1551,10 +1551,6 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
     }
   }
 
-  const reviewBattle = () => {
-    void speakBattleText(buildBattleReview(game.current, resigned))
-  }
-
   const restart = () => {
     aiRequestId.current += 1
     reviewPositionRequestId.current += 1
@@ -1689,9 +1685,8 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
           {!reviewOpen && <>
           {replayStep !== null && !variationActive && <button className="secondary-button full" onClick={returnToCurrentPosition}>返回当前局面</button>}
           <div className="battle-actions"><button className="secondary-button" onClick={undo} disabled={thinking || history.length === 0} aria-disabled={thinking || history.length === 0}><RotateCcw /> 悔棋</button>{!variationActive && <button className="secondary-button" onClick={() => { if (turnReminderTimer.current !== null) window.clearTimeout(turnReminderTimer.current); turnReminderTimer.current = null; const result = `你已认输，本局由 ${BATTLE_RULES.brandName} 获胜。`; setResigned(true); sessionStorage.setItem('zero7-battle-resigned', 'true'); setStatus(result); persistBattleGame(result, true) }}>认输</button>}</div>
-          {!variationActive && (resigned || game.current.isGameOver()) && <button className="secondary-button full review-button" onClick={reviewBattle}><Volume2 /> 语音总结</button>}
-          {engineStatus === 'pikafish' && <button className="secondary-button full review-button mobile-analysis-button" onClick={() => { if (analysisVisible) setAnalysisVisible(false); else { setAnalysisVisible(true); if (!analysis) void analyzePosition() } }} disabled={replayStep !== null}><Target /> {analysisLoading ? '正在分析…' : analysisVisible ? '收起局面分析' : '局面分析'}</button>}
           <button className={`secondary-button full review-button ${variationActive ? 'variation-save-button' : ''}`} onClick={saveBattle} disabled={history.length === 0}><Save /> 存盘</button>
+          {engineStatus === 'pikafish' && <button className="secondary-button full review-button mobile-analysis-button" onClick={() => { if (analysisVisible) setAnalysisVisible(false); else { setAnalysisVisible(true); if (!analysis) void analyzePosition() } }} disabled={replayStep !== null}><Target /> {analysisLoading ? '正在分析…' : analysisVisible ? '收起局面分析' : '局面分析'}</button>}
           <button className="secondary-button full review-button" onClick={openReview}><BookOpen /> AI复盘</button>
           </>}
         </aside>

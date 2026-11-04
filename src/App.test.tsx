@@ -762,7 +762,7 @@ describe('ZERO7', () => {
     expect(await screen.findByText(/基础 AI（Pikafish 暂不可用）/, {}, { timeout: 4000 })).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: '认输' }))
     expect(screen.getByText(/你已认输，本局由 零七 获胜/)).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: '语音总结' }))
+
   })
 
   it('人机对战语音只消费一次识别结果并处理无效走法', async () => {
@@ -1290,7 +1290,7 @@ describe('ZERO7', () => {
     fireEvent.pointerUp(voiceButton)
     fireEvent.pointerCancel(voiceButton)
     fireEvent.click(screen.getByRole('button', { name: '认输' }))
-    fireEvent.click(screen.getByRole('button', { name: '语音总结' }))
+
     fireEvent.click(screen.getAllByRole('button', { name: '返回首页' })[0])
     expect(screen.getByText('今日三小关')).toBeInTheDocument()
   })
