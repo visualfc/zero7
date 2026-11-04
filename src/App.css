@@ -284,7 +284,8 @@
 .battle-review-rail .review-navigation button svg { width: 14px; height: 14px; flex: 0 0 14px; }
 .battle-review-rail .compact-action, .battle-review-rail .review-analyze-button { width: 100%; }
 .review-analyze-button { min-height: 42px; font-weight: 800; }
-.review-global-button { width: 100%; }
+.review-global-button, .review-variation-button { width: 100%; }
+.review-variation-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .review-analysis-card, .review-global-card { display: grid; gap: 6px; padding-top: 8px; border-top: 1px solid var(--line); }
 .review-analysis-result { position: relative; min-height: 168px; align-content: start; }
 .review-analysis-card > strong, .review-global-card > strong, .review-analysis-heading strong { font-size: 12px; }
@@ -301,6 +302,11 @@
 .review-tabs button, .review-navigation button { border: 1px solid var(--line); border-radius: 8px; padding: 5px 9px; background: white; color: var(--muted); cursor: pointer; }
 .review-tabs button.active { background: var(--coral); color: white; border-color: var(--coral); }
 .battle-review-panel select { width: 100%; min-height: 34px; border: 1px solid var(--line); border-radius: 8px; padding: 4px 8px; background: white; }
+.review-tabs { justify-content: flex-start; }
+.review-saved-row { display: flex; gap: 6px; align-items: center; }
+.review-saved-row select { flex: 1; min-width: 0; }
+.review-saved-row button { flex: 0 0 auto; min-height: 34px; padding: 4px 10px; }
+.review-empty { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
 .battle-move-rail .move-replay { width: 100%; min-height: 24px; padding: 3px 1px; border: 1px solid var(--border); border-radius: 6px; background: rgba(255,253,248,.8); color: var(--ink); font-size: 10px; white-space: normal; word-break: keep-all; cursor: pointer; }
 .battle-move-rail .move-replay.active { border-color: var(--coral); background: var(--coral-soft); color: var(--coral-dark); font-weight: 800; }
 .battle-board-column { container-type: inline-size; width: 100%; min-width: 0; display: flex; flex-direction: column; align-items: center; }
@@ -331,6 +337,10 @@
 .engine-note { margin: 12px 0 0; color: var(--muted); font-size: 10px; line-height: 1.6; }
 .move-list { min-height: 280px; max-height: 430px; overflow: auto; } .move-list > p { color: var(--muted); font-size: 12px; line-height: 1.7; } .move-list ol { margin: 0; padding-left: 25px; } .move-list li { color: var(--muted); padding: 7px 0; border-bottom: 1px dashed var(--line); display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px; } .move-list li::marker { color: #aaa; }
 .move-replay { border: 0; background: transparent; color: var(--muted); text-align: left; padding: 4px 6px; border-radius: 6px; cursor: pointer; font: inherit; } .move-replay:hover, .move-replay.active { background: #f5e9d8; color: var(--coral-dark); } .move-replay:disabled { cursor: default; opacity: .55; }
+.variation-page .engine-card, .variation-page .review-button:not(.variation-return-button):not(.variation-save-button), .variation-page .mobile-battle-moves { display: none; }
+.variation-page .battle-actions { display: flex; grid-template-columns: none; }
+.variation-page .battle-actions .secondary-button { display: block; }
+.variation-page .battle-sidebar { gap: 10px; }
 .battle-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .battle-actions .secondary-button { color: var(--muted); border-color: transparent; background: transparent; outline: none; }
 .battle-actions .secondary-button:focus, .battle-actions .secondary-button:focus-visible { outline: none; box-shadow: none; }
@@ -442,6 +452,7 @@
   .battle-side-nav { display: none; }
   .battle-sidebar .engine-card { display: block; padding: 2px; border: 0; border-radius: 7px; background: var(--panel); box-shadow: none; }
   .battle-sidebar .engine-card .engine-badge, .battle-sidebar .engine-card .engine-note, .battle-sidebar .battle-voice-card, .battle-sidebar .move-list, .battle-sidebar .analysis-card, .battle-sidebar > .secondary-button:not(.review-button) { display: none; }
+  .variation-page .battle-sidebar .battle-voice-card, .variation-page .battle-sidebar .battle-voice-card .analysis-card { display: block; }
   .battle-sidebar .review-button { width: auto; min-height: 26px; padding: 4px 7px; border-radius: 8px; font-size: 9px; }
   .battle-sidebar .review-button svg { width: 13px; height: 13px; }
   .battle-side-actions { display: flex; gap: 2px; margin: 0; }
