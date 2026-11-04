@@ -1221,7 +1221,8 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
       }
       return
     }
-    if (piece?.side === 'red') {
+    const activeSide = game.current.turn() === 'w' ? 'red' : 'black'
+    if (piece?.side === activeSide) {
       setSelected(square)
       setTargets(battleLegalTargets(game.current, square))
       return
