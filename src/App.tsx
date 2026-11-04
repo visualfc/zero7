@@ -13,11 +13,12 @@ import {
   Pause,
   Play,
   RotateCcw,
+  Save,
   Sparkles,
   Star,
   Swords,
   Target,
-    Volume2,
+  Volume2,
 } from 'lucide-react'
 import './App.css'
 import { LinxiVoiceClient, type LinxiState } from './linxi'
@@ -28,6 +29,13 @@ import { Chess, type Move } from '@weshell/xiangqi.js'
 import { BATTLE_RULES, describeAiResponse, describePlayerMove } from './battle-rules'
 import { commandHelp, parseVoiceCommand, type VoiceCommand, type VoicePage } from './voice-command'
 import { ANALYSIS_LEVEL, ENGINE_LEVELS, getPikafishMove, getPikafishStatus, warmupPikafish, type EngineLevel } from './pikafish'
+import { CURRENT_SAVED_GAME_ID, deleteSavedGame, loadSavedGames, savedGameLabel, upsertSavedGame, type SavedBattleGame } from './saved-games'
+
+type ReviewMode = 'classic' | 'saved'
+
+function battleUciMoves(game: Chess) {
+  return (game.history({ verbose: true }) as Move[]).map((move) => `${move.from}${move.to}`)
+}
 
 type Page = 'home' | 'lesson' | 'endgame' | 'battle'
 type ClassicGame = { id: string; event: string; red: string; redOriginal: string; black: string; blackOriginal: string; moves?: string[]; source: string }
@@ -844,7 +852,10 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const mobileMoveRailRef = useRef<HTMLDivElement | null>(null)
   const [replayStep, setReplayStep] = useState<number | null>(null)
   const [reviewOpen, setReviewOpen] = useState(false)
-  const reviewMode = 'classic' as const
+  const [reviewMode, setReviewMode] = useState<ReviewMode>('classic')
+  const [savedGames, setSavedGames] = useState<SavedBattleGame[]>(() => loadSavedGames())
+  const [savedGameId, setSavedGameId] = useState(CURRENT_SAVED_GAME_ID)
+  const currentSavedId = useRef<string | null>(sessionStorage.getItem('zero7-saved-game-id'))
   const [classicGames, setClassicGames] = useState<ClassicGame[]>([])
   const [classicQuery, setClassicQuery] = useState('')
   const [classicLoading, setClassicLoading] = useState(false)
@@ -887,6 +898,20 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
       .then((game) => { const sameGame = game.id === sessionStorage.getItem('zero7-review-game'); setClassicGames((items) => items.map((item) => item.id === game.id ? game : item)); showReviewStep(sameGame ? reviewStep : 0, 'classic', game.id, game.moves, sameGame) })
       .catch(() => setStatus('经典棋局加载失败，请稍后重试。'))
   }, [classicGameId, reviewOpen, reviewMode])
+  useEffect(() => {
+    if (!reviewOpen || reviewMode !== 'saved') return
+    const currentMoves = battleUciMoves(game.current)
+    const sources = [
+      ...(currentMoves.length > 0 ? [{ id: CURRENT_SAVED_GAME_ID, moves: currentMoves }] : []),
+      ...savedGames.map((item) => ({ id: item.id, moves: item.moves })),
+    ]
+    const id = sources.some((item) => item.id === savedGameId) ? savedGameId : (sources[0]?.id ?? CURRENT_SAVED_GAME_ID)
+    if (id !== savedGameId) {
+      setSavedGameId(id)
+      return
+    }
+    showReviewStep(reviewStep, 'saved', id, sources.find((item) => item.id === id)?.moves ?? [], true)
+  }, [reviewOpen, reviewMode, savedGameId, savedGames])
   const [thinking, setThinking] = useState(false)
   const [resigned, setResigned] = useState(() => sessionStorage.getItem('zero7-battle-resigned') === 'true')
   const [analysis, setAnalysis] = useState<{ red: number; black: number; move: string; explanation: string } | null>(null)
@@ -948,6 +973,22 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
     })
   }, [history, replayStep])
 
+  const persistBattleGame = (result: string, resignedFlag = resigned) => {
+    const moves = battleUciMoves(game.current)
+    if (moves.length === 0) return null
+    const record = upsertSavedGame({
+      id: currentSavedId.current ?? undefined,
+      difficulty,
+      moves,
+      result,
+      resigned: resignedFlag,
+    })
+    currentSavedId.current = record.id
+    sessionStorage.setItem('zero7-saved-game-id', record.id)
+    setSavedGames(loadSavedGames())
+    return record
+  }
+
   const refresh = (lastMove?: Move) => {
     const requestId = ++pathRequestId.current
     setLastPath(lastMove ? { from: squareToPoint(lastMove.from), to: squareToPoint(lastMove.to), side: lastMove.color === 'w' ? 'red' : 'black' } : null)
@@ -957,7 +998,9 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
     setHistory((game.current.history({ verbose: true }) as Move[]).map((move) => move.zh))
     sessionStorage.setItem('zero7-battle-moves', JSON.stringify(game.current.history()))
     setReplayStep(null)
-    setStatus(battleStatus(game.current))
+    const nextStatus = battleStatus(game.current)
+    setStatus(nextStatus)
+    if (currentSavedId.current || game.current.isGameOver()) persistBattleGame(nextStatus)
   }
 
   const prepareBattleSpeech = () => {
@@ -1247,11 +1290,19 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
     setStatus(battleStatus(game.current))
   }
 
-  const reviewMoves = (mode = reviewMode, gameId = classicGameId) => mode === 'classic'
-    ? (classicGames.find((item) => item.id === gameId) ?? classicGames[0])?.moves ?? []
-    : (game.current.history({ verbose: true }) as Move[]).map((move) => `${move.from}${move.to}`)
+  const savedReviewSources = () => {
+    const currentMoves = battleUciMoves(game.current)
+    const current = currentMoves.length > 0 ? [{ id: CURRENT_SAVED_GAME_ID, label: '当前对局', moves: currentMoves }] : []
+    return [...current, ...savedGames.map((item) => ({ id: item.id, label: savedGameLabel(item), moves: item.moves }))]
+  }
 
-  const showReviewStep = (step: number, mode = reviewMode, gameId = classicGameId, suppliedMoves?: string[], preserveAnalysis = false) => {
+  const reviewMoves = (mode = reviewMode, gameId = mode === 'classic' ? classicGameId : savedGameId) => {
+    if (mode === 'classic') return (classicGames.find((item) => item.id === gameId) ?? classicGames[0])?.moves ?? []
+    if (gameId === CURRENT_SAVED_GAME_ID || !gameId) return battleUciMoves(game.current)
+    return savedGames.find((item) => item.id === gameId)?.moves ?? battleUciMoves(game.current)
+  }
+
+  const showReviewStep = (step: number, mode = reviewMode, gameId = mode === 'classic' ? classicGameId : savedGameId, suppliedMoves?: string[], preserveAnalysis = false) => {
     reviewPositionRequestId.current += 1
     const moves = suppliedMoves ?? reviewMoves(mode, gameId)
     const nextStep = Math.max(0, Math.min(step, moves.length))
@@ -1266,13 +1317,45 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
     setLastPath(lastMove ? { from: squareToPoint(lastMove.from), to: squareToPoint(lastMove.to), side: lastMove.color === 'w' ? 'red' : 'black' } : null)
     setReviewStep(nextStep)
     sessionStorage.setItem('zero7-review-step', String(nextStep))
-    if (gameId) sessionStorage.setItem('zero7-review-game', gameId)
+    if (mode === 'classic' && gameId) sessionStorage.setItem('zero7-review-game', gameId)
     setReviewHistory(fullVerbose.map((move) => move.zh))
     if (!reviewAnalysisVisible && !preserveAnalysis) {
       setReviewAnalysis(null)
       sessionStorage.removeItem('zero7-review-analysis')
     }
     setStatus(`复盘第 ${nextStep} 步，共 ${moves.length} 步`)
+  }
+
+  const switchReviewMode = (mode: ReviewMode) => {
+    if (mode === reviewMode) return
+    setReviewPlaying(false)
+    reviewPositionRequestId.current += 1
+    reviewGlobalRequestId.current += 1
+    setGlobalAnalysisLoading(false)
+    setGlobalAnalysis([])
+    setReviewAnalysis(null)
+    sessionStorage.removeItem('zero7-review-analysis')
+    setReviewHistory([])
+    setReviewStep(0)
+    setReviewMode(mode)
+  }
+
+  const removeSavedGame = () => {
+    if (savedGameId === CURRENT_SAVED_GAME_ID) return
+    const next = deleteSavedGame(savedGameId)
+    setSavedGames(next)
+    if (currentSavedId.current === savedGameId) {
+      currentSavedId.current = null
+      sessionStorage.removeItem('zero7-saved-game-id')
+    }
+    setSavedGameId(battleUciMoves(game.current).length > 0 ? CURRENT_SAVED_GAME_ID : next[0]?.id ?? CURRENT_SAVED_GAME_ID)
+    setReviewStep(0)
+  }
+
+  const saveBattle = () => {
+    if (battleUciMoves(game.current).length === 0) return
+    persistBattleGame(resigned ? `你已认输，本局由 ${BATTLE_RULES.brandName} 获胜。` : battleStatus(game.current), resigned)
+    setStatus('本局已保存，可在 AI 复盘的“我的对局”中查看。')
   }
 
   const analyzeReviewStep = async () => {
@@ -1309,7 +1392,7 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
 
   useEffect(() => {
     if (reviewOpen && reviewAnalysisVisible) void analyzeReviewStep()
-  }, [reviewOpen, reviewAnalysisVisible, reviewStep, classicGameId])
+  }, [reviewOpen, reviewAnalysisVisible, reviewStep, classicGameId, reviewMode, savedGameId])
   useEffect(() => {
     if (!reviewPlaying) return
     const total = reviewMoves().length
@@ -1321,7 +1404,7 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
       if (notation) void speakBattleText(notation, false)
     }, 5_000)
     return () => window.clearTimeout(timer)
-  }, [reviewPlaying, reviewStep, classicGameId])
+  }, [reviewPlaying, reviewStep, classicGameId, reviewMode, savedGameId])
 
   const analyzeGlobalReview = async () => {
     const moves = reviewMoves()
@@ -1402,6 +1485,8 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
     setHistory([])
     sessionStorage.removeItem('zero7-battle-moves')
     sessionStorage.removeItem('zero7-battle-resigned')
+    sessionStorage.removeItem('zero7-saved-game-id')
+    currentSavedId.current = null
     setLastPath(null)
     if (pathTimer.current !== null) window.clearTimeout(pathTimer.current)
     pathTimer.current = null
@@ -1433,6 +1518,8 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
     setStatus(battleStatus(game.current))
     setPieces(battlePieces(game.current))
     setHistory((game.current.history({ verbose: true }) as Move[]).map((move) => move.zh))
+    sessionStorage.setItem('zero7-battle-moves', JSON.stringify(game.current.history()))
+    if (currentSavedId.current) persistBattleGame(battleStatus(game.current))
     setThinking(false)
   }
 
@@ -1480,8 +1567,13 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
         <aside className="battle-sidebar">
           <SideNavigation active="battle" onNavigate={onNavigate} />
           {reviewOpen && <div className="battle-review-panel battle-review-rail" aria-label="复盘控制">
-            <div className="review-head"><strong>AI复盘 · 经典对局</strong><button className="secondary-button compact-action" onClick={closeReview}>返回对战</button></div>
+            <div className="review-head"><strong>AI复盘 · {reviewMode === 'classic' ? '经典对局' : '我的对局'}</strong><button className="secondary-button compact-action" onClick={closeReview}>返回对战</button></div>
+            <div className="review-tabs">
+              <button className={reviewMode === 'saved' ? 'active' : ''} onClick={() => switchReviewMode('saved')}>我的对局</button>
+              <button className={reviewMode === 'classic' ? 'active' : ''} onClick={() => switchReviewMode('classic')}>经典对局</button>
+            </div>
             {reviewMode === 'classic' && <><input aria-label="搜索经典对局" placeholder="搜索赛事或棋手" value={classicQuery} onChange={(event) => setClassicQuery(event.target.value)} /><select aria-label="选择经典对局" value={classicGameId} disabled={classicLoading || classicGames.length === 0} onChange={(event) => { setReviewPlaying(false); reviewGlobalRequestId.current += 1; setGlobalAnalysisLoading(false); setGlobalAnalysis([]); setClassicGameId(event.target.value); setReviewHistory([]); setReviewStep(0) }}>{classicGames.map((item) => <option key={item.id} value={item.id}>{item.event} · {item.red} vs {item.black}</option>)}</select></>}
+            {reviewMode === 'saved' && (savedReviewSources().length === 0 ? <p className="review-empty">还没有可复盘的对局。对弈后可直接复盘当前对局，或先点击存盘。</p> : <div className="review-saved-row"><select aria-label="选择我的对局" value={savedGameId} onChange={(event) => { setReviewPlaying(false); reviewGlobalRequestId.current += 1; setGlobalAnalysisLoading(false); setGlobalAnalysis([]); setSavedGameId(event.target.value); setReviewHistory([]); setReviewStep(0) }}>{savedReviewSources().map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select>{savedGameId !== CURRENT_SAVED_GAME_ID && <button className="secondary-button compact-action" onClick={removeSavedGame}>删除</button>}</div>)}
             <div className="review-navigation"><strong>{reviewStep} / {reviewMoves().length}</strong><div className="review-navigation-buttons"><button onClick={() => { setReviewPlaying(false); showReviewStep(0) }} disabled={reviewStep === 0} aria-label="开局" title="开局"><SkipBack /></button><button onClick={() => { setReviewPlaying(false); showReviewStep(reviewStep - 1) }} disabled={reviewStep === 0} aria-label="上一步" title="上一步"><ChevronLeft /></button><button onClick={() => { setReviewPlaying(false); showReviewStep(reviewStep + 1) }} disabled={reviewStep >= reviewMoves().length} aria-label="下一步" title="下一步"><ChevronRight /></button><button onClick={() => { setReviewPlaying(false); showReviewStep(reviewMoves().length) }} disabled={reviewStep >= reviewMoves().length} aria-label="终局" title="终局"><SkipForward /></button><button onClick={() => setReviewPlaying((playing) => !playing)} disabled={reviewStep >= reviewMoves().length} aria-label={reviewPlaying ? '停止自动播放' : '自动播放'} title={reviewPlaying ? '停止自动播放' : '自动播放'}>{reviewPlaying ? <Pause /> : <Play />}</button></div></div>
             <div className="review-analysis-card"><div className="review-analysis-heading"><strong>局面分析</strong>{reviewAnalysisLoading && <span>正在更新分析…</span>}</div><button className="primary-button review-analyze-button" onClick={() => { const visible = !reviewAnalysisVisible; setReviewAnalysisVisible(visible); sessionStorage.setItem('zero7-review-analysis-visible', String(visible)) }} >{reviewAnalysisVisible ? '收起局面分析' : '展开局面分析'}</button>{reviewAnalysisVisible && <div className="analysis-result review-analysis-result">{reviewAnalysis && <><div className="probability-row"><span>红方 {reviewAnalysis.red}%</span><span>黑方 {reviewAnalysis.black}%</span></div><div className="probability-bar"><i style={{ width: `${reviewAnalysis.red}%` }} /></div><p>实战着：{reviewAnalysis.actual}</p><p>实战目的：{reviewAnalysis.actualPurpose}</p>{reviewStep >= 2 && !reviewAnalysis.sameMove && <><p>推荐着：{reviewAnalysis.recommended}</p><p>推荐目的：{reviewAnalysis.recommendedPurpose}</p></>}</>}</div>}</div>
             <div className="review-global-card"><strong>全局分析</strong><button className="secondary-button review-global-button" onClick={() => void analyzeGlobalReview()} disabled={globalAnalysisLoading}>{globalAnalysisLoading ? (globalAnalysisProgress || '正在进行全局分析…') : '分析关键步'}</button></div>
@@ -1506,9 +1598,10 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
           </VoiceCoachPanel>
 
           {replayStep !== null && <button className="secondary-button full" onClick={returnToCurrentPosition}>返回当前局面</button>}
-          <div className="battle-actions"><button className="secondary-button" onClick={undo} disabled={thinking || history.length === 0} aria-disabled={thinking || history.length === 0}><RotateCcw /> 悔棋</button><button className="secondary-button" onClick={() => { if (turnReminderTimer.current !== null) window.clearTimeout(turnReminderTimer.current); turnReminderTimer.current = null; setResigned(true); sessionStorage.setItem('zero7-battle-resigned', 'true'); setStatus(`你已认输，本局由 ${BATTLE_RULES.brandName} 获胜。`) }}>认输</button></div>
+          <div className="battle-actions"><button className="secondary-button" onClick={undo} disabled={thinking || history.length === 0} aria-disabled={thinking || history.length === 0}><RotateCcw /> 悔棋</button><button className="secondary-button" onClick={() => { if (turnReminderTimer.current !== null) window.clearTimeout(turnReminderTimer.current); turnReminderTimer.current = null; const result = `你已认输，本局由 ${BATTLE_RULES.brandName} 获胜。`; setResigned(true); sessionStorage.setItem('zero7-battle-resigned', 'true'); setStatus(result); persistBattleGame(result, true) }}>认输</button></div>
           {(resigned || game.current.isGameOver()) && <button className="secondary-button full review-button" onClick={reviewBattle}><Volume2 /> 语音总结</button>}
           {engineStatus === 'pikafish' && <button className="secondary-button full review-button mobile-analysis-button" onClick={() => { if (analysisVisible) setAnalysisVisible(false); else { setAnalysisVisible(true); if (!analysis) void analyzePosition() } }} disabled={replayStep !== null}><Target /> {analysisLoading ? '正在分析…' : analysisVisible ? '收起局面分析' : '局面分析'}</button>}
+          <button className="secondary-button full review-button" onClick={saveBattle} disabled={history.length === 0}><Save /> 存盘</button>
           <button className="secondary-button full review-button" onClick={openReview}><BookOpen /> AI复盘</button>
           </>}
         </aside>

@@ -45,6 +45,7 @@ vi.mock('./linxi', () => ({
 
 beforeEach(() => {
   sessionStorage.clear()
+  localStorage.clear()
   vi.stubGlobal('isSecureContext', true)
   voiceMock.instances = []
   voiceMock.startError = null
@@ -880,6 +881,48 @@ describe('ZERO7', () => {
     expect(screen.queryByLabelText('复盘控制')).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: /AI复盘/ })).toBeInTheDocument()
   }, 30000)
+
+  it('人机对局可以存盘并在我的对局里复盘', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (input: string | URL | Request) => {
+      if (String(input).includes('/status')) return new Response(JSON.stringify({ available: false }), { status: 200 })
+      if (String(input).includes('/api/classic-games')) return new Response(JSON.stringify({ items: [] }), { status: 200 })
+      return new Response(JSON.stringify({ error: '不可用' }), { status: 503 })
+    }))
+    vi.spyOn(Math, 'random').mockReturnValue(0)
+    render(<App initialLevels={testLevels} />)
+    fireEvent.click(screen.getAllByRole('button', { name: /人机对战/ })[0])
+    expect(screen.getByRole('button', { name: /存盘/ })).toBeDisabled()
+    fireEvent.click(screen.getByRole('button', { name: /AI复盘/ }))
+    fireEvent.click(screen.getByRole('button', { name: '我的对局' }))
+    expect(screen.getByText(/还没有可复盘的对局/)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '返回对战' }))
+    fireEvent.click(screen.getAllByRole('button', { name: '红马' }).at(-1)!)
+    fireEvent.click(screen.getByRole('button', { name: '7-6' }))
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 3600)) })
+    fireEvent.click(screen.getByRole('button', { name: /存盘/ }))
+    expect(screen.getByText(/本局已保存/)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /AI复盘/ }))
+    fireEvent.click(screen.getByRole('button', { name: '我的对局' }))
+    expect(screen.getByLabelText('选择我的对局')).toBeInTheDocument()
+    await waitFor(() => expect(screen.getByLabelText('复盘控制')).toHaveTextContent(/\/ 2/))
+    fireEvent.click(screen.getByRole('button', { name: '下一步' }))
+    expect(screen.getByLabelText('复盘控制')).toHaveTextContent('1 / 2')
+    fireEvent.click(screen.getByRole('button', { name: '返回对战' }))
+    fireEvent.click(screen.getByRole('button', { name: '重开一局' }))
+    fireEvent.click(screen.getByRole('button', { name: /AI复盘/ }))
+    fireEvent.click(screen.getByRole('button', { name: '我的对局' }))
+    expect(screen.getByLabelText('选择我的对局')).toHaveTextContent(/初级/)
+    fireEvent.click(screen.getByRole('button', { name: '删除' }))
+    expect(screen.getByText(/还没有可复盘的对局/)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '返回对战' }))
+    fireEvent.click(screen.getAllByRole('button', { name: '红马' }).at(-1)!)
+    fireEvent.click(screen.getByRole('button', { name: '7-6' }))
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 3600)) })
+    fireEvent.click(screen.getByRole('button', { name: '认输' }))
+    fireEvent.click(screen.getByRole('button', { name: /AI复盘/ }))
+    fireEvent.click(screen.getByRole('button', { name: '我的对局' }))
+    expect(screen.getByLabelText('选择我的对局')).toBeInTheDocument()
+  }, 15000)
 
   it('点击棋谱可以跳转并返回当前局面', async () => {
     const scrollTo = vi.fn()
