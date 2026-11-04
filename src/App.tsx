@@ -33,6 +33,24 @@ type Page = 'home' | 'lesson' | 'endgame' | 'battle'
 type ClassicGame = { id: string; event: string; red: string; redOriginal: string; black: string; blackOriginal: string; moves?: string[]; source: string }
 const MIN_VOICE_HOLD_MS = 350
 const EMPTY_LEVELS: Level[] = []
+const PURPOSE_PIECE_NAMES: Record<'w' | 'b', Record<string, string>> = {
+  w: { k: '帅', a: '仕', b: '相', n: '马', r: '车', c: '炮', p: '兵' },
+  b: { k: '将', a: '士', b: '象', n: '马', r: '车', c: '炮', p: '卒' },
+}
+
+function inferMovePurpose(line: Chess, move: Move | null, empty = '当前没有可分析的后续着法。') {
+  if (!move) return empty
+  if (line.isCheckmate()) return '形成绝杀，立即结束对局。'
+  if (line.isCheck()) return '直接将军，迫使对方应将。'
+  if (move.captured) {
+    const capturedSide = move.color === 'w' ? 'b' : 'w'
+    const name = PURPOSE_PIECE_NAMES[capturedSide][move.captured.toLowerCase()] ?? '棋子'
+    return `吃掉对方${name}，取得子力收益。`
+  }
+  if (/^[a-i][09]$/.test(move.from)) return '调动底线子力，使棋子更快参与进攻和防守。'
+  if (['d', 'e', 'f'].includes(move.to[0])) return '加强中路控制，限制对方子力活动。'
+  return '调整子力位置，同时改善进攻和防守的协调。'
+}
 
 function App({ initialLevels = EMPTY_LEVELS }: { initialLevels?: Level[] }) {
   const [page, setPage] = useState<Page>('home')
@@ -1195,15 +1213,7 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
       const analysisGame = new Chess(game.current.fen())
       const recommendedMove = result.move ? analysisGame.move(result.move) : null
       const move = recommendedMove?.zh ?? '当前无合法着法'
-      let purpose = '改善子力位置，争取后续主动。'
-      if (recommendedMove) {
-        if (analysisGame.isCheckmate()) purpose = '形成绝杀，立即结束对局。'
-        else if (analysisGame.isCheck()) purpose = '直接将军，迫使对方应将。'
-        else if (recommendedMove.captured) purpose = `吃掉对方${recommendedMove.captured}，取得子力收益。`
-        else if (/^[a-i][09]$/.test(recommendedMove.from)) purpose = '调动底线子力，使棋子更快参与进攻和防守。'
-        else if (['d', 'e', 'f'].includes(recommendedMove.to[0])) purpose = '加强中路控制，限制对方子力活动。'
-        else purpose = '调整子力位置，同时改善进攻和防守的协调。'
-      }
+      const purpose = inferMovePurpose(analysisGame, recommendedMove, '改善子力位置，争取后续主动。')
       const explanation = `这步的目的：${purpose}`
       setAnalysis({ red, black: 100 - red, move, explanation })
     } catch {
@@ -1282,18 +1292,8 @@ function BattlePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
       const actualMove = actualUci ? actualLine.move(actualUci) : null
       const recommended = recommendedMove?.zh ?? '当前没有合法着法'
       const actual = actualMove?.zh ?? '对局已经结束'
-      const inferPurpose = (line: Chess, move: Move | null) => {
-        if (!move) return '当前没有可分析的后续着法。'
-        const pieceNames: Record<string, string> = { k: '将', a: '士', b: '象', n: '马', r: '车', c: '炮', p: '兵' }
-        if (line.isCheckmate()) return '形成绝杀，立即结束对局。'
-        if (line.isCheck()) return '直接将军，迫使对方应将。'
-        if (move.captured) return `吃掉对方${pieceNames[move.captured.toLowerCase()] ?? '棋子'}，取得子力收益。`
-        if (/^[a-i][09]$/.test(move.from)) return '调动底线子力，使棋子更快参与进攻和防守。'
-        if (['d', 'e', 'f'].includes(move.to[0])) return '加强中路控制，限制对方子力活动。'
-        return '调整子力位置，同时改善进攻和防守的协调。'
-      }
-      const actualPurpose = inferPurpose(actualLine, actualMove)
-      const recommendedPurpose = inferPurpose(actualGame, recommendedMove)
+      const actualPurpose = inferMovePurpose(actualLine, actualMove)
+      const recommendedPurpose = inferMovePurpose(actualGame, recommendedMove)
       const score = result.score?.type === 'mate' ? (result.score.value > 0 ? 10000 : -10000) : (result.score?.value ?? 0)
       const redScore = reviewGame.turn() === 'w' ? score : -score
       const red = Math.round(100 / (1 + Math.exp(-redScore / 180)))
